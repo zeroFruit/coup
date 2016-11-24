@@ -1,0 +1,100 @@
+/*
+color combination
+
+#C5C1CO - light gray  - box background color
+
+#0A1612 - steel       - box header
+
+#1A2930 - denim       - box sidebar
+
+#F7CE3E - marigold    - etc
+
+*/
+
+
+body {
+  font-family: "Lato", "sans-serif";
+  background-color: #F3F3F3;
+}
+/* The side navigation menu*/
+.sidenav {
+  height: 100%;     /* 100% Full-height */
+  width: 0;         /* width - change this with JavaScript */
+  position: fixed;  /* Stay in place */
+  z-index: 1;       /* Stay on top*/
+  top: 0;
+  left: 0;
+  background-color: #0A1612;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px;  /* Place content 60px from the top */
+  transition: 0.5s;   /* 0.5 sec transition effect to slide in the sidenav */
+}
+
+/* The navigation menu links */
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 20px;
+  color: #FFFFFF;
+  display: block;
+  transition: 0.3s;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover, .offcanvas a:focus {
+  color: #f1f1f1;
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 20px;
+  margin-left: 50px;
+}
+
+.side-nav-menu {
+  margin: 20px 10px 20px 10px;
+  font-size: 10px;
+}
+/* Style page content
+  - push the page content to the right when open the side navigation
+*/
+#main {
+  transition: margin-left .5s;
+  /*padding: 20px;*/
+}
+
+/*
+  cautious member scroll bar
+*/
+.scroll-table {
+  height: 300px;
+  overflow-y: scroll;
+}
+
+#active-members {
+  cursor: pointer;
+}
+
+#account-wrapper {
+  padding: 5% 0 5% 0;
+}
+#reservation-wrapper {
+  padding: 5% 0 5% 0;
+}
+
+#view-account-list {
+  cursor: pointer;
+}
+
+.a-cursor-pointer {
+  cursor: pointer;
+}
+
+/* On smaller screens, where height is less than 450px, change the sytle of the sidenav */
+@media screen and (max-height: 450px) {
+  .sidenav    {padding-top: 15px;}
+  .sidenav a  {font-size:  18px;}
+}

@@ -1,0 +1,108 @@
+body {
+    overflow-y: visible;
+}
+.seat-wrapper {
+  height: calc(100vh - 20px);
+  margin: 10px;
+}
+
+.page-head-line {
+    font-size: 30px;
+    text-transform: uppercase;
+    color: #000;
+    font-weight: 800;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #0A1612;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.page-subhead-line {
+    font-size: 14px;
+    padding-top: 5px;
+    padding-bottom: 20px;
+    font-style:italic;
+    margin-bottom:30px;
+    border-bottom:1px dashed #0A1612;
+    text-align: center;
+}
+
+#wrapper {
+    width: 100%;
+    background: #202020;
+    height: 100%;
+}
+
+#page-wrapper {
+    padding: 15px 15px;
+    min-height: 1000px;
+    background: #F3F3F3;
+}
+
+#page-inner {
+    width: 100%;
+    margin: 50px 20px 10px 0px;
+    background-color: #fff!important;
+    padding: 10px;
+    /*min-height: 800px; */
+}
+
+.main-box {
+    text-align:center;
+    padding:10px;
+    border-radius:5px;
+    -moz-border-radius:5px ;
+    -webkit-border-radius:5px;
+    margin-bottom:10px;
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+    .main-box a,.main-box a:hover {
+        color:#fff;
+        text-decoration:none;
+
+    }
+
+.main-box > a#enter {
+  cursor: pointer;
+}
+.main-box > a#leave {
+  cursor: pointer;
+}
+.main-box > a#pause {
+  cursor: pointer;
+}
+.main-box > a#view-account-list {
+  cursor: pointer;
+}
+
+.a-cursor-pointer {
+  cursor: pointer;
+}
+
+
+.mb-dull {
+    background-color:#0A1612;
+}
+.mb-red {
+    background-color:#0A1612;
+}
+.mb-pink {
+    background-color:#0A1612;
+}
+    .main-box h5 {
+        font-size:20px;
+        font-weight:800;
+        text-transform:uppercase;
+    }
+
+
+@media (min-width:768px) {
+    #page-wrapper {
+        margin: 0 0 0 0px;
+        padding: 15px 30px;
+        margin-top: 0px;
+        min-height: 1200px;
+    }
+}

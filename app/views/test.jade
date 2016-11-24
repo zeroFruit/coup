@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+  body
+    form(action='/test' method='POST')
+      input(type='text' name='membername')
+      input(type='text' name='password')
+      input(type='text' name='phonenum')
+      input(type='submit' value='submit')
+    // SCRIPTS -AT THE BOTOM TO REDUCE THE LOAD TIME
+    // JQUERY SCRIPTS
+    script(src='public/javascripts/temp/jquery-1.10.2.js')
+    // BOOTSTRAP SCRIPTS
+    script(src='public/javascripts/temp/bootstrap.js')

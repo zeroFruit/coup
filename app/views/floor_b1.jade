@@ -1,0 +1,214 @@
+html
+  head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="viewport" content="width=device-width initial-scale=1")
+    //- BOOTSTRAP STYLES
+    link(href='public/stylesheets/temp/bootstrap.css',      rel='stylesheet')
+    //- FONTAWESOME STYLES
+    link(href='public/stylesheets/temp/font-awesome.css',   rel='stylesheet')
+    //- TEMPLATE BASIC STYLES
+    link(href='public/stylesheets/temp/basic.css',          rel='stylesheet')
+    //- TEMPLATE MAIN STYLES
+    link(href='public/stylesheets/temp/custom.css',         rel='stylesheet')
+    //- TEMPLATE FORM SCRIPTS
+    script(src='public/javascripts/temp/switchery.min.js')
+    //- TEMPLATE FORM STYLEs
+    //- link(href='public/stylesheets/temp/form-style.css',     rel='stylesheet')
+    //- link(href='public/stylesheets/temp/switchery.min.css',  rel='stylesheet')
+    link(href='public/stylesheets/temp/modal-form.css',     rel='stylesheet')
+    //- GOOGLE FONTS
+    link(href='http://fonts.googleapis.com/css?family=Open+Sans', rel='stylesheet', type='text/css')
+    //- TEMPLATE CLIENT-PAGE-STYLE
+    link(href='public/stylesheets/temp/client-page-style.css',     rel='stylesheet')
+    //-link(href='public/stylesheets/temp/seats-style-test.css' rel='stylesheet')
+    link(href='public/stylesheets/temp/jquery.seat-charts.css' rel='stylesheet')
+  body
+    #wrapper
+      #page-wrapper
+        .row
+          .col-md-12
+            h1.page-head-line Please input the password
+            h1.page-subhead-line This is dummy text , you can replace it with your original text.
+        .row
+          .col-md-4
+            img(src='/public/images/floor-b1-m.png', style='width:100%' name='f3' usemap="#f3")
+          .col-md-4
+            .booking-details
+              h2 Seats
+                #seat-map
+            .booking-details
+              h2 Booking Details
+              h3
+                | Selected Seats (
+                span#counter -
+                | ):
+              ul#selected-seats
+              button.checkout-button#checkout Checkout »
+              #legend
+          .col-md-4
+            .booking-details
+              h2 다른 층 좌석 보기
+              button.checkout-button#3f 3F - 열람실
+              button.checkout-button#4f 4F - 열람실
+              button.checkout-button#b1 B1 - 스터디룸
+              h3 스터디룸 예약은 카운터에서 해주세요.
+    form#seat-submit(action='/clients/seat' method='post')
+      input(type='hidden' name='seatid')
+      input(type='hidden' name='seatnum')
+      input(type='hidden' name='alias')
+      input(type='hidden' name='paymentid')
+      input(type='hidden' name='leftTime')
+    form#floor-change(action='/clients/floor' method='post')
+      input(type='hidden' name='alias')
+      input(type='hidden' name='floornum')
+      input(type='hidden' name='pid')
+      input(type='hidden' name='lt')
+      
+    //- JQUERY SCRIPTS
+    script(src='public/javascripts/temp/jquery-1.10.2.js')
+    //- BOOTSTRAP SCRIPTS
+    script(src='public/javascripts/temp/bootstrap.js')
+    //- METISMENU SCRIPTS
+    script(src='public/javascripts/temp/jquery.metisMenu.js')
+    //- TEMPLATE LAYOUT SCRIPTS
+    script(src='public/javascripts/temp/custom.js')
+    script(src='public/javascripts/temp/jquery.seat-charts.min.js')
+    script.
+      var floorid         = "-1";
+      var firstSeatLabel  = 1;
+      var accessMember    = '!{alias}';
+      var seatinfo        = '!{seatinfo}';  /* this is seat info which contains seatid, payment, memo */
+      var paymentid       = '!{paymentid}'; 
+      var leftTime        = '!{leftTime}';
+      
+      var jsonSeatInfo  = JSON.parse(seatinfo);
+      //alert(seatinfo);
+      //console.log(seatinfo);
+      $(document).ready(function() {
+        var $cart = $('#selected-seats'),
+          $counter = $('#counter'),
+          sc = $('#seat-map').seatCharts({
+          map: [
+            '_s_s_s_'                                  
+          ],
+          seats: {
+            s: {
+              price   : 100,
+              classes : 'study-room', //your custom CSS class
+              category: 'Study Room'
+            },
+          },
+          naming : {
+            top : false,
+            left: false,
+            getLabel : function (character, row, column) {
+              return firstSeatLabel++;
+            },
+          },
+          legend : {
+            node : $('#legend'),
+              items : [
+              [ 's', 'unavailable',   'Study Room' ],
+              ]					
+          },
+          click: function () {
+            if (this.status() == 'available') {
+              /*
+                script about two seats simultanously  can not be reserved
+              */
+              $counter.text(this.data().category+": "+this.settings.label);
+              sc.find('n.selected').status('available');
+        
+              return 'selected';
+            } else if (this.status() == 'selected') {
+        
+              $counter.text("-");
+              //remove the item from our cart
+              $('#cart-item-'+this.settings.id).remove();
+            
+              //seat has been vacated
+              return 'available';
+            } else if (this.status() == 'unavailable') {
+              //seat has been already booked
+              return 'unavailable';
+            } else {
+              return this.style();
+            }
+          }
+        });
+        /* 
+          after creating sc object, fetch unavailable seat with seatinfo object 
+        */
+        var unavail_seats = [];
+        for (var i = 0; i < jsonSeatInfo.length; i++) {
+          var seatobj = jsonSeatInfo[i];
+          /*
+            We have to check whether seatobj element seat floor is same with current page floorid:-1
+          */
+          if (seatobj.seat_floor === floorid /* "-1" */) {
+            unavail_seats.push(seatobj.seat); 
+          }
+        }
+        //console.log('this is unavail_seat');
+        //alert(unavail_seats[0]);
+        sc.status(unavail_seats, 'unavailable');
+        
+        
+        //let's pretend some seats have already been booked
+        //sc.get(['1_2', '4_1', '7_1', '7_2']).status('unavailable');
+        $('#checkout').on('click', function() {
+          var seatid, seatnum;
+          sc.find('n.selected').each(function(seatId) {
+            /* there should be only one element */
+            console.log(this.settings.id);
+            seatid = this.settings.id;
+            seatnum = this.settings.label;
+          });
+          $('input[name="seatid"]').val(seatid);
+          $('input[name="alias"]').val(accessMember);
+          $('input[name="seatnum"]').val(seatnum);
+          $('input[name="paymentid"]').val(paymentid);
+          $('input[name="leftTime"]').val(leftTime);
+          $('input[name="floorid"]').val(floorid);
+          $('#seat-submit').submit();
+        });
+        
+        /* change floor button clicked */
+        $('#3f').click(function() {
+          $('input[name="floornum"]').val("3");
+          $('input[name="pid"]').val(paymentid);
+          $('input[name="lt"]').val(leftTime);
+          $('input[name="alias"]').val(accessMember);
+          
+          $('#floor-change').submit();                   
+        });
+        $('#4f').click(function() {
+          $('input[name="floornum"]').val("4");
+          $('input[name="pid"]').val(paymentid);
+          $('input[name="lt"]').val(leftTime);
+          $('input[name="alias"]').val(accessMember);
+          
+          $('#floor-change').submit();                    
+        });
+        $('#b1').click(function() {
+          $('input[name="floornum"]').val("-1");
+          $('input[name="pid"]').val(paymentid);
+          $('input[name="lt"]').val(leftTime);
+          $('input[name="alias"]').val(accessMember);
+          
+          $('#floor-change').submit();                    
+        }); 
+      });
+      /* block go back ward */
+      history.pushState(null, document.title, location.href);
+      window.addEventListener('popstate', function (event)
+      {
+        history.pushState(null, document.title, location.href);
+      });      
+
+    
+
+      
+
+    
