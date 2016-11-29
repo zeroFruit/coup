@@ -31,7 +31,12 @@
 #lack-of-milage-err-snackbar,
 #success-at-using-milage-snackbar,
 #phonenum-length-err-snackbar,
-#password-length-err-snackbar
+#password-length-err-snackbar,
+#still-use-other-payment-snackbar,
+#pause-snackbar,
+#reuse-snackbar,
+#already-exited-err-snackbar,
+#leave-succ-snackbar
 {
   visibility: hidden;
   min-width: 250px;
@@ -56,7 +61,12 @@
 #lack-of-milage-err-snackbar.show,
 #success-at-using-milage-snackbar.show,
 #phonenum-length-err-snackbar.show,
-#password-length-err-snackbar.show
+#password-length-err-snackbar.show,
+#still-use-other-payment-snackbar.show,
+#pause-snackbar.show,
+#reuse-snackbar.show,
+#already-exited-err-snackbar.show,
+#leave-succ-snackbar.show
 {
     visibility: visible;
     -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;

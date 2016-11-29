@@ -13,7 +13,7 @@ const db        = require('../helpers/db');
 const utils     = require('../helpers/utils');
 
 /*
-  Define the attributes the payments with its type
+  payment id => name
 */
 function id2name(id) {
   switch(id) {
@@ -48,7 +48,44 @@ function id2name(id) {
     default:
       return "-";
   }
+}
 
+/*
+  name => payment Id
+*/
+function name2Id(name) {
+  switch(name) {
+    case "선불권":
+      return "0";
+    case "종일권":
+      return "1";
+    case "반일권":
+      return "2";
+    case "완전자유이용권-월":
+      return "3";
+    case "자유이용권":
+      return "4";
+    case "반자유이용권-월":
+      return "5";
+    case "미니자유이용권-월":
+      return "6";
+    case "완전자유이용권-보름":
+      return "7";
+    case "자유이용권-보름":
+      return "8";
+    case "반자유이용권-보름":
+      return "9";
+    case "미니자유이용권-보름":
+      return "10";
+    case "야간선불제":
+      return "11";
+    case "야간자유이용권":
+      return "12";
+    case "관리형반":
+      return "13";
+    default:
+      return "-1";
+  }
 }
 
 module.exports = {
@@ -73,12 +110,18 @@ module.exports = {
         return next(err);
       }
       else {
-        console.log(results);
+        if (results.err != undefined) {
+          req.err = results.err;
+          return next();
+        }
+
         req.newMilages = results.newMilages;
+        req.err = "0";
         next();
       }
     });
   },
+
   paymentId2Name: function(req, idList, cb) {
     var namearr = [];
     for (var i = 0; i < idList.length; i++) {
@@ -86,5 +129,14 @@ module.exports = {
       namearr.push(pname);
     }
     cb(namearr);
+  },
+
+  id2NameSingle: function(id, cb) {
+    var name = id2name(id);
+    cb(name);
+  },
+
+  paymentName2Id: function(req, payment, cb) {
+
   }
 }

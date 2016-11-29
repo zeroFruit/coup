@@ -91,9 +91,12 @@ module.exports.set = function(app, passport) {
     /*
       req.newMilages have updated milages
     */
-  },
-  rendering.getNumOfMem, rendering.getNumOfAttendMem,
-  function(req, res, next) {
-    respond.recharge_succ(req, res, next);
+  }, function(req, res, next) {
+    if (req.err == "1") {
+      return respond.still_use_other_payment(req, res);
+    }
+    else {
+      respond.recharge_succ(req, res);
+    }
   });
 }

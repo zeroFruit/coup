@@ -10,6 +10,19 @@ module.exports = {
   SYSTEM
   ***************************************************************************************/
   /*
+    payback_succ
+  */
+  payback_succ: function(req, res) {
+    res.send('success');
+  },
+  /*
+    get_memberinfo_succ
+  */
+  get_memberinfo_succ: function(req, res) {
+    var json = JSON.stringify(req.member);
+    res.send(json);
+  },
+  /*
     modify_memberinfo_succ
   */
   modify_memberinfo_succ: function(req, res) {
@@ -53,8 +66,8 @@ module.exports = {
   */
   already_booked: function(req, res) {
     console.log('already booked :(');
-    //var retpack = JSON.stringify(req.reserve); /* {err: '1' } */
-    res.send(req.reserve)
+    var retpack = JSON.stringify(req.reserve); /* {err: '1' } */
+    res.send(retpack);
   },
   /*
     success_at_getting_reserve_state
@@ -99,6 +112,22 @@ module.exports = {
     var retpack = JSON.stringify({err: "0"});
     res.send(retpack);
   },
+
+  success_at_charge_milage: function(req, res) {
+    res.send('success');
+  },
+
+  alias_format_err: function(req, res) {
+    res.send('err1');
+  },
+
+  milage_format_err: function(req, res) {
+    res.send('err2');
+  },
+
+  member_dont_exist: function(req, res) {
+    res.send('err3');
+  },
   /**************************************************************************************
   CLIENT
   ***************************************************************************************/
@@ -120,7 +149,10 @@ module.exports = {
   */
   pause_reuse_succ: function(req, res) {
     console.log('pause/reuse done successfully');
-    res.render('clients_index' /* pass params related with snackbar*/);
+    var pr;
+    if (req.member.do == "pause") pr = 0;
+    else if (req.member.do == "reuse") pr = 1;
+    res.render('clients_index', {pr: pr});
   },
 
   /*
@@ -135,7 +167,7 @@ module.exports = {
   */
   client_incorrect_pwd: function(req, res) {
     console.log('wrong password');
-    res.render('clients_index' /* pass params related with snackbar*/);
+    res.render('clients_index', {cli_wrong_pwd: "1"});
   },
 
   /*
@@ -143,7 +175,7 @@ module.exports = {
   */
   unregistered_client: function(req, res) {
     console.log('you are not registered');
-    res.render('clients_index' /* pass params related with snackbar*/);
+    res.render('clients_index', {unregistered_member_err: "1"});
   },
 
   /*
@@ -151,7 +183,7 @@ module.exports = {
   */
   already_exited: function(req, res) {
     console.log('you already exited');
-    res.render('clients_index' /* pass params related with snackbar*/);
+    res.render('clients_index', {already_exited: "1"});
   },
 
   /*
@@ -183,7 +215,7 @@ module.exports = {
   client_leave_succ: function (req, res) {
     console.log(req.member);
     console.log('this is response');
-    res.render('clients_index' /* pass the params related with snackbar*/);
+    res.render('clients_index', {client_leave_succ: "1"});
   },
 
   /*
@@ -330,23 +362,16 @@ module.exports = {
     });
   },
   /*
+    still_use_other_payment
+  */
+  still_use_other_payment: function(req, res) {
+    res.send('err1');
+},
+  /*
     recharge success
   */
   recharge_succ: function(req, res) {
-    console.log('source');
-    console.log(req.source);
-    res.render('layout_test',
-    {
-      recharge_succ: '1', /* this signal invoke snackbar */
-      tokenPack: {
-        accessToken: req.body.accessToken,
-        refreshToken: req.body.refreshToken
-      },
-      renderSrc: {
-        numOfMem:       req.source.numOfMem,
-        numOfActiveMem: req.source.numOfActiveMem
-      }
-    });
+    res.send('err0');
   },
   /*
     auth

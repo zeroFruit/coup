@@ -35,6 +35,7 @@ module.exports.set = function(app, passport) {
       respond.modify_memberinfo_succ(req, res);
     }
   });
+
   /*
     /system/all-members (POST)
 
@@ -48,12 +49,16 @@ module.exports.set = function(app, passport) {
     for (var i = 0; i < memberList.length; i++) {
       var me = memberList[i];
       pidArr.push(me.payment);
+      if (me.memo === null) {
+        me.memo = "-";
+      }
+      if (me.prepare === null) {
+        me.prepare = "-";
+      }
     }
     payment.paymentId2Name(req, pidArr, function(results) {
       var retpack = {};
-      console.log('hello');
       console.log(req.member);
-      console.log('###################');
       console.log(results);
       retpack.memberList = req.member;
       retpack.pnameList = results;
@@ -179,6 +184,30 @@ module.exports.set = function(app, passport) {
   });
 
   /*
+    /system/charge-milage
+  */
+  app.post('/system/charge-milage', function(req, res, next) {
+    console.log('this is charge-milage');
+    console.log(req.body);
+    system.chargeMilage(req, res, next);
+  }, function(req, res, next) {
+    if (req.err === "0") {
+      return respond.success_at_charge_milage(req, res);
+    }
+    else if (req.err === "1") {
+      // alias format err
+      return respond.alias_format_err(req, res);
+    }
+    else if (req.err === "2") {
+      // milage format err
+      return respond.milage_format_err(req, res);
+    }
+    else if (req.err ==="3") {
+      return respond.member_dont_exist(req, res);
+    }
+  });
+
+  /*
     system/reserve-studyroom
   */
   app.post('/system/studyroom-currentstate', function(req, res, next) {
@@ -206,6 +235,39 @@ module.exports.set = function(app, passport) {
     }
     else {
       respond.book_succ(req, res);
+    }
+  });
+
+  /*
+    Payback
+  */
+  app.post('/system/payback', function(req, res, next) {
+    console.log(req.body);
+    member.getMemberInfo(req, res, next);
+  }, function(req, res, next) {
+    var pid = req.member.payment;
+    payment.id2NameSingle(pid, function(pname) {
+      console.log(pname);
+      req.member.payment = pname;
+      next();
+    });
+  },function(req, res, next) {
+    if (req.err === "1") {
+      return respond.member_dont_exist(req, res);
+    }
+    else {
+      respond.get_memberinfo_succ(req, res);
+    }
+  });
+  /*
+    /system/payback-determine
+  */
+  app.post('/system/payback-determine', function(req, res, next) {
+    console.log(req.body);
+    system.payback(req, res, next);
+  }, function(req, res, next) {
+    if (req.err === "0") {
+      respond.payback_succ(req, res);
     }
   });
 }

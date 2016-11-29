@@ -64,19 +64,28 @@ module.exports.set = function(app, passport) {
     /*
       before rendering page, get the reservation data from db
     */
-    system.studyRoomCurrentState(req, res, next);
+    //console.log(req.body); <-- there's no body params because of GET method
+    system.clientStudyRoomState(req, res, next);
 
   }, function(req, res, next) {
-    var retpack = req.reserveState; /* retpack = { room1: ~, room2: ~, room3: ~ }*/
-    var room1State = retpack.room1;
-    var room2State = retpack.room2;
-    var room3State = retpack.room3;
+    var retpack = req.results; /* retpack = { room1: ~, room2: ~, room3: ~ }*/
+    var room1State = [];
+    var room2State = [];
+    var room3State = [];
+    for (var i = 0; i < retpack.length; i++) {
+      var schedule = retpack[i];
+      if      (schedule.room == "1") room1State.push(schedule);
+      else if (schedule.room == "2") room2State.push(schedule);
+      else if (schedule.room == "3") room3State.push(schedule);
+    }
+
+    retpack = {};
+    retpack.room1 = room1State;
+    retpack.room2 = room2State;
+    retpack.room3 = room3State;
     console.log(retpack);
-    res.render('clients_studyroom', {
-      room1State: room1State,
-      room2State: room2State,
-      room3State: room3State
-    });
+    var json = JSON.stringify(retpack);
+    res.render('clients_studyroom', { roomState: json });
   });
 
   /*
@@ -166,15 +175,15 @@ module.exports.set = function(app, passport) {
       error checking
     */
     if(req.member.err === "1") {
-      return res.send('member does not exist');
+      return respond.unregistered_client(req, res);
       // should pass snackbar params
     }
     else if(req.member.err === "2") {
-      return res.send('password is wrong');
+      return respond.client_incorrect_pwd(req, res);
       // should pass snackbar params
     }
     else if(req.member.err === "3") {
-      return res.send('you already exited');
+      return respond.already_exited(req, res);
       // should pass snackbar params
     }
     else {

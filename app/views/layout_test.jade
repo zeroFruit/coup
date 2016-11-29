@@ -69,7 +69,7 @@ html
         input(type='hidden' name='refreshToken')
         //- MODAL REGISTER FORM
     #recharge-form.modal
-      form.modal-content.animate(action='/charge' method='post')
+      form.modal-content.animate
         .col-3
           label ID
             | 
@@ -92,8 +92,8 @@ html
         input(type='hidden' name='type')
         input(type='hidden' name='price')
     //- DISPLAY ALL MEMBERS LIST
-    #all-members-list.modal
-      .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:50%')
+    #all-members-list.modal(style='padding-top:0;padding-bottom:0')
+      .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:80% height:100%')
         //- Table starts here
         table#all-members-table.table.table-hover.table-bordered.table-mc-light-blue
           thead
@@ -106,6 +106,7 @@ html
               th 성별
               th 준비시험
               th 코업머니
+              th 메모
               th
           tbody#all-members-table-body
               
@@ -186,7 +187,31 @@ html
                     th(style="display='none'")
                 tbody#account-table-body
                 //- DISPLAY ACCOUNT
-    //- Add all page content inside this div(id="main")
+    //- Payback modal
+    #payback-modal.modal
+      .modal-content.animate(style='width:40%')
+        form
+          .col-2
+            label
+              | ID 
+              input#payback-name(placeholder='ID를 입력해주세요.' name='alias' required='required')
+          .col-2
+            button.submitbtn#payback-submit 검색
+        .container#payback-hidden-container(style='display:none; width:100%')
+          .row
+            .col-md-12
+              #payback-result(style='padding-top:5%;padding-bottom:5%;padding-left:10%')
+          .row
+            .col-md-6.form-group
+              input.form-control#payback-cashback(type='text' placeholder='환불 마일리지를 입력해주세요.')
+            .col-md-6
+              .main-box.mb-dull
+                a#payback-determine.a-cursor-pointer
+                  h6 환불하기
+          
+      
+        
+    //- Use milage modal
     #use-milage-modal.modal(style='padding-top:0px')
       form.modal-content.animate(style='width:40%')
         .col-2
@@ -199,6 +224,22 @@ html
             input#amount-use-milage(placeholder='사용할 마일리지를 입력해주세요.' name='milage', type='text', required='required')
         .col-submit
           button.submitbtn#use-milage-submit 사용하기
+        //-THERE'S HIDDEN FORM TO SEND TOKENS
+        input(type='hidden' name='accessToken')
+        input(type='hidden' name='refreshToken')
+    //- Charge milage
+    #charge-milage-modal.modal(style='padding-top:0px')
+      form.modal-content.animate(style='width:40%')
+        .col-2
+          label
+            | ID
+            input#charge-milage-name(placeholder='ID를 입력해주세요.', name='membername', required='required')
+        .col-2
+          label
+            | 마일리지
+            input#amount-charge-milage(placeholder='충전할 마일리지를 입력해주세요.' name='milage', type='text', required='required')
+        .col-submit
+          button.submitbtn#charge-milage-submit 충전하기
         //-THERE'S HIDDEN FORM TO SEND TOKENS
         input(type='hidden' name='accessToken')
         input(type='hidden' name='refreshToken')
@@ -621,6 +662,7 @@ html
                   tr(name='24.0')
                     th 24:00
                     th(name='avail')
+                    
     #main
       //- TOP NAV BAR
       ul#top_nav
@@ -670,16 +712,31 @@ html
                   a#account-management.a-cursor-pointer
                     i.fa.fa-book.fa-5x
                     h5 장부 관리
-              .col-md-3
+              .col-md-1.col-md-offset-1
                 .main-box.mb-dull
                   a#use-milage.a-cursor-pointer
-                    i.fa.fa-book.fa-5x
-                    h5 마일리지 사용하기
+                    i.fa.fa-minus-square.fa-5x
+                    h5 마일리지 사용
+              .col-md-1
+                .main-box.mb-dull
+                  a#charge-milage.a-cursor-pointer
+                    i.fa.fa-plus-square.fa-5x
+                    h5 마일리지 충전
             .row
-              .col-md-12
+              .col-md-6
                 h1.page-subhead-line 퇴실 필요 회원들 
+              .col-md-3
+                .main-box.mb-dull
+                  a#payback.a-cursor-pointer
+                    i.fa.fa-reply.fa-5x
+                    h5 환불
+              .col-md-3
+                .main-box.mb-dull
+                  a#pause.a-cursor-pointer
+                    i.fa.fa-pause.fa-5x
+                    h5 사용보류
             .row
-              .col-md-12
+              .col-md-6
                 .scroll-table
                   .table-responsive-vertical.shadow-z-1
                     //- Table starts here
@@ -702,6 +759,8 @@ html
     //- --------------------------------------------------------------------------------------------------------
     #snackbar
       | 성공적으로 등록되었습니다.
+    #still-use-other-payment-snackbar
+      | 아직 다른 요금제를 사용중입니다. 환불 절차를 먼저 거쳐주세요.
     #lack-of-milage-err-snackbar
       | 마일리지가 부족합니다.
     #success-at-using-milage-snackbar
@@ -784,8 +843,20 @@ html
           var all_members_list    = document.getElementById('all-members-list');
           var account_list        = document.getElementById('account-list');
           var use_milage          = document.getElementById('use-milage-modal');    
+          var charge_milage       = document.getElementById('charge-milage-modal');
           var reserve_studyroom   = document.getElementById('studyroom-reservation-modal');
+          var payback             = document.getElementById('payback-modal');
         
+          if (event.target == payback) {
+            payback.style.display = "none";
+            var paybackId = document.getElementById("payback-name").value = "";
+            var container = document.getElementById("payback-hidden-container");
+            
+            container.style.display = "none";
+            while (container.firstChild) {
+              container.removeChild(container.firstChild);
+            }
+          }
           
           if (event.target == recharge) {
             recharge.style.display = "none";
@@ -839,6 +910,12 @@ html
             document.getElementById("amount-use-milage").value = "";
           }
           
+          if (event.target == charge_milage) {
+            charge_milage.style.display = "none";
+            document.getElementById("charge-milage-name").value = "";
+            document.getElementById("amount-charge-milage").value = "";
+          }
+          
           if (event.target == reserve_studyroom) {
             var select_hours_container = document.getElementById('select-hours-container');
             reserve_studyroom.style.display = "none";
@@ -865,6 +942,7 @@ html
         if(phonenum_length_err === "1") {show_snackbar('phonenum-length-err-snackbar');}
         if(password_length_err === "1") {show_snackbar('password-length-err-snackbar');}
         if(recharge_succ === "1") {show_snackbar('snackbar');}
+        if(recharge_succ === "0") {show_snackbar('still-use-other-payment-snackbar');}
         
         //- END OF SNACKBAR
         
@@ -905,9 +983,10 @@ html
                 ' <td date-title="sex">'+ sex +'</td>' +
                 ' <td date-title="prepare">' + o.prepare +'</td>' +
                 ' <td date-title="milage">' + o.milage +'</td>' + 
+                ' <td date-title="memo">' + o.memo +'</td>' + 
                 ' <td date-title="modify">' +
-                '   <i class="fa fa-pencil-square-o modify-member fa-2x" aria-hidden="true"></i>' +
-                '   <i class="fa fa-trash-o delete-member fa-2x" aria-hidden="true"></i>' +
+                '   <i class="fa fa-pencil-square-o modify-member fa-2x" aria-hidden="true" style="cursor:pointer"></i>' +
+                '   <i class="fa fa-trash-o delete-member fa-2x" aria-hidden="true" style="cursor:pointer"></i>' +
                 ' </td>' +
                 '</tr>'
               );
@@ -917,34 +996,35 @@ html
               $('tr[name="member-'+i+'"] td i.modify-member').on('click', function(event) {
                 var $parent = $(this).parent().parent('tr');
                 var id = $parent.find('td:eq(0)').text();
-                var editable = $parent.find('td[data-title="membername"]').attr("contenteditable");
-                
-                if (editable === undefined || editable === false) {
+                var editable = $parent.find('td:eq(1)').attr("contenteditable");
+                alert(editable);
+                if (editable === undefined || editable == 'false') {
                   alert("내용을 변경한 뒤 다시한번 클릭해주세요.");
                   $parent.find('td:eq(1)').attr("contenteditable", true);
-                  $parent.find('td:eq(2)').attr("contenteditable", true);
+                  //$parent.find('td:eq(2)').attr("contenteditable", true);
                   //$parent.find('td:eq(3)').attr("contenteditable", true);
                   //$parent.find('td:eq(4)').attr("contenteditable", true);
                   $parent.find('td:eq(5)').attr("contenteditable", true);
                   $parent.find('td:eq(6)').attr("contenteditable", true);
-                  //$parent.find('td:eq(7)').attr("contenteditable", true);
+                  $parent.find('td:eq(8)').attr("contenteditable", true);
                   return false;
                 }
-                else {
+                else if (editable == 'true'){
                   
                   $parent.find('td:eq(1)').attr("contenteditable", false);
-                  $parent.find('td:eq(2)').attr("contenteditable", false);
+                  //$parent.find('td:eq(2)').attr("contenteditable", false);
                   //$parent.find('td:eq(3)').attr("contenteditable", false);
                   //$parent.find('td:eq(4)').attr("contenteditable", false);
                   $parent.find('td:eq(5)').attr("contenteditable", false);
                   $parent.find('td:eq(6)').attr("contenteditable", false);
-                  //$parent.find('td:eq(7)').attr("contenteditable", false);
+                  $parent.find('td:eq(8)').attr("contenteditable", false);
                   
                   /* should pack modified data and ajax */
                   var membername  = $parent.find('td:eq(1)').text();
-                  var payment     = $parent.find('td:eq(2)').text();
+                  //var payment     = $parent.find('td:eq(2)').text();
                   var sex         = $parent.find('td:eq(5)').text();
                   var prepare     = $parent.find('td:eq(6)').text();
+                  var memo        = $parent.find('td:eq(8)').text();
                   
                   $.ajax({
                     url: '/system/modify-member-info',
@@ -952,9 +1032,10 @@ html
                     data: {
                       id: id,
                       membername: membername,
-                      payment: payment,
+                      //payment: payment,
                       sex: sex,
-                      prepare: prepare
+                      prepare: prepare,
+                      memo: memo
                     }
                   }).done(function(result) {
                     alert('변경되었습니다.');
@@ -1015,7 +1096,61 @@ html
         
         
         
-        
+        /*
+          Payback
+        */
+        $('a#payback').click(function(event) {
+          $('#payback-modal').css("display", "block");
+        });
+        $('#payback-submit').click(function(event) {
+          event.preventDefault();
+          var alias = $('#payback-name').val();
+          if (alias === "") {
+            alert('ID를 입력해주세요.');
+            return false;
+          }
+          
+          $.ajax({
+            url: '/system/payback',
+            method: 'post',
+            data: {alias: alias}
+          }).done(function(results) {
+            var json = JSON.parse(results);
+            console.log(json);
+            $('#payback-hidden-container').css('display', 'block');
+            $('#payback-result').append(
+              '<h4> 이름: '+json.membername+'</h4><br>' + 
+              '<h4> 이용 요금제: '+json.payment+'</h4><br>' +
+              '<h4> 잔여 일: '+ json.leftDay +' 일</h4><br>' +
+              '<h4> 잔여 마일리지: '+json.milage+' 포인트</h4><br>' +
+              '<input type="hidden" name="payback-id" value="'+ json.id +'">'
+            );
+          });
+        });
+        $('a#payback-determine').click(function(event) {
+          var id = $('input[name="payback-id"]').val();
+          var cashback = $('#payback-cashback').val();
+          $.ajax({
+            url: '/system/payback-determine',
+            method: 'post',
+            data: {
+              id: id, 
+              milage: cashback
+            }
+          }).done(function(result) {
+            if (result == 'success') {
+              alert('환불처리 되었습니다.');
+              // clean up
+              $('payback-hidden-container').css('display', 'none');
+              var container = document.getElementById('payback-hidden-container');
+              while(container.firstChild) {
+                container.removeChild(container.firstChild);
+              }
+              $('input[name="payback-id"]').val("");
+              $('#payback-name').val("");
+            }
+          });
+        });
         
         /*
           Study Room Reservation
@@ -1025,6 +1160,7 @@ html
         });
         /* send the selected date value to server and get the reservation state */
         $('#reserve-date-select').click(function(event) {
+          
           /* 
             open the select hour form 
           */
@@ -1138,11 +1274,12 @@ html
             }
           }).done(function(results) {
             console.log(results);
-            if (results.err === '2') {
-              alert('already booked');
+            var json = JSON.parse(results);
+            if (json.err == "2") {
+              alert('이미 예약된 시간입니다.');
             }
-            else if(results.err === '0') {
-              alert('success');
+            else if(json.err == "0") {
+              alert('예약에 성공했습니다.');
             }
             /*
               Should clear the select hour form after that..
@@ -1390,8 +1527,46 @@ html
           });
         });
         
-        
-        
+        /*
+          charge milage
+        */
+        $('#charge-milage').click(function() {
+          $('#charge-milage-modal').css("display", "block");          
+        });
+        /* when submit the form*/
+        $('#charge-milage-submit').click(function(event) {
+          event.preventDefault();
+          var valAccess  = window.localStorage.getItem('accessToken');    
+          var valRefresh = window.localStorage.getItem('refreshToken');
+          var membername = $('#charge-milage-name').val();
+          var milage     = $('#amount-charge-milage').val();
+          
+          $.ajax({
+            url: '/system/charge-milage',
+            method: 'post',
+            data: {
+              accessToken   : valAccess,
+              refreshToken  : valRefresh,
+              membername    : membername,
+              milage        : milage
+            }
+          }).done(function(result) {
+            if (result == "success") {
+              alert('충전되었습니다.');
+              $('#charge-milage-name').val("");
+              $('#amount-charge-milage').val("");              
+            }
+            else if (result == "err1") {
+              alert('ID가 잘못되었습니다.');
+            }
+            else if (result == "err2") {
+              alert('마일리지를 잘못 입력하였습니다.');
+            }
+            else if (result == "err3") {
+              alert('존재하지 않는 회원입니다.');
+            }
+          });
+        });
         
         
         /*
@@ -1423,16 +1598,7 @@ html
             url: '/recharge',
             method: 'post'
           }).done(function(results) {
-            //alert(results[0]);
-            //memArr = results.memberArr;
             payArr = results.paymentObj;
-            //console.log(payArr[0]);
-            //- $('#choose-member').append("<option>선택해주세요.</option>");
-            //- for (var i = 0; i < memArr.length; i++) {
-            //-   $('#choose-member').append("<option>"+memArr[i]+"</option>");              
-            //- }
-            
-            
             console.log(payArr);
             
             
@@ -1480,7 +1646,9 @@ html
         /*
           When trying to submit the form, just validate the input value, and check emptyness.
         */
-        $("#recharge-form").submit(function(event) {
+        $("#charge-btn").click(function(event) {
+          event.preventDefault();
+          
           var memberId = $("#choose-member").val();
           var paymentIdx = $("#choose-payment").prop('selectedIndex');
           var cash = $("#choose-cash").val();
@@ -1495,13 +1663,34 @@ html
             event.preventDefault();
           }
           else {
-            $('input[name="minPerDay"]').val(payArr[paymentIdx-1].timePerDay);
-            $('input[name="member"]').val(memberId);
-            $('input[name="paymentId"]').val(payArr[paymentIdx-1].id);
-            $('input[name="type"]').val(payArr[paymentIdx-1].type);
-            $('input[name="price"]').val($("#choose-cash").val());
-            
-            //event.preventDefault();
+            //- $('input[name="minPerDay"]').val(payArr[paymentIdx-1].timePerDay);
+            //- $('input[name="member"]').val(memberId);
+            //- $('input[name="paymentId"]').val(payArr[paymentIdx-1].id);
+            //- $('input[name="type"]').val(payArr[paymentIdx-1].type);
+            //- $('input[name="price"]').val($("#choose-cash").val());
+            //- 
+            $.ajax({
+              url: '/charge',
+              method: 'post',
+              data: {
+                minPerDay: payArr[paymentIdx-1].timePerDay,
+                member: memberId,
+                paymentId: payArr[paymentIdx-1].id,
+                type: payArr[paymentIdx-1].type,
+                price: $('#choose-cash').val()
+              }
+            }).done(function(result) {
+              if (result == "err0") {
+                alert('성공적으로 등록되었습니다.');
+              }
+              else if (result == "err1") {
+                alert('다른 요금제를 사용중입니다. 환불 절차를 먼저 거쳐주세요.');
+              }
+              // clean up
+              $("#choose-member").val("");
+              $("#choose-payment").prop('selectedIndex', 0);
+              $("#choose-cash").val("");
+            });
           }
         });
         

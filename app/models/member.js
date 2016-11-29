@@ -65,7 +65,9 @@ module.exports = {
       /*
         With this req.member, server can check whether query was successful or can be used other things
       */
+      
       req.member = member;
+      //req.err    = member.err;
       next();
     });
   },
@@ -96,7 +98,9 @@ module.exports = {
       /*
         With this req.member, server can check whether query was successful or can be used other things
       */
-      req.member = member;
+      console.log(member);
+      req.member = member.result;
+      req.err    = member.err;
       next();
     });
   },

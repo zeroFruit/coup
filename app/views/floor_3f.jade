@@ -28,23 +28,21 @@ html
       #page-wrapper
         .row
           .col-md-12
-            h1.page-head-line Please input the password
-            h1.page-subhead-line This is dummy text , you can replace it with your original text.
+            h1.page-head-line 3층 입니다.
+            h1.page-subhead-line 좌석을 선택하고 좌석선택 버튼을 눌러주세요.
         .row
-          .col-md-4
-            img(src='/public/images/floor-3-m.png', style='width:100%' name='f3' usemap="#f3")
-          .col-md-4
+          .col-md-4.col-md-offset-2
             .booking-details
-              h2 Seats
+              h2 좌석
                 #seat-map
             .booking-details
-              h2 Booking Details
+              h2 좌석 정보
               h3
-                | Selected Seats (
+                | 선택한 자리 (
                 span#counter -
                 | ):
               ul#selected-seats
-              button.checkout-button#checkout Checkout »
+              button.checkout-button#checkout 좌석선택 »
               #legend
           .col-md-4
             .booking-details
@@ -90,15 +88,12 @@ html
           $counter = $('#counter'),
           sc = $('#seat-map').seatCharts({
           map: [
-            '_nnnnnn__',
-            'n_______n',
-            '_____nn_n',
+            'nn_nnnn_n',
+            'nn_nnnn_n',
+            '________n',
             'nnnn_nn_n',
             'nnnn_nn_n',
-            '_____nn_n',
-            'nnnn____n',
-            'nnnn_____',
-            '_________',
+            '________n',
             'nnnn_____',
             'nnnn_____'
           ],
@@ -106,7 +101,7 @@ html
             n: {
               price   : 100,
               classes : 'normal-seats', //your custom CSS class
-              category: 'Normal Seats'
+              category: '좌석'
             },
           },
           naming : {

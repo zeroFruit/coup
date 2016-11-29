@@ -30,29 +30,29 @@ html
       #page-wrapper
         .row
           .col-md-12
-            h1.page-head-line Welcome
-            h1.page-subhead-line This is dummy text , you can replace it with your original text.
+            h1.page-head-line 독서실 사용자 페이지입니다.
+            h1.page-subhead-line
         .row(style='margin-top:80px')
           .col-md-2.col-md-offset-2
             .main-box.mb-dull
               a#enter
                 i.fa.fa-bolt.fa-5x
-                h5 Enter
+                h5 입실
           .col-md-2
             .main-box.mb-dull
               a#pause
                 i.fa.fa-coffee.fa-5x
-                h5 Pause
+                h5 일시정지/재시작
           .col-md-2
             .main-box.mb-dull
               a#leave
                 i.fa.fa-plug.fa-5x
-                h5 Leave
+                h5 퇴실
           .col-md-2
             .main-box.mb-dull
               a#study-room.a-cursor-pointer
                 i.fa.fa-check-circle-o.fa-5x
-                h5 Study Room
+                h5 스터디룸
         form#enterance-form(action='/clients/enter' method='post')
           input(type='hidden' name='enter')
         form#exit-form(action='/clients/leave' method='post')
@@ -74,6 +74,16 @@ html
           | 입실하였습니다.
         #even-not-entered-err-snackbar
           | 먼저 입실하셔야합니다.
+        #pause-snackbar
+          | 일시정지 하였습니다.
+        #reuse-snackbar
+          | 재시작 하였습니다.
+        #already-exited-err-snackbar
+          | 이미 퇴실하였습니다.
+        #leave-succ-snackbar
+          | 퇴실하였습니다.
+        
+          
     //- JQUERY SCRIPTS
     script(src='public/javascripts/temp/jquery-1.10.2.js')
     //- BOOTSTRAP SCRIPTS
@@ -89,25 +99,40 @@ html
       var spend_all_day_err         = '!{spend_all_day_err}';
       var client_entered_succ       = '!{client_entered_succ}';
       var even_not_entered_err      = '!{even_not_entered_err}';
+      var pr                        = '!{pr}';
+      var already_exited            = '!{already_exited}';
+      var client_leave_succ         = '!{client_leave_succ}';
       
       window.onload = function() {
         if (password_err === "1") {
-          show_snackbar('password-err-snackbar');
+          show_snackbar('password-err-snackbar');return false;
         }
         else if (unregistered_member_err === "1") {
-          show_snackbar('unregistered-member-err-snackbar');
+          show_snackbar('unregistered-member-err-snackbar');return false;
         }
         else if (already_entered_err === "1") {
-          show_snackbar('already-entered-err-snackbar');
+          show_snackbar('already-entered-err-snackbar');return false;
         }
         else if (spend_all_day_err === "1") {
-          show_snackbar('spend-all-day-err-snackbar');
+          show_snackbar('spend-all-day-err-snackbar');return false;
         }
         else if (client_entered_succ === "1") {
-          show_snackbar('client-entered-succ-snackbar');
+          show_snackbar('client-entered-succ-snackbar');return false;
         }
         else if (even_not_entered_err === "1") {
-          show_snackbar('even-not-entered-err-snackbar');
+          show_snackbar('even-not-entered-err-snackbar');return false;
+        }
+        else if (pr === "0") {
+          show_snackbar('pause-snackbar'); return false;
+        }
+        else if (pr === "1") {
+          show_snackbar('reuse-snackbar'); return false;
+        }
+        else if(already_exited === "1") {
+          show_snackbar('already-exited-err-snackbar'); return false;
+        }
+        else if(client_leave_succ === "1") {
+          show_snackbar('leave-succ-snackbar'); return false;
         }
       }
       //- SNACKBAR
@@ -140,7 +165,7 @@ html
         });
         
         $('#study-room').click(function() {
-          $('input[name="studyroom-form"]').val("1");
+          $('input[name="studyroom"]').val("1");
           $('#studyroom-form').submit();
         })
       });

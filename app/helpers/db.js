@@ -266,7 +266,7 @@ module.exports = {
           -name, phone number, payment, milage, seat
     */
     getList: function(cb) {
-      var sql = 'SELECT membername, payment, milage, seatnum, alias, pause, enterance, sex, leftDay, prepare, DATE_FORMAT(ts, "%H:%i") FROM members';
+      var sql = 'SELECT membername, payment, milage, seatnum, alias, pause, enterance, sex, memo, leftDay, prepare, DATE_FORMAT(ts, "%H:%i") FROM members';
       conn.query(sql, function(err, results) {
         if (err) {
           console.log(err);
@@ -284,16 +284,19 @@ module.exports = {
     getInfo: function(data, cb) {
       console.log(data);
       var sql
-        = 'SELECT * FROM members WHERE membername=? AND alias=?'; /* add seat num */
-      conn.query(sql, [data.membername, data.phonenum], function(err, results) {
+        = 'SELECT * FROM members WHERE  alias=?'; /* add seat num */
+      conn.query(sql, [data.alias, data.phonenum], function(err, results) {
         if(err) {
           console.log(err);
-          cb(new Error('query error'));
+          return cb(new Error('query error'));
+        }
+        else if (results.length == 0) {
+          return cb(null, {err: "1"});
         }
         else {
           console.log('query results');
           console.log(results[0]);
-          cb(null, results[0]); /* return every info of querying member, if take care of security, select some of them */
+          cb(null, {result: results[0], err: "0"}); /* return every info of querying member, if take care of security, select some of them */
         }
       });
     },
@@ -405,10 +408,13 @@ module.exports = {
             }
           });
       }
-      /* this don't need to set fints */
+      /* this don't need to set fints => but need to set limit 00:00 AM */
       else if (paymentid === '1' || paymentid === '3' || paymentid === '7' || paymentid === '12' || paymentid === '13' ) {
-        var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
-        conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, data.alias], function(err, results) {
+        var nextday = moment().tz('Asia/Tokyo').add(1, 'd').format('YYYY-MM-DD').toString();
+        nextday = nextday + " 00:00:00"; /* get nextday 00:00:00 AM */
+
+        var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") WHERE alias=?';
+        conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, nextday, data.alias], function(err, results) {
           if(err) {
             console.log(err);
             cb(new Error("query error"));
@@ -506,7 +512,7 @@ module.exports = {
                 /*
                   Then with MINUTES update member data
                 */
-                var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL WHERE alias = ?';
+                var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias = ?';
                 conn.query(sql, [minutes, (minutes * 13), data.lcid], function(err, results) {
                   if(err) {
                     cb(new Error('query error'));
@@ -522,7 +528,7 @@ module.exports = {
             He/She is not prepay payment member
           */
           else {
-            var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL WHERE alias=? AND password=?';
+            var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=? AND password=?';
             conn.query(sql, [data.lcid, data.lcpwd], function(err, results) {
               if(err) {
                 cb(new Error('query error'));
@@ -544,10 +550,11 @@ module.exports = {
     Pause: function(data, cb) {
       var isPause;
       var oldTs, oldfinTs;
+      var payment;
       /*
         before doing something first auth the member
       */
-      var sql = 'SELECT membername, password, enterance FROM members WHERE alias=?'; /* first check the existence of member*/
+      var sql = 'SELECT membername, password, enterance, payment FROM members WHERE alias=?'; /* first check the existence of member*/
       console.log(data);
       conn.query(sql, [data.pcid], function(err, results) {
         if(err) {
@@ -567,6 +574,8 @@ module.exports = {
           return cb(null, {err: "3"});
         }
         else {
+          /* save payment */
+          payment = results[0].payment;
           /*
             when matcing client is exist
           */
@@ -617,8 +626,12 @@ module.exports = {
                   FINALLY get the difference of minutes
                 */
                 var minutes = Math.floor((diff/1000)/60);
-                console.log(minutes);
-                //console.log(moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString());
+                /*
+                  But if client use monthly or half-monthly payment fints is always next day 00:00:00 AM
+                */
+                if (payment === '1' || payment === '3' || payment === '7' || payment === '12' || payment === '13' )
+                  diff = 0;
+
                 var newfinTsDate  = new Date(oldfinTsDate.getTime() + diff);
                 console.log(oldfinTsDate.toString());
                 console.log(newfinTsDate.toString());
@@ -676,6 +689,27 @@ module.exports = {
           cb(null, {err: "0"}); /* it's okay */
         }
       });
+    },
+
+    /*
+      modifyMemberInfo
+    */
+    modifyMemberInfo: function(data, cb) {
+      console.log('this is modify member info db');
+      console.log(data);
+      var sex;
+      if (data.sex === '남') sex = 0;
+      else                   sex = 1;
+      var sql = 'UPDATE members SET membername=?, sex=?, prepare=?, memo=? WHERE alias=?';
+      conn.query(sql, [data.membername, sex, data.prepare, data.memo, data.id], function(err, results) {
+        if(err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          cb(null, {err: "0"});
+        }
+      });
     }
   },
 
@@ -717,7 +751,7 @@ module.exports = {
           */
           /* Before we update payments of member, we should get the left milges so that we can add to it */
           if(data.type === 'prepay') {
-            var sql = 'SELECT milage FROM members WHERE alias=?';
+            var sql = 'SELECT milage, payment FROM members WHERE alias=?';
             conn.query(sql, [alias], function(err, results) {
               if(err) {
                 console.log(err);
@@ -725,9 +759,15 @@ module.exports = {
               }
               else {
                 console.log(results);
+                var pid = results[0].payment;
+
+                if (pid != "0" && pid != null) {
+                  return cb(null, {err: "1"}); /* still using other payment */
+                }
+
                 var oldMilages = Number(results[0].milage);
                 var newMilages = Number(data.price) + oldMilages; /* Now we get new milages*/
-                var newLeftTime = "" + Math.round((newMilages / 800) * 60); /* Now update left time */
+                var newLeftTime = "" + Math.round((Number(data.price) / 800) * 60); /* Now update left time */
                 console.log(oldMilages);
                 console.log(newMilages);
                 var sql = 'UPDATE members SET milage=?, payment=?, leftTime=?, leftDay=? WHERE alias=?';
@@ -838,25 +878,9 @@ module.exports = {
           cb(null, paymentRow);
         }
       });
-    },
-
-    /*
-      modifyMemberInfo
-    */
-    modifyMemberInfo: function(data, cb) {
-      console.log('this is modify member info db');
-      console.log(data);
-      var sql = 'UPDATE member SET membername=?, payment=?, sex=?, prepare=? WHERE alias=?';
-      conn.query(sql, [data.membername, data.payment, data.sex, data.prepare, data.id], function(err, results) {
-        if(err) {
-          console.log(err);
-          cb(new Error('query error'));
-        }
-        else {
-          cb(null, {err: "0"});
-        }
-      });
     }
+    // payment
+
   },
 
   /********************************************************************************************************************8
@@ -872,7 +896,16 @@ module.exports = {
           cb(new Error('query error'));
         }
         else {
-          cb(null, {err: "0"});
+          var sql = 'UPDATE members SET payment = IF(leftDay = 0, NULL, payment)';
+          conn.query(sql, function(err, results) {
+            if (err) {
+              console.log(err);
+              cb(new Error('query error'));
+            }
+            else {
+              cb(null, {err: "0"});
+            }
+          });
         }
       });
     }
@@ -1020,6 +1053,46 @@ module.exports = {
     },
 
     /*
+      chargeMilage
+    */
+    chargeMilage: function(data, cb) {
+      /*data validation*/
+      var alias = data.membername;
+      if (alias.length !== 8 || Number.isInteger(alias)) {
+        return cb(null, {err: "1"}); /* alias format err */
+      }
+      else if (!Number.isInteger(parseInt(data.milage))){
+        return cb(null, {err: "2"}); /* price format err */
+      }
+      else {
+        var sql = 'SELECT membername FROM members WHERE alias=?';
+        conn.query(sql, [alias], function(err, results) {
+          if (err) {
+            console.log(err);
+            cb(new Error('query error'));
+          }
+          else {
+            if (results[0].membername === null) {
+              return cb(null, {err: "3"}); /* member don't exist */
+            }
+            else {
+              var sql = 'UPDATE members SET milage = milage + ? WHERE alias=?';
+              conn.query(sql, [parseInt(data.milage), alias], function(err, results) {
+                if (err) {
+                  console.log(err);
+                  cb(new Error('query error'));
+                }
+                else {
+                  console.log('success charge milage');
+                  cb(null, {err: "0"});
+                }
+              })
+            }
+          }
+        })
+      }
+    },
+    /*
       studyRoomCurrentState
     */
     studyRoomCurrentState: function(data, cb) {
@@ -1116,9 +1189,30 @@ module.exports = {
         else {
           console.log('this is view studyroom reservation list');
           console.log(results);
-          cb(null, results);
+          cb(null, {results: results, err: "0"});
         }
       });
+    },
+
+    /*
+      payback
+    */
+    payback: function(data, cb) {
+      /* data.id  data.milage */
+      var milage;
+      if (data.milage == "") milage = 0;
+      else                   milage = parseInt(data.milage);
+
+      var sql = 'UPDATE members SET payment=NULL, leftDay=0, milage=milage+?, leftTime=0 WHERE id=?';
+      conn.query(sql, [milage, data.id], function(err, result) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          cb(null, {err: "0"});
+        }
+      })
     }
   }
 };

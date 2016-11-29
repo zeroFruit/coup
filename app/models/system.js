@@ -32,6 +32,22 @@ module.exports = {
   },
 
   /*
+    chargeMilage
+  */
+  chargeMilage: function(req, res, next) {
+    db.system.chargeMilage(req.body, function(err, results) {
+      if (err) {
+        console.log(err);
+        return next(err);
+      }
+      else {
+        req.err = results.err;
+        next();
+      }
+    })
+  },
+
+  /*
     studyRoomCurrentState
   */
   studyRoomCurrentState: function(req, res, next) {
@@ -90,7 +106,14 @@ module.exports = {
 
   clientStudyRoomState: function(req, res, next) {
     db.system.clientStudyRoomState(req.body, function(err, results) {
-
+      if (err) {
+        return next();
+      }
+      else {
+        req.results = results.results;
+        req.err = results.err;
+        next();
+      }
     })
   },
 
@@ -105,5 +128,17 @@ module.exports = {
         next();
       }
     })
+  },
+
+  payback: function(req, res, next) {
+    db.system.payback(req.body, function(err, results) {
+      if (err) {
+        return next();
+      }
+      else {
+        req.err = results.err;
+        next();
+      }
+    });
   }
 }
