@@ -90,7 +90,20 @@ module.exports = {
 
   clientStudyRoomState: function(req, res, next) {
     db.system.clientStudyRoomState(req.body, function(err, results) {
-      
+
+    })
+  },
+
+  modifyMemberInfo: function(req, res, next) {
+    db.member.modifyMemberInfo(req.body, function(err, results) {
+      if (err) {
+        return next();
+      }
+      else {
+        /* req.body.sh, req.body.du, req.body.rd*/
+        req.err = results.err;
+        next();
+      }
     })
   }
 }

@@ -10,6 +10,36 @@ module.exports = {
   SYSTEM
   ***************************************************************************************/
   /*
+    modify_memberinfo_succ
+  */
+  modify_memberinfo_succ: function(req, res) {
+    console.log('modify member info succ');
+    res.send('success');
+  },
+  /*
+    accountlist_delete_succ
+  */
+  accountlist_delete_succ: function(req, res) {
+    console.log('accountlist delete succ');
+    res.send('success');
+  },
+
+  /*
+    err_ep
+  */
+  err_ep: function(req, res) {
+    console.log('err ep');
+    res.send('fail');
+  },
+  /*
+    accountlist_update_succ
+  */
+  accountlist_update_succ: function(req, res) {
+    console.log('update successfully');
+    res.send('success');
+  },
+
+  /*
     booked_succ
   */
   book_succ: function(req, res) {
@@ -238,6 +268,48 @@ module.exports = {
   /**********************************************************************************************
   REGISTER
   **********************************************************************************************/
+
+  /*
+    phonenum length error
+  */
+  phonenum_length_err: function(req, res) {
+    console.log('this is phonenum length err');
+    res.render('layout_test',
+    {
+      phonenum_length_err: "1",
+      tokenPack: {
+        accessToken: req.body.accessToken,
+        refreshToken: req.body.refreshToken
+      },
+      renderSrc: {
+        numOfMem:       req.source.numOfMem,
+        numOfActiveMem: req.source.numOfActiveMem
+      }
+    }
+    )
+  },
+
+  /*
+    phonenum is not number
+  */
+  password_length_err: function(req, res) {
+    console.log('this is password length err');
+    res.render('layout_test',
+    {
+      password_length_err: "1",
+      tokenPack: {
+        accessToken: req.body.accessToken,
+        refreshToken: req.body.refreshToken
+      },
+      renderSrc: {
+        numOfMem:       req.source.numOfMem,
+        numOfActiveMem: req.source.numOfActiveMem
+      }
+    }
+    )
+  },
+
+
   /*
     register success
   */
@@ -265,7 +337,7 @@ module.exports = {
     console.log(req.source);
     res.render('layout_test',
     {
-      rechargeSnack: 'true', /* this signal invoke snackbar */
+      recharge_succ: '1', /* this signal invoke snackbar */
       tokenPack: {
         accessToken: req.body.accessToken,
         refreshToken: req.body.refreshToken

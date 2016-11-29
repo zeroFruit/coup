@@ -57,6 +57,35 @@ module.exports = {
         next();
       }
     });
-  }
+  },
 
+  /*
+    modifyList
+  */
+  modifyList: function(req, res, next) {
+    db.account.updateList(req.body, function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.err = results.err;
+        next();
+      }
+    });
+  },
+
+  /*
+    deleteList
+  */
+  deleteList: function(req, res, next) {
+    db.account.deleteList(req.body, function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.err = results.err;
+        next();
+      }
+    })
+  }
 }

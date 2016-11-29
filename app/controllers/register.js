@@ -22,14 +22,27 @@ module.exports.set = function(app, passport) {
   /*
     /register (POST)
   */
-  app.post('/register', jwtauth, requireAuth, member.registerMember,
+  app.post('/register', jwtauth, requireAuth,
+  member.registerMember,
   rendering.getNumOfMem,
   rendering.getNumOfAttendMem,
   function(req, res, next) {
     /*
       Should error checking
     */
-    respond.register_succ(req, res);
-
+    if (req.member.err === "1") {
+      //phonenum length error
+      return respond.phonenum_length_err(req, res);
+    }
+    else if (req.member.err === "2") {
+      //phone number is not number
+      return respond.phonenum_length_err(req, res);
+    }
+    else if (req.member.err === "3") {
+      return respond.password_length_err(req, res);
+    }
+    else {
+      respond.register_succ(req, res);
+    }
   });
 }

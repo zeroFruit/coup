@@ -68,7 +68,6 @@ module.exports.set = function(app, passport) {
     //memberArr.reverse(); /* Now most updated one goes first */
 
     next();
-    console.log('here?');
 
   }, function(req, res, next) {
     //var retpack = [];

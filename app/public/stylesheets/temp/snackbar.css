@@ -29,7 +29,9 @@
 #client-entered-succ-snackbar,
 #even-not-entered-err-snackbar,
 #lack-of-milage-err-snackbar,
-#success-at-using-milage-snackbar
+#success-at-using-milage-snackbar,
+#phonenum-length-err-snackbar,
+#password-length-err-snackbar
 {
   visibility: hidden;
   min-width: 250px;
@@ -52,7 +54,9 @@
 #client-entered-succ-snackbar.show,
 #even-not-entered-err-snackbar.show,
 #lack-of-milage-err-snackbar.show,
-#success-at-using-milage-snackbar.show
+#success-at-using-milage-snackbar.show,
+#phonenum-length-err-snackbar.show,
+#password-length-err-snackbar.show
 {
     visibility: visible;
     -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;

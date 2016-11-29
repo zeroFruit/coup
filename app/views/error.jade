@@ -1,6 +1,36 @@
-extends layout
-
-block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+html
+  head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="viewport" content="width=device-width initial-scale=1")
+    //- BOOTSTRAP STYLES
+    link(href='public/stylesheets/temp/bootstrap.css',      rel='stylesheet')
+    //- FONTAWESOME STYLES
+    link(href='public/stylesheets/temp/font-awesome.css',   rel='stylesheet')
+    //- TEMPLATE BASIC STYLES
+    link(href='public/stylesheets/temp/basic.css',          rel='stylesheet')
+    //- TEMPLATE MAIN STYLES
+    link(href='public/stylesheets/temp/custom.css',         rel='stylesheet')
+    //- TEMPLATE FORM SCRIPTS
+    script(src='public/javascripts/temp/switchery.min.js')
+    //- TEMPLATE FORM STYLEs
+    link(href='public/stylesheets/temp/form-style.css',     rel='stylesheet')
+    link(href='public/stylesheets/temp/switchery.min.css',  rel='stylesheet')
+    link(href='public/stylesheets/temp/modal-form.css',     rel='stylesheet')
+    //- GOOGLE FONTS
+    link(href='http://fonts.googleapis.com/css?family=Open+Sans', rel='stylesheet', type='text/css')
+    //- TEMPLATE SNACKBAR STYLES
+    link(href='public/stylesheets/temp/snackbar.css',     rel='stylesheet')
+    //- TEMPLATE TABLE STYLES
+    link(href='public/stylesheets/temp/table-style.css',     rel='stylesheet')
+    //- CUSTOM style
+    link(href="public/stylesheets/style.css" rel='stylesheet')
+  body
+    .container
+      .row.text-center
+        .col-md-12.set-pad
+          h1 잘못된 접근입니다.
+          hr
+          a.btn.btn-danger
+            i.fa.fa-mail-reply
+            |  PLEASE GO BACK

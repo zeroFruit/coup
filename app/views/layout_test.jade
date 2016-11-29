@@ -37,18 +37,31 @@ html
     //- MODAL REGISTER FORM
     #register-form.modal
       form.modal-content.animate(action='/register' method='post')
-        .col-3
+        .col-4
           label
             | 이름
             input#name(placeholder='이름을 입력해주세요.', name='membername', required='required')
-        .col-3
+        .col-4.switch
+          label 성별(남<->여)
+          center(style='position:relative;margin-bottom:8px;')
+            input.switchery.js-switch#sex(type='checkbox' name='sex')
+            input#sex_hidden(type='hidden')
+        .col-4
           label
             | 비밀번호
             input#company(placeholder='6자리 숫자를 입력해주세요.', type='password', name='password', size='6', maxlength='6', required='required')
-        .col-3
+        .col-4
           label
             | 휴대폰번호
             input#phone(placeholder="'-'는 빼고 입력해주세요.", name='phonenum', type='text', required='required')
+        .col-2
+          label
+            | 준비 시험
+            input#prepare(name='prepare' type='text')
+        .col-2
+          label
+            | 메모
+            input#memo(name='memo' type='text')
         .col-submit
           button.submitbtn#registerSubmit Submit Form
         //-THERE'S HIDDEN FORM TO SEND TOKENS
@@ -58,9 +71,9 @@ html
     #recharge-form.modal
       form.modal-content.animate(action='/charge' method='post')
         .col-3
-          label 회원을 선택해주세요.
+          label ID
             | 
-            select#choose-member
+            input#choose-member(name='choose-member' placeholder='ID를 입력해주세요.')
             //- javascript dynamically insert members
         .col-3
           label
@@ -78,6 +91,24 @@ html
         input(type='hidden' name='paymentId')
         input(type='hidden' name='type')
         input(type='hidden' name='price')
+    //- DISPLAY ALL MEMBERS LIST
+    #all-members-list.modal
+      .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:50%')
+        //- Table starts here
+        table#all-members-table.table.table-hover.table-bordered.table-mc-light-blue
+          thead
+            tr
+              th ID
+              th 이름
+              th 요금제
+              th 잔여시간(일)
+              th 좌석
+              th 성별
+              th 준비시험
+              th 코업머니
+              th
+          tbody#all-members-table-body
+              
     //- DISPLAY ACTIVE MEMBERS LIST
     #active-members-list.modal
       .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:50%')
@@ -95,7 +126,7 @@ html
     #account-list.modal(style='padding-top:0px')
       .modal-content.animate#account-wrapper(style='width:70%; padding-top:20px; margin-top:10px')
         #account-head.container
-          h1.page-subhead-line This is dummy text , you can replace it with your original text.
+          h1.page-subhead-line 장부 조회
           .col-md-2.col-md-offset-2
             .form-group
               #datetimepickerMin.input-group.date
@@ -141,7 +172,7 @@ html
 
         .container
           .col-md-12
-            h1.page-subhead-line This is dummy text , you can replace it with your original text. 
+            h1.page-subhead-line 장부 목록
             .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%')
               //- Table starts here
               table#account-table.table.table-hover.table-bordered.table-mc-light-blue
@@ -152,15 +183,8 @@ html
                     th 수입/지출
                     th 금액
                     th
-                    th(style='display:none')
+                    th(style="display='none'")
                 tbody#account-table-body
-                  tr  
-                    td(data-title="ts" contenteditable='true') test
-                    td(data-title="content" contenteditable='true') test
-                    td(data-title="inout") test
-                    td(data-title="price") test
-                    td(data-title="modify") test
-                    td(data-title="hidden" style='display:none') 1
                 //- DISPLAY ACCOUNT
     //- Add all page content inside this div(id="main")
     #use-milage-modal.modal(style='padding-top:0px')
@@ -601,9 +625,9 @@ html
       //- TOP NAV BAR
       ul#top_nav
         li#top_nav_list
-          a(href='#' onclick='openNav()') 메뉴
+          a(onclick='openNav()') 메뉴
         li#top_nav_list 
-          a(href='#' onclick="document.getElementById('register-form').style.display='block'", style='width:auto;') 등록
+          a.a-cursor-pointer(onclick="document.getElementById('register-form').style.display='block'", style='width:auto;') 등록
         li#top_nav_list
           a#system_manager(style='cursor: pointer') 관리자 설정
         li#top_nav_list
@@ -622,7 +646,7 @@ html
             .row
               .col-md-6
                 .main-box.mb-dull
-                  a
+                  a#all-members.a-cursor-pointer
                     i.fa.fa-bolt.fa-5x
                     h5 !{renderSrc.numOfMem} 명의 회원이 등록하였습니다.
               .col-md-6
@@ -682,6 +706,10 @@ html
       | 마일리지가 부족합니다.
     #success-at-using-milage-snackbar
       | 마일리지를 사용하였습니다.
+    #phonenum-length-err-snackbar
+      | 휴대폰 번호를 정확히 입력해주세요.
+    #password-length-err-snackbar
+      | 비밀번호가 정확하지 않습니다.
     
     script.
       //- Set the width of the side navigation to 250px and the left margin of the page content to 250px 
@@ -717,7 +745,9 @@ html
         
         //- Snackbar Signal
         var register_succ_snackbar  = '!{registerSnack}';
-        var recharge_snack          = '!{rechargeSnack}';
+        var recharge_succ           = '!{recharge_succ}';
+        var phonenum_length_err     = '!{phonenum_length_err}';
+        var password_length_err     = '!{password_length_err}';
         //-
         //-  *  this script is for saving token to localStorage.
         //-     And attach the token to subsequent calls.
@@ -732,17 +762,15 @@ html
         //- form submit action
         $('#register-form').submit(function(event) {
           console.log('acc token', accessToken, 'ref token', refreshToken);
-          /*
-            Before submit the data to server
-            validate the form of input data.
-            
-            1. check phonenum format
-          */
           
           var valAccess  = window.localStorage.getItem('accessToken');    
           var valRefresh = window.localStorage.getItem('refreshToken');   
           $("#register-form > form > input[name='accessToken']").val(valAccess);
           $("#register-form > form > input[name='refreshToken']").val(valRefresh);
+          
+          /* send sex check box data */
+          var sex = $('#sex').is(':checked');
+          $('#sex_hidden').val(sex);
         });
         
         //-
@@ -753,9 +781,11 @@ html
           var register            = document.getElementById('register-form');    
           var recharge            = document.getElementById('recharge-form');
           var active_members_list = document.getElementById('active-members-list');
+          var all_members_list    = document.getElementById('all-members-list');
           var account_list        = document.getElementById('account-list');
           var use_milage          = document.getElementById('use-milage-modal');    
           var reserve_studyroom   = document.getElementById('studyroom-reservation-modal');
+        
           
           if (event.target == recharge) {
             recharge.style.display = "none";
@@ -765,9 +795,9 @@ html
             while(paymentList.firstChild) {
               paymentList.removeChild(paymentList.firstChild);
             }
-            while(memberList.firstChild) {
-              memberList.removeChild(memberList.firstChild);
-            }
+            //- while(memberList.firstChild) {
+            //-   memberList.removeChild(memberList.firstChild);
+            //- }
           }
           
           if (event.target == register) {
@@ -779,6 +809,15 @@ html
             var tbody = document.getElementById("active-members-table-body");
             /* and also should erase their children */
             while(tbody.firstChild) {
+              tbody.removeChild(tbody.firstChild);
+            }
+          }
+          
+          if (event.target == all_members_list) {
+            all_members_list.style.display = "none";
+            var tbody = document.getElementById("all-members-table-body");
+            
+            while (tbody.firstChild) {
               tbody.removeChild(tbody.firstChild);
             }
           }
@@ -810,7 +849,9 @@ html
           }
         }// end of function
 
-        //- SNACKBAR
+        /* *******************************************************8
+          SNACKBAR 
+        ***************************************************************/
         function show_snackbar(id) {
           //- Get the snackbar
           var sb = document.getElementById(id);
@@ -821,10 +862,114 @@ html
         }
 
         if(register_succ_snackbar === "true") {show_snackbar('snackbar');}
+        if(phonenum_length_err === "1") {show_snackbar('phonenum-length-err-snackbar');}
+        if(password_length_err === "1") {show_snackbar('password-length-err-snackbar');}
+        if(recharge_succ === "1") {show_snackbar('snackbar');}
         
         //- END OF SNACKBAR
         
-        
+        /*
+          All member list button clicked
+        */
+        $('a#all-members').click(function(event) {
+          /* get the token */
+          var valAccess  = window.localStorage.getItem('accessToken');    
+          var valRefresh = window.localStorage.getItem('refreshToken');
+          
+          $.ajax({
+            url: '/system/all-members',
+            method: 'post',
+            data: {
+              accessToken: valAccess,
+              refreshToken: valRefresh
+            }
+          }).done(function(results) {
+            var json = JSON.parse(results);
+            console.log(json);
+            var memberList = json.memberList;
+            var pnameList  = json.pnameList;
+            console.log(pnameList);
+            for (var i = 0; i < pnameList.length; i++) {
+              var o = memberList[i];
+              var sex;
+              if (o.sex === 0) sex = "남";
+              else             sex = "여";
+              
+              $('#all-members-table-body').append(
+                '<tr name="member-'+i+'">'+
+                ' <td data-title="ID">'+ o.alias +'</td>' +
+                ' <td data-title="membername">'+ o.membername +'</td>' +
+                ' <td data-title="payment">'+ pnameList[i]  +'</td>' +
+                ' <td data-title="leftDay">'+ o.leftDay +'</td>' +
+                ' <td date-title="seat">'+ o.seatnum+'</td>' +
+                ' <td date-title="sex">'+ sex +'</td>' +
+                ' <td date-title="prepare">' + o.prepare +'</td>' +
+                ' <td date-title="milage">' + o.milage +'</td>' + 
+                ' <td date-title="modify">' +
+                '   <i class="fa fa-pencil-square-o modify-member fa-2x" aria-hidden="true"></i>' +
+                '   <i class="fa fa-trash-o delete-member fa-2x" aria-hidden="true"></i>' +
+                ' </td>' +
+                '</tr>'
+              );
+              /*
+                all member MODIFY click event handler
+              */
+              $('tr[name="member-'+i+'"] td i.modify-member').on('click', function(event) {
+                var $parent = $(this).parent().parent('tr');
+                var id = $parent.find('td:eq(0)').text();
+                var editable = $parent.find('td[data-title="membername"]').attr("contenteditable");
+                
+                if (editable === undefined || editable === false) {
+                  alert("내용을 변경한 뒤 다시한번 클릭해주세요.");
+                  $parent.find('td:eq(1)').attr("contenteditable", true);
+                  $parent.find('td:eq(2)').attr("contenteditable", true);
+                  //$parent.find('td:eq(3)').attr("contenteditable", true);
+                  //$parent.find('td:eq(4)').attr("contenteditable", true);
+                  $parent.find('td:eq(5)').attr("contenteditable", true);
+                  $parent.find('td:eq(6)').attr("contenteditable", true);
+                  //$parent.find('td:eq(7)').attr("contenteditable", true);
+                  return false;
+                }
+                else {
+                  
+                  $parent.find('td:eq(1)').attr("contenteditable", false);
+                  $parent.find('td:eq(2)').attr("contenteditable", false);
+                  //$parent.find('td:eq(3)').attr("contenteditable", false);
+                  //$parent.find('td:eq(4)').attr("contenteditable", false);
+                  $parent.find('td:eq(5)').attr("contenteditable", false);
+                  $parent.find('td:eq(6)').attr("contenteditable", false);
+                  //$parent.find('td:eq(7)').attr("contenteditable", false);
+                  
+                  /* should pack modified data and ajax */
+                  var membername  = $parent.find('td:eq(1)').text();
+                  var payment     = $parent.find('td:eq(2)').text();
+                  var sex         = $parent.find('td:eq(5)').text();
+                  var prepare     = $parent.find('td:eq(6)').text();
+                  
+                  $.ajax({
+                    url: '/system/modify-member-info',
+                    method: 'post',
+                    data: {
+                      id: id,
+                      membername: membername,
+                      payment: payment,
+                      sex: sex,
+                      prepare: prepare
+                    }
+                  }).done(function(result) {
+                    alert('변경되었습니다.');
+                  });
+                }
+              });
+              /*
+                all member DELETE click event handler
+              */
+              
+            }
+            
+            $('#all-members-list').css("display", "block");
+          });          
+        });
         /*
           Active member list button clicked 
         */
@@ -1036,6 +1181,7 @@ html
             }
           }).done(function(results) {
             alert('등록되었습니다.');
+            $('input[name="account-inout"]').prop("checked", false);
           });
           /*
             empty the field
@@ -1104,10 +1250,13 @@ html
             console.log(results);
             var json = JSON.parse(results);
             
+            console.log(json);
+            
             for (var i = 0; i < json.length; i++) {
               var jsonelt = json[i];
               var inout;
-              if (jsonelt.ep === "true") {
+              console.log(jsonelt.ep);
+              if (jsonelt.ep == 'true') {
                 inout = "지출";
               }
               else {
@@ -1115,20 +1264,91 @@ html
               }
             
               $('tbody#account-table-body').append(
-                '<tr>'+
+                '<tr name="row-'+i+'">'+
                 ' <td data-title="ts">'+ jsonelt['DATE_FORMAT(ts, "%Y-%m-%d")'] +'</td>' +
                 ' <td data-title="content">'+ jsonelt.content +'</td>' +
                 ' <td data-title="inout">'+ inout +'</td>' +
                 ' <td data-title="price">'+ jsonelt.price +'</td>' +
-                ' <td date-title="modify"><a class="modify-row">[수정]</a></td>' +
+              
+                ' <td date-title="modify">' +
+                  '<i class="fa fa-pencil-square-o modify-row fa-2x" aria-hidden="true"></i>' +
+                  '<i class="fa fa-trash-o delete-row fa-2x" aria-hidden="true"></i></td>' +
+                ' <td date-title="id" style="display:none" name="'+parseInt(jsonelt.id) +'" >'+parseInt(jsonelt.id)+'</td>' +
                 '</tr>'
               );
+              
+              /*
+                account table MODIFY click event handler
+              */
+              $('tr[name="row-'+i+'"] td i.modify-row').on('click', function(event) {
+                var $parent = $(this).parent().parent('tr');
+                var id = $parent.find('td:eq(5)').text();
+                var editable = $parent.find('td[data-title="content"]').attr("contenteditable");
+                
+                if (editable === undefined || editable === false) {
+                  alert("내용을 변경한 뒤 다시한번 클릭해주세요.");
+                  console.log(editable);
+                  $parent.find('td:eq(1)').attr("contenteditable", true);
+                  $parent.find('td:eq(2)').attr("contenteditable", true);
+                  $parent.find('td:eq(3)').attr("contenteditable", true);
+                  return false;
+                }
+                else {
+                  
+                  $parent.find('td:eq(1)').attr("contenteditable", false);
+                  $parent.find('td:eq(2)').attr("contenteditable", false);
+                  $parent.find('td:eq(3)').attr("contenteditable", false);
+                
+                  
+                  /* should pack modified data and ajax */
+                  var content = $parent.find('td:eq(1)').text();
+                  var inout   = $parent.find('td:eq(2)').text();
+                  var price   = $parent.find('td:eq(3)').text();
+                  var id      = $parent.find('td:eq(5)').text();
+                
+                  $.ajax({
+                    url: '/system/modify-account-list',
+                    method: 'post',
+                    data: {
+                      content: content,
+                      inout: inout,
+                      price: price,
+                      id: id
+                    }
+                  }).done(function(result) {
+                    if (result === "fail") {
+                      alert('변경에 실패하였습니다.(1)');
+                    }
+                    else {
+                      alert('변경되었습니다.');                      
+                    }
+                  });
+                }
+              });
+              // end of click handler
+              /*
+                account table DELETE click event handler
+              */
+              $('tr[name="row-'+i+'"] td i.delete-row').on('click', function(event) {
+                var $parent = $(this).parent().parent('tr');
+                var id = $parent.find('td:eq(5)').text();
+                
+                $.ajax({
+                  url: '/system/delete-account-list',
+                  method: 'post',
+                  data: { id: id}
+                }).done(function(result) {
+                  alert("삭제하였습니다.");
+                });
+              });
+              // end of delete handler
+              
               $('.modify-row').css('cursor', 'pointer');
             }
             
           });
         });
-        
+      
         /*
           Use Milage 
         */
@@ -1204,13 +1424,17 @@ html
             method: 'post'
           }).done(function(results) {
             //alert(results[0]);
-            memArr = results.memberArr;
+            //memArr = results.memberArr;
             payArr = results.paymentObj;
-            console.log(payArr[0]);
-            $('#choose-member').append("<option>선택해주세요.</option>");
-            for (var i = 0; i < memArr.length; i++) {
-              $('#choose-member').append("<option>"+memArr[i]+"</option>");              
-            }
+            //console.log(payArr[0]);
+            //- $('#choose-member').append("<option>선택해주세요.</option>");
+            //- for (var i = 0; i < memArr.length; i++) {
+            //-   $('#choose-member').append("<option>"+memArr[i]+"</option>");              
+            //- }
+            
+            
+            console.log(payArr);
+            
             
             $('#choose-payment').append("<option>선택해주세요.</option>");
             for (var i = 0; i < payArr.length; i++) {
@@ -1257,15 +1481,11 @@ html
           When trying to submit the form, just validate the input value, and check emptyness.
         */
         $("#recharge-form").submit(function(event) {
-          var memberIdx = $("#choose-member").prop('selectedIndex');
+          var memberId = $("#choose-member").val();
           var paymentIdx = $("#choose-payment").prop('selectedIndex');
           var cash = $("#choose-cash").val();
-          alert(cash);
-          if (memberIdx === 0) {
-            alert("회원을 선택해주세요.");
-            event.preventDefault();
-          }
-          else if (paymentIdx === 0) {
+          
+          if (paymentIdx === 0) {
             alert("요금제를 선택해주세요.");
             event.preventDefault();
           }
@@ -1276,7 +1496,7 @@ html
           }
           else {
             $('input[name="minPerDay"]').val(payArr[paymentIdx-1].timePerDay);
-            $('input[name="member"]').val(memArr[memberIdx-1]);
+            $('input[name="member"]').val(memberId);
             $('input[name="paymentId"]').val(payArr[paymentIdx-1].id);
             $('input[name="type"]').val(payArr[paymentIdx-1].type);
             $('input[name="price"]').val($("#choose-cash").val());
@@ -1374,34 +1594,3 @@ html
           }
         });
       }
-      
-      
-      //- 
-      //- <tr>
-      //-   <td data-title="ID">11111111</td>
-      //-   <td data-title="seatNum">Material Design Color Palette</td>
-      //-   <td data-title="timeLeft"><a href="https://github.com/zavoloklom/material-design-color-palette" target="_blank">GitHub</a></td>
-      //-   <td><i area-hidden="true" onclick="deleteList()" class="fa fa-trash table-button"></i></td>
-      //- </tr>      
-      //- table#table.table.table-hover.table-bordered.table-mc-light-blue
-      //-   thead
-      //-     tr
-      //-       th ID
-      //-       th 좌석번호
-      //-       th 잔여시간
-      //-       th 
-      //-   tbody
-      //-     tr
-      //-       td(data-title='ID') 11111111
-      //-       td(data-title='Name') Material Design Color Palette
-      //-       td(data-title='Link')
-      //-         a(href='https://github.com/zavoloklom/material-design-color-palette', target='_blank') GitHub
-      //-       td
-      //-         i.fa.fa-trash.table-button(area-hidden='true' onclick="deleteList()")
-      //-     tr
-      //-       td(data-title='ID') 11111111
-      //-       td(data-title='Name') Material Design Color Palette
-      //-       td(data-title='Link')
-      //-         a(href='https://github.com/zavoloklom/material-design-color-palette', target='_blank') GitHub
-      //-       td
-      //-         i.fa.fa-trash.table-button(area-hidden='true' onclick="deleteList()")

@@ -24,7 +24,6 @@ module.exports = {
   registerMember: function(req, res, next) {
     db.member.addToList(req.body, function(err, member) {
       if(err) {
-        console.log('<registerMember: error>');
         console.log(err);
         return next(err);
       }

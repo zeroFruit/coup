@@ -172,23 +172,45 @@ module.exports = {
     */
     addToList: function(data, cb) {
       //test
+      console.log('this is addToList');
       console.log(data);
 
-      var getAliasNum = (data.phonenum).split("-");
-      var Alias = getAliasNum[2]; /* phonenum last 4 digits */
-      var sql
-        = "INSERT INTO members (membername, password, phonenum, alias) VALUES (?, ?, ?, ?)";
-      conn.query(sql, [data.membername, data.password, data.phonenum,  Alias/* this data should be meaningfully changed */], function(err, results) {
-        if(err) {
-          console.log(err);
-          cb(new Error('not found'));
-          //res.status(500); //< this should replace with respond.js
-        }
-        else {
-          cb(null, { membername: data.membername });
-          /* to notify to user that query has succeed send them 'membername'. With this info server can verify results */
-        }
-      });
+      /*
+        sex
+      */
+      var sex;
+      if (data.sex) sex = 1;
+      else sex = 0;
+
+      /*
+        We should first check data validation
+      */
+      var phonenum = data.phonenum;
+      if (phonenum.length != 11) { /* phonenum length err */
+        return cb(null, {err: "1"});
+      }
+      else if (!Number.isInteger(parseInt(phonenum))) { /* is not number */
+        return cb(null, {err: "2"});
+      }
+      else if(data.password.length !== 6) {
+        return cb(null, {err: "3"});
+      }
+      else {
+        var alias = phonenum.substring(3);
+        var sql
+          = "INSERT INTO members (membername, password, phonenum, alias, sex, memo, prepare) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        conn.query(sql, [data.membername, data.password, data.phonenum,  alias, sex, data.memo, data.prepare], function(err, results) {
+          if(err) {
+            console.log(err);
+            cb(new Error('not found'));
+            //res.status(500); //< this should replace with respond.js
+          }
+          else {
+            cb(null, { membername: data.membername, err: "0" });
+            /* to notify to user that query has succeed send them 'membername'. With this info server can verify results */
+          }
+        });
+      }
     },
 
     /*
@@ -244,7 +266,7 @@ module.exports = {
           -name, phone number, payment, milage, seat
     */
     getList: function(cb) {
-      var sql = 'SELECT membername, payment, milage, seatnum, alias, pause, enterance, DATE_FORMAT(ts, "%H:%i") FROM members';
+      var sql = 'SELECT membername, payment, milage, seatnum, alias, pause, enterance, sex, leftDay, prepare, DATE_FORMAT(ts, "%H:%i") FROM members';
       conn.query(sql, function(err, results) {
         if (err) {
           console.log(err);
@@ -685,10 +707,9 @@ module.exports = {
       conn.query(sql, [paymentId], function(err, results) {
         if(err) {
           console.log(err);
-          cb(new Error('queryr error'));
+          cb(new Error('query error'));
         }
         else {
-          console.log(results[0].leftDay);
           leftDay = results[0].leftDay;
 
           /*
@@ -805,6 +826,36 @@ module.exports = {
         }
       });
 
+    },
+    id2PaymentInfo: function(id, cb) {
+      var sql = 'SELECT * FROM payments WHERE paymentId=?';
+      conn.query(sql, [id], function(err, result) {
+        if (err) {
+          cb(new Error('query error'));
+        }
+        else {
+          var paymentRow = result[0];
+          cb(null, paymentRow);
+        }
+      });
+    },
+
+    /*
+      modifyMemberInfo
+    */
+    modifyMemberInfo: function(data, cb) {
+      console.log('this is modify member info db');
+      console.log(data);
+      var sql = 'UPDATE member SET membername=?, payment=?, sex=?, prepare=? WHERE alias=?';
+      conn.query(sql, [data.membername, data.payment, data.sex, data.prepare, data.id], function(err, results) {
+        if(err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          cb(null, {err: "0"});
+        }
+      });
     }
   },
 
@@ -839,6 +890,9 @@ module.exports = {
       /*
         data.content, data.inout, data.price
       */
+      console.log('this is addlist');
+      console.log(data);
+
       var sql = 'INSERT INTO account (content, ep, price) VALUES (?, ?, ?)';
       conn.query(sql, [data.content, data.inout, data.price], function(err, results) {
         if(err) {
@@ -864,7 +918,7 @@ module.exports = {
       var fullmaxdate = data.maxdate + " 23:59:59";
       console.log(fullmindate);
       console.log(fullmaxdate);
-      var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d"), content, ep, price FROM account WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
+      var sql = 'SELECT id, DATE_FORMAT(ts, "%Y-%m-%d"), content, ep, price, service FROM account WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
       conn.query(sql, [fullmindate, fullmaxdate], function(err, results) {
         if(err) {
           console.log(err);
@@ -876,6 +930,45 @@ module.exports = {
           cb(null, results);
         }
       })
+    },
+
+    updateList: function(data, cb) {
+      /*
+        data validation
+      */
+      var inout;
+      if (data.inout != "지출" && data.inout != "수입") {
+        return cb(null, {err: "1"});
+      }
+      else if (data.inout === "지출") {inout = true;}
+      else if (data.inout === "수입") {inout = false;}
+      console.log('this is update list db');
+      console.log(data);
+      var sql = 'UPDATE account SET content=?, ep=?, price=? WHERE id=?';
+      conn.query(sql, [data.content, inout, data.price, data.id], function(err, results) {
+        if(err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          console.log('this is updateList db');
+          cb(null, {err: "0"});
+        }
+      });
+    },
+
+    deleteList: function(data, cb) {
+      var sql = 'DELETE FROM account WHERE id=?';
+      conn.query(sql, [data.id], function(err, results) {
+        if(err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          console.log('this is deleteList db');
+          cb(null, {err: "0"});
+        }
+      });
     }
   },
 
