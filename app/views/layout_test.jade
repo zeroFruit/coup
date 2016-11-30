@@ -147,18 +147,22 @@ html
         .container#account-list-container
           .com-md-12
             form#add-account-list
-              .col-3
+              .col-4
                 label
                   | 내용
                   input(placeholder='내용을 입력해주세요.', name='account-content', required='required')
-              .col-3.switch
+              .col-4.switch
                 label 수입<->지출
                 center(style='position:relative;margin-bottom:8px;')
                   input.switchery.js-switch(type='checkbox' name='account-inout')
-              .col-3
+              .col-4
                 label
                   | 금액
                   input(name='account-price', type='text', required='required')
+              .col-4
+                label
+                  | 서비스
+                  input(name='account-service' type='text')
               .col-submit
                 button.submitbtn#account-submit 등록하기
               //-THERE'S HIDDEN FORM TO SEND TOKENS
@@ -208,8 +212,25 @@ html
               .main-box.mb-dull
                 a#payback-determine.a-cursor-pointer
                   h6 환불하기
-          
-      
+    //- Holdoff modal
+    #holdoff-modal.modal      
+      .modal-content.animate(style='width:40%')
+        form
+          .col-2
+            label
+              | ID 
+              input#holdoff-name(placeholder='ID를 입력해주세요.' name='alias' required='required')
+          .col-2
+            button.submitbtn#holdoff-submit 검색
+        .container#holdoff-hidden-container(style='display:none; width:100%')
+          .row
+            .col-md-12
+              #holdoff-result(style='padding-top:5%;padding-bottom:5%;padding-left:10%')
+          .row
+            .col-md-12
+              .main-box.mb-dull
+                a#holdoff-determine.a-cursor-pointer
+                  h6 상태변경하기
         
     //- Use milage modal
     #use-milage-modal.modal(style='padding-top:0px')
@@ -732,7 +753,7 @@ html
                     h5 환불
               .col-md-3
                 .main-box.mb-dull
-                  a#pause.a-cursor-pointer
+                  a#holdoff.a-cursor-pointer
                     i.fa.fa-pause.fa-5x
                     h5 사용보류
             .row
@@ -846,7 +867,18 @@ html
           var charge_milage       = document.getElementById('charge-milage-modal');
           var reserve_studyroom   = document.getElementById('studyroom-reservation-modal');
           var payback             = document.getElementById('payback-modal');
+          var holdoff             = document.getElementById('holdoff-modal');
         
+          if (event.target == holdoff) {
+            holdoff.style.display = "none";
+            var holdoffId = document.getElementById("holdoff-name").value = "";
+            var container = document.getElementById("holdoff-hidden-container");
+            
+            container.style.display = "none";
+            while(container.firstChild) {
+              container.removeChild(container.firstChild);
+            }
+          }
           if (event.target == payback) {
             payback.style.display = "none";
             var paybackId = document.getElementById("payback-name").value = "";
@@ -997,7 +1029,6 @@ html
                 var $parent = $(this).parent().parent('tr');
                 var id = $parent.find('td:eq(0)').text();
                 var editable = $parent.find('td:eq(1)').attr("contenteditable");
-                alert(editable);
                 if (editable === undefined || editable == 'false') {
                   alert("내용을 변경한 뒤 다시한번 클릭해주세요.");
                   $parent.find('td:eq(1)').attr("contenteditable", true);
@@ -1045,7 +1076,18 @@ html
               /*
                 all member DELETE click event handler
               */
-              
+              $('tr[name="member-'+i+'"] td i.delete-member').on('click', function(event) {
+                var $parent = $(this).parent().parent('tr');
+                var id = $parent.find('td:eq(0)').text();
+                
+                $.ajax({
+                  url: '/system/delete-member-info',
+                  method: 'post',
+                  data: {id: id}
+                }).done(function(result) {
+                  alert('삭제되었습니다.');
+                });
+              });
             }
             
             $('#all-members-list').css("display", "block");
@@ -1092,10 +1134,67 @@ html
         
         
         
-        
-        
-        
-        
+        /*
+          Holdoff
+        */
+        $('a#holdoff').click(function(event) {
+          $('#holdoff-modal').css("display", "block");
+        });
+        $('#holdoff-submit').click(function(event) {
+          event.preventDefault();
+          var alias = $('#holdoff-name').val();
+          
+          if (alias === "") {
+            alert('ID를 입력해주세요.');
+            return false;
+          }
+          
+          $.ajax({
+            url: '/system/holdoff',
+            method: 'post',
+            data: {alias: alias}
+          }).done(function(results) {
+            var json = JSON.parse(results);
+            console.log(json);
+            
+            var holdoff;
+            if (json.stop == 0) {
+              holdoff = "정상 진행중";
+            }
+            else if(json.stop == 1) {
+              holdoff = "보류 상태";
+            }
+            $('#holdoff-hidden-container').css('display', 'block');
+            $('#holdoff-result').append(
+              '<h4> 이름: '+json.membername+'</h4><br>' + 
+              '<h4> 이용 요금제: '+json.payment+'</h4><br>' +
+              '<h4> 잔여 일: '+ json.leftDay +' 일</h4><br>' +
+              '<h4> 잔여 마일리지: '+json.milage+' 포인트</h4><br>' +
+              '<h4> 보류 여부: '+ holdoff +'</h4><br>' +
+              '<input type="hidden" name="holdoff-id" value="'+ json.id +'">' + 
+              '<input type="hidden" name="holdoff-stop" value="'+ json.stop +'">'
+            );
+          });
+        });
+        $('a#holdoff-determine').click(function(event) {
+          var id    = $('input[name="holdoff-id"]').val();
+          var stop  = $('input[name="holdoff-stop"]').val(); 
+          $.ajax({
+            url: '/system/holdoff-determine',
+            method: 'post',
+            data: {
+              id: id,
+              stop: stop
+            }
+          }).done(function(result) {
+            if (result == "1") { /* re-running */
+              alert("이제 보류합니다.");
+            }
+            else if(result == "0") {
+              alert("이제 재시작합니다.");
+            }
+          });
+        });
         /*
           Payback
         */
@@ -1105,6 +1204,7 @@ html
         $('#payback-submit').click(function(event) {
           event.preventDefault();
           var alias = $('#payback-name').val();
+          
           if (alias === "") {
             alert('ID를 입력해주세요.');
             return false;
@@ -1305,6 +1405,7 @@ html
           var content     = $('input[name="account-content"]').val();
           var inout       = $('input[name="account-inout"]').is(':checked');
           var price       = $('input[name="account-price"]').val();
+          var service     = $('input[name="account-service"]').val();
 
           $.ajax({
             url: '/system/add-account-list',
@@ -1314,7 +1415,8 @@ html
               refreshToken: valRefresh, /* list data */
               content: content,
               inout: inout,
-              price: price
+              price: price,
+              service: service
             }
           }).done(function(results) {
             alert('등록되었습니다.');
@@ -1406,7 +1508,6 @@ html
                 ' <td data-title="content">'+ jsonelt.content +'</td>' +
                 ' <td data-title="inout">'+ inout +'</td>' +
                 ' <td data-title="price">'+ jsonelt.price +'</td>' +
-              
                 ' <td date-title="modify">' +
                   '<i class="fa fa-pencil-square-o modify-row fa-2x" aria-hidden="true"></i>' +
                   '<i class="fa fa-trash-o delete-row fa-2x" aria-hidden="true"></i></td>' +

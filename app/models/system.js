@@ -130,6 +130,19 @@ module.exports = {
     })
   },
 
+  deleteMemberInfo: function(req, res, next) {
+    db.member.deleteMemberInfo(req.body, function(err, results) {
+      if (err) {
+        return next();
+      }
+      else {
+        /* req.body.sh, req.body.du, req.body.rd*/
+        req.err = results.err;
+        next();
+      }
+    })
+  },
+
   payback: function(req, res, next) {
     db.system.payback(req.body, function(err, results) {
       if (err) {
@@ -137,6 +150,19 @@ module.exports = {
       }
       else {
         req.err = results.err;
+        next();
+      }
+    });
+  },
+
+  holdoff: function(req, res, next) {
+    db.system.holdoff(req.body, function(err, results) {
+      if (err) {
+        return next();
+      }
+      else {
+        req.err = results.err;
+        req.do  = results.do;
         next();
       }
     });

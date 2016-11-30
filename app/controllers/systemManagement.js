@@ -35,7 +35,16 @@ module.exports.set = function(app, passport) {
       respond.modify_memberinfo_succ(req, res);
     }
   });
-
+  /*
+    /system/delete-member-info
+  */
+  app.post('/system/delete-member-info', function(req, res, next) {
+    system.deleteMemberInfo(req, res, next);
+  }, function(req, res, next) {
+    if (req.err === "0") {
+      respond.delete_memberinfo_succ(req, res);
+    }
+  });
   /*
     /system/all-members (POST)
 
@@ -109,7 +118,8 @@ module.exports.set = function(app, passport) {
         ts      :   req.body.ts,
         content :   req.body.content,
         inout   :   req.body.inout,
-        price   :   req.body.price
+        price   :   req.body.price,
+        service :   req.body.service
       }
       var json = JSON.stringify(retpack);
       res.send(json);
@@ -268,6 +278,39 @@ module.exports.set = function(app, passport) {
   }, function(req, res, next) {
     if (req.err === "0") {
       respond.payback_succ(req, res);
+    }
+  });
+
+  /*
+    /system/defer
+  */
+  app.post('/system/holdoff', function(req, res, next) {
+    console.log(req.body);
+    member.getMemberInfo(req, res, next);
+  }, function(req, res, next) {
+    var pid = req.member.payment;
+    payment.id2NameSingle(pid, function(pname) {
+      console.log(pname);
+      req.member.payment = pname;
+      next();
+    });
+  }, function(req, res, next) {
+    if (req.err === "1") {
+      return respond.member_dont_exist(req, res);
+    }
+    else {
+      respond.get_memberinfo_succ(req, res);
+    }
+  });
+  /*
+    /system/holdoff-determine
+  */
+  app.post('/system/holdoff-determine', function(req, res, next) {
+    console.log(req.body);
+    system.holdoff(req, res, next);
+  }, function(req, res, next) {
+    if (req.err == "0") {
+      respond.hold_on_off(req, res);
     }
   });
 }

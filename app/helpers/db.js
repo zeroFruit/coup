@@ -710,6 +710,20 @@ module.exports = {
           cb(null, {err: "0"});
         }
       });
+    },
+
+    deleteMemberInfo: function(data, cb) {
+      console.log(data);
+      var sql = 'DELETE FROM members WHERE alias=?';
+      conn.query(sql,[data.id], function(err, results) {
+        if(err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          cb(null, {err: "0"});
+        }
+      });
     }
   },
 
@@ -925,9 +939,22 @@ module.exports = {
       */
       console.log('this is addlist');
       console.log(data);
+      /*
+        data validation
+      */
+      var service;
+      var price;
+      if (data.service == "") {service = 0; }
+      else {service = parseInt(data.service); }
 
-      var sql = 'INSERT INTO account (content, ep, price) VALUES (?, ?, ?)';
-      conn.query(sql, [data.content, data.inout, data.price], function(err, results) {
+      if (data.price == "") {price = 0;}
+      else {price = parseInt(data.price); }
+
+
+      service = parseInt(data.service);
+
+      var sql = 'INSERT INTO account (content, ep, price, service) VALUES (?, ?, ?, ?)';
+      conn.query(sql, [data.content, data.inout, price, service], function(err, results) {
         if(err) {
           console.log(err);
           cb(new Error('query error'));
@@ -1212,7 +1239,26 @@ module.exports = {
         else {
           cb(null, {err: "0"});
         }
-      })
+      });
+    },
+
+    holdoff: function(data, cb) {
+
+      var sql = 'UPDATE members SET stop=IF(stop=0, 1, 0) WHERE id=?';
+      conn.query(sql, [data.id], function(err, result) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          var sql = 'SELECT stop FROM members WHERE id=?';
+          conn.query(sql, [data.id], function(err, result) {
+            console.log(result);
+            var isStop = result[0].stop;
+            cb(null, {err: "0", do: isStop});
+          });
+        }
+      });
     }
   }
 };

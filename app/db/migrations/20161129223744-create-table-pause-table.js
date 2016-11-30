@@ -15,14 +15,17 @@ exports.setup = function(options, seedLink) {
 };
 
 exports.up = function(db, cb) {
-  db.createTable('owner', {
-    id: {type: 'int', primaryKey: true},
-    name: 'string'
-  }, cb);
+  db.addColumn('members', 'stop',
+    {
+      type: 'int',
+      unsigned: true,
+      notNull: true,
+      defaultValue: 0
+    }, cb);
 };
 
 exports.down = function(db, cb) {
-  db.dropTable('owner', cb);
+  db.removeColumn('members', 'stop', cb);
 };
 
 exports._meta = {

@@ -10,6 +10,13 @@ module.exports = {
   SYSTEM
   ***************************************************************************************/
   /*
+    hold_on_off
+  */
+  hold_on_off: function(req, res) {
+    console.log('##############');
+    res.send(req.do.toString());
+  },
+  /*
     payback_succ
   */
   payback_succ: function(req, res) {
@@ -21,6 +28,12 @@ module.exports = {
   get_memberinfo_succ: function(req, res) {
     var json = JSON.stringify(req.member);
     res.send(json);
+  },
+  /*
+    delete_memberinfo_succ
+  */
+  delete_memberinfo_succ: function(req, res) {
+    res.send('success');
   },
   /*
     modify_memberinfo_succ
