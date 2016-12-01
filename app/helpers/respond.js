@@ -79,7 +79,15 @@ module.exports = {
   */
   already_booked: function(req, res) {
     console.log('already booked :(');
-    var retpack = JSON.stringify(req.reserve); /* {err: '1' } */
+    var retpack = JSON.stringify(req.reserve); /* {err: '2' } */
+    res.send(retpack);
+  },
+
+  /*
+    incorrect_booking
+  */
+  incorrect_booking: function(req, res) {
+    var retpack = JSON.stringify(req.reserve);
     res.send(retpack);
   },
   /*
@@ -212,6 +220,13 @@ module.exports = {
   spend_all_day: function(req, res) {
     res.render('clients_index', {spend_all_day_err : "1"} );
   },
+
+  /*
+    stop_member_err
+  */
+  stop_member_err: function(req, res) {
+    res.render('clients_index', {stop_member_err : "1"});
+  },
   /*
     Periodic check
   */
@@ -220,6 +235,13 @@ module.exports = {
     console.log(req.alert);
     var json = JSON.stringify(req.alert);
     res.send(json);
+  },
+
+  /*
+    periodic_pause_check
+  */
+  periodic_pause_check: function(req, res) {
+    res.send(req.err);
   },
 
   /*
@@ -249,6 +271,17 @@ module.exports = {
       seatinfo: json,
       paymentid: req.query.pid,
       leftTime: req.query.lt,
+    });
+  },
+
+  /*
+    client_seat_status
+  */
+  client_seat_status: function (req, res) {
+    var json = JSON.stringify(req.seatinfo);
+    res.render('clients_seats_status',
+    {
+      seatinfo: json
     });
   },
 

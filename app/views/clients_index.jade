@@ -33,7 +33,7 @@ html
             h1.page-head-line 독서실 사용자 페이지입니다.
             h1.page-subhead-line
         .row(style='margin-top:80px')
-          .col-md-2.col-md-offset-2
+          .col-md-2.col-md-offset-1
             .main-box.mb-dull
               a#enter
                 i.fa.fa-bolt.fa-5x
@@ -42,7 +42,7 @@ html
             .main-box.mb-dull
               a#pause
                 i.fa.fa-coffee.fa-5x
-                h5 일시정지/재시작
+                h5 정지/재시작
           .col-md-2
             .main-box.mb-dull
               a#leave
@@ -53,6 +53,11 @@ html
               a#study-room.a-cursor-pointer
                 i.fa.fa-check-circle-o.fa-5x
                 h5 스터디룸
+          .col-md-2
+            .main-box.mb-dull
+              a#room-status.a-cursor-pointer
+                i.fa.fa-users.fa-5x(aria-hidden='true')
+                h5 좌석현황
         form#enterance-form(action='/clients/enter' method='post')
           input(type='hidden' name='enter')
         form#exit-form(action='/clients/leave' method='post')
@@ -61,6 +66,8 @@ html
           input(type='hidden' name='pause')
         form#studyroom-form(action='/clients/studyroom' method='get')
           input(type='hidden' name='studyroom')
+        form#seatstate-form(action='/clients/seatstate' method='get')
+          input(type='hidden' name='seatstate')
         //- TOAST MESSAGE
         #password-err-snackbar
           | 비밀번호가 잘못되었습니다.
@@ -82,6 +89,8 @@ html
           | 이미 퇴실하였습니다.
         #leave-succ-snackbar
           | 퇴실하였습니다.
+        #stop-member-err-snackbar
+          | 보류회원은 먼저 보류상태를 풀어야 합니다.
         
           
     //- JQUERY SCRIPTS
@@ -102,6 +111,7 @@ html
       var pr                        = '!{pr}';
       var already_exited            = '!{already_exited}';
       var client_leave_succ         = '!{client_leave_succ}';
+      var stop_member_err           = '!{stop_member_err}';
       
       window.onload = function() {
         if (password_err === "1") {
@@ -133,6 +143,9 @@ html
         }
         else if(client_leave_succ === "1") {
           show_snackbar('leave-succ-snackbar'); return false;
+        }
+        else if(stop_member_err === "1") {
+          show_snackbar('stop-member-err-snackbar'); return false;
         }
       }
       //- SNACKBAR
@@ -167,7 +180,12 @@ html
         $('#study-room').click(function() {
           $('input[name="studyroom"]').val("1");
           $('#studyroom-form').submit();
-        })
+        });
+        
+        $('#room-status').click(function() {
+          $('input[name="seatstate"]').val("1");
+          $('#seatstate-form').submit();
+        });
       });
       /* block go back ward */
       history.pushState(null, document.title, location.href);

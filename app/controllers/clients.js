@@ -127,6 +127,9 @@ module.exports.set = function(app, passport) {
     else if(req.member.err === "5") {
       respond.spend_all_day(req, res);
     }
+    else if(req.member.err === "6") {
+      respond.stop_member_err(req, res);
+    }
     else {
       /* if success at auth, then get the seats info */
       // respond.client_auth_succ(req, res);
@@ -162,6 +165,16 @@ module.exports.set = function(app, passport) {
   }, function (req, res, next) {
     respond.client_enter_succ(req, res);
   });
+
+  /*
+    /clients/seatstate
+  */
+  app.get('/clients/seatstate', function(req, res, next) {
+    member.getSeatInfo(req, res, next);
+  }, function(req, res, next) {
+    respond.client_seat_status(req, res);
+  });
+
   /*
     /clients/leave/auth (POST)
 
@@ -243,6 +256,14 @@ module.exports.set = function(app, passport) {
     respond.periodic_check(req, res);
   });
 
+  /*
+    /clients/pausechk
+  */
+  app.post('/clients/pausechk', function(req, res, next) {
+    member.checkPause(req, res, next);
+  }, function(req, res, next) {
+    respond.periodic_pause_check(req, res);
+  });
   /*
     /clients/floor (POST)
 

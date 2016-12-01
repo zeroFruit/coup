@@ -23,6 +23,8 @@ html
     link(href='public/stylesheets/temp/client-page-style.css',     rel='stylesheet')
     //-link(href='public/stylesheets/temp/seats-style-test.css' rel='stylesheet')
     link(href='public/stylesheets/temp/jquery.seat-charts.css' rel='stylesheet')
+    //- SEAT CHART CUSTOM STYLE
+    link(href='public/stylesheets/temp/seat-chart-custom.css' rel='stylesheet')
   body
     #wrapper
       #page-wrapper
@@ -31,10 +33,12 @@ html
             h1.page-head-line 4층 입니다.
             h1.page-subhead-line 좌석을 선택하고 좌석선택 버튼을 눌러주세요.
         .row
-          .col-md-4.col-md-offset-2
+          .col-md-3.col-md-offset-3
             .booking-details
               h2 좌석
-                #seat-map
+              hr
+              #seat-map
+          .col-md-2
             .booking-details
               h2 좌석 정보
               h3
@@ -44,7 +48,7 @@ html
               ul#selected-seats
               button.checkout-button#checkout 좌석선택 »
               #legend
-          .col-md-4
+          .col-md-3
             .booking-details
               h2 다른 층 좌석 보기
               button.checkout-button#3f 3F - 열람실
@@ -112,7 +116,7 @@ html
           legend : {
             node : $('#legend'),
               items : [
-              [ 'n', 'available',   'Normal Seats' ],
+              [ 'n', 'available',   '남아있는 자리' ],
               ]					
           },
           click: function () {

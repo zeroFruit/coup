@@ -243,6 +243,9 @@ module.exports.set = function(app, passport) {
     if (req.reserve.err === "2") {
       return respond.already_booked(req, res);
     }
+    else if (req.reserve.err === "3") {
+      return respond.incorrect_booking(req, res);
+    }
     else {
       respond.book_succ(req, res);
     }

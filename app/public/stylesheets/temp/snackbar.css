@@ -36,7 +36,8 @@
 #pause-snackbar,
 #reuse-snackbar,
 #already-exited-err-snackbar,
-#leave-succ-snackbar
+#leave-succ-snackbar,
+#stop-member-err-snackbar
 {
   visibility: hidden;
   min-width: 250px;
@@ -66,7 +67,8 @@
 #pause-snackbar.show,
 #reuse-snackbar.show,
 #already-exited-err-snackbar.show,
-#leave-succ-snackbar.show
+#leave-succ-snackbar.show,
+#stop-member-err-snackbar.show
 {
     visibility: visible;
     -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;

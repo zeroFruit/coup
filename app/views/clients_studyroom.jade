@@ -421,11 +421,11 @@ html
             var jsonelt = room1Reservation[i];
             var it = jsonelt.duration * 2; /* because table is separated with 30 min */
             if (parseFloat(name) === jsonelt.start) {
-              $(this).find('th[name="avail"]').text('reserved');
+              $(this).find('th[name="avail"]').css('background-color', 'gray');
               /* also for duration, mark with 'reserved' value */
               var nextTd = $(this).next();
               for (var i = 1; i < it; i++) {
-                nextTd.find('th[name="avail"]').text('reserved');
+                nextTd.find('th[name="avail"]').css('background-color', 'gray');
                 nextTd = nextTd.next();
               }
             }
@@ -439,11 +439,11 @@ html
             var jsonelt = room2Reservation[i];
             var it = jsonelt.duration * 2; /* because table is separated with 30 min */
             if (parseFloat(name) === jsonelt.start) {
-              $(this).find('th[name="avail"]').text('reserved');
+              $(this).find('th[name="avail"]').css('background-color', 'gray');
               /* also for duration, mark with 'reserved' value */
               var nextTd = $(this).next();
               for (var i = 1; i < it; i++) {
-                nextTd.find('th[name="avail"]').text('reserved');
+                nextTd.find('th[name="avail"]').css('background-color', 'gray');
                 nextTd = nextTd.next();
               }
             }
@@ -457,11 +457,11 @@ html
             var jsonelt = room3Reservation[i];
             var it = jsonelt.duration * 2; /* because table is separated with 30 min */
             if (parseFloat(name) === jsonelt.start) {
-              $(this).find('th[name="avail"]').text('reserved');
+              $(this).find('th[name="avail"]').css('background-color', 'gray');
               /* also for duration, mark with 'reserved' value */
               var nextTd = $(this).next();
               for (var i = 1; i < it; i++) {
-                nextTd.find('th[name="avail"]').text('reserved');
+                nextTd.find('th[name="avail"]').css('background-color', 'gray');
                 nextTd = nextTd.next();
               }
             }

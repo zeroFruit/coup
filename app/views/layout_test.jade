@@ -267,13 +267,19 @@ html
         
     //- STUDY ROOM RESERVATION
     #studyroom-reservation-modal.modal(style='padding-top:0px')
-      .modal-content.animate#reservation-wrapper(style='width:50%; padding-top:20px; margin-top:10px')
+      .modal-content.animate#reservation-wrapper(style='width:50%; height:90%; padding-top:20px; margin-top:10px')
         #account-head.container(style='width:100%')
           h1.page-subhead-line 스터디룸 예약 날짜를 선택해주세요.
-          .col-md-8
+          .col-md-4
             .form-group
-              #reservation-date.input-group.date
-                input.form-control(type='text' name='reserve-date' placeholder='예약 날짜')
+              #studyroom-datetimepickerMin.input-group.date
+                input.form-control(type='text' name='mindate' placeholder='시작 날짜')
+                span.input-group-addon
+                  span.fa.fa-calendar(area-hidden='true')
+          .col-md-4
+            .form-group
+              #studyroom-datetimepickerMax.input-group.date
+                input.form-control(type='text' name='maxdate' placeholder='마지막 날짜')
                 span.input-group-addon
                   span.fa.fa-calendar(area-hidden='true')
           .col-md-4
@@ -281,65 +287,76 @@ html
               a#reserve-date-select.a-cursor-pointer
                 h6 선택
         #select-hours-container.container(style="width:100%; display:none")
-          .col-md-3
-            .form-group
-              label 시작 시간
-              //-input.form-control#start-hour(type='text' placeholder='ex: 7 (07:00), 15.5 (15:30)')
-              select.form-control#select-hours
-                option(name='7')    07:00
-                option(name='7.5')  07:30
-                option(name='8')    08:00
-                option(name='8.5')  08:30
-                option(name='9')    09:00
-                option(name='9.5')  09:30
-                option(name='10')   10:00
-                option(name='10.5') 10:30
-                option(name='11')   11:00
-                option(name='11.5') 11:30
-                option(name='12')   12:00
-                option(name='12.5') 12:30
-                option(name='13')   13:00
-                option(name='13.5') 13:30
-                option(name='14')   14:00
-                option(name='14.5') 14:30
-                option(name='15')   15:00
-                option(name='15.5') 15:30
-                option(name='16')   16:00
-                option(name='16.5') 16:30
-                option(name='17')   17:00
-                option(name='17.5') 17:30
-                option(name='18')   18:00
-                option(name='18.5') 18:30
-                option(name='19')   19:00
-                option(name='19.5') 19:30
-                option(name='20')   20:00
-                option(name='20.5') 20:30
-                option(name='21')   21:00
-                option(name='21.5') 21:30
-                option(name='22')   22:00
-                option(name='22.5') 22:30
-                option(name='23')   23:00
-          .col-md-3
-            label
-              | 이용 시간
-            input.form-control#duration(type='text' placeholder='한 시간 단위로 입력.')
-          .col-md-3
-            label
-              | 방 번호
-            select.form-control#select-room
-              option(name='1') 1
-              option(name='2') 2
-              option(name='3') 3
-          .col-md-3
-            .main-box.mb-dull(style='padding:5px')
-              a#reserve-hour-select.a-cursor-pointer
-                h6 예약
+          .row
+            .col-md-3
+              .form-group
+                label 시작 시간
+                //-input.form-control#start-hour(type='text' placeholder='ex: 7 (07:00), 15.5 (15:30)')
+                select.form-control#select-hours
+                  option(name='7')    07:00
+                  option(name='7.5')  07:30
+                  option(name='8')    08:00
+                  option(name='8.5')  08:30
+                  option(name='9')    09:00
+                  option(name='9.5')  09:30
+                  option(name='10')   10:00
+                  option(name='10.5') 10:30
+                  option(name='11')   11:00
+                  option(name='11.5') 11:30
+                  option(name='12')   12:00
+                  option(name='12.5') 12:30
+                  option(name='13')   13:00
+                  option(name='13.5') 13:30
+                  option(name='14')   14:00
+                  option(name='14.5') 14:30
+                  option(name='15')   15:00
+                  option(name='15.5') 15:30
+                  option(name='16')   16:00
+                  option(name='16.5') 16:30
+                  option(name='17')   17:00
+                  option(name='17.5') 17:30
+                  option(name='18')   18:00
+                  option(name='18.5') 18:30
+                  option(name='19')   19:00
+                  option(name='19.5') 19:30
+                  option(name='20')   20:00
+                  option(name='20.5') 20:30
+                  option(name='21')   21:00
+                  option(name='21.5') 21:30
+                  option(name='22')   22:00
+                  option(name='22.5') 22:30
+                  option(name='23')   23:00
+            .col-md-3
+              label
+                | 이용 시간
+              input.form-control#duration(type='text' placeholder='한 시간 단위로 입력.')
+            .col-md-3
+              label
+                | 방 번호
+              select.form-control#select-room
+                option(name='1') 1
+                option(name='2') 2
+                option(name='3') 3
+            .col-md-3
+              .main-box.mb-dull(style='padding:5px')
+                a#reserve-hour-select.a-cursor-pointer
+                  h6 예약
+          .row
+            .col-md-3
+              label 
+                | 사용자명
+              input.form-control#studyroom-users(type='text', placeholder='사용자명을 입력해주세요.')
+            .col-md-3
+              label
+                | 사용 목적
+              input.form-control#studyroom-purpose(type='text' placeholder='사용목적을 입력해주세요.')
         .container(style='width:100%')
           .col-md-12
             h1.page-subhead-line 예약 현황 
         .container(style='width:100%')
           .col-md-4
-            .table-responsive-vertical.shadow-z-1.scroll-table
+            h5 1번 스터디룸
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:40%')
               //- Table starts here
               table#account-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
@@ -454,7 +471,8 @@ html
                     th 24:00
                     th(name='avail')
           .col-md-4
-            .table-responsive-vertical.shadow-z-1.scroll-table
+            h5 2번 스터디룸
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:40%')
               //- Table starts here
               table#account-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
@@ -569,7 +587,8 @@ html
                     th 24:00
                     th(name='avail')
           .col-md-4
-            .table-responsive-vertical.shadow-z-1.scroll-table
+            h5 3번 스터디룸
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:40%')
               //- Table starts here
               table#account-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
@@ -707,17 +726,16 @@ html
                 h1.page-subhead-line 도구 모음 
             // /. ROW
             .row
-              .col-md-6
+              .col-md-3
                 .main-box.mb-dull
                   a#all-members.a-cursor-pointer
                     i.fa.fa-bolt.fa-5x
                     h5 !{renderSrc.numOfMem} 명의 회원이 등록하였습니다.
-              .col-md-6
+              .col-md-3
                 .main-box.mb-dull
                   a#active-members
                     i.fa.fa-plug.fa-5x
                     h5 !{renderSrc.numOfActiveMem} 명의 회원이 이용중입니다. 
-            .row  
               .col-md-3
                 .main-box.mb-dull
                   a#recharge.a-cursor-pointer
@@ -728,29 +746,30 @@ html
                   a#reserve-studyroom.a-cursor-pointer
                     i.fa.fa-check-square-o.fa-5x
                     h5 스터디룸 예약
+            .row
               .col-md-3
                 .main-box.mb-dull
                   a#account-management.a-cursor-pointer
                     i.fa.fa-book.fa-5x
                     h5 장부 관리
-              .col-md-1.col-md-offset-1
+              .col-md-3
                 .main-box.mb-dull
                   a#use-milage.a-cursor-pointer
                     i.fa.fa-minus-square.fa-5x
                     h5 마일리지 사용
-              .col-md-1
+              .col-md-3
                 .main-box.mb-dull
                   a#charge-milage.a-cursor-pointer
                     i.fa.fa-plus-square.fa-5x
                     h5 마일리지 충전
-            .row
-              .col-md-6
-                h1.page-subhead-line 퇴실 필요 회원들 
               .col-md-3
                 .main-box.mb-dull
                   a#payback.a-cursor-pointer
                     i.fa.fa-reply.fa-5x
                     h5 환불
+            .row
+              .col-md-6
+                h1.page-head-line 퇴실 필요 회원들 
               .col-md-3
                 .main-box.mb-dull
                   a#holdoff.a-cursor-pointer
@@ -1030,7 +1049,7 @@ html
                 var id = $parent.find('td:eq(0)').text();
                 var editable = $parent.find('td:eq(1)').attr("contenteditable");
                 if (editable === undefined || editable == 'false') {
-                  alert("내용을 변경한 뒤 다시한번 클릭해주세요.");
+                  alert("내용을 변경한 뒤 다시한번 클릭해주세요. \n\n <수정가능목록> \n  1. 이름\n  2. 성별\n  3. 준비시험\n  4. 메모");
                   $parent.find('td:eq(1)').attr("contenteditable", true);
                   //$parent.find('td:eq(2)').attr("contenteditable", true);
                   //$parent.find('td:eq(3)').attr("contenteditable", true);
@@ -1142,6 +1161,15 @@ html
         });
         $('#holdoff-submit').click(function(event) {
           event.preventDefault();
+          
+          /*
+            before getting data erase the old content
+          */
+          var container = document.getElementById('holdoff-result');
+          while(container.firstChild) {
+            container.removeChild(container.firstChild);
+          }
+          /* do next job */
           var alias = $('#holdoff-name').val();
           
           if (alias === "") {
@@ -1266,8 +1294,8 @@ html
           */
           $('#select-hours-container').css('display', 'block');
           
-          var reserveDate = $('#reservation-date').data("date");
-          if (reserveDate === undefined) {
+          var reserveDateMin = $('#studyroom-datetimepickerMin').data("date");
+          if (reserveDateMin === undefined) {
             alert('날짜를 선택해주세요.');
             return false;
           }
@@ -1275,7 +1303,7 @@ html
           $.ajax({
             url: '/system/studyroom-currentstate',
             method: 'post',
-            data: {reserveDate: reserveDate}
+            data: {reserveDate: reserveDateMin}
           }).done(function(results) {
             var json = JSON.parse(results);
             console.log(json);
@@ -1294,12 +1322,20 @@ html
               for (var i = 0; i < room1Reservation.length; i++) {
                 var jsonelt = room1Reservation[i];
                 var it = jsonelt.duration * 2; /* because table is separated with 30 min */
+
+                if (jsonelt.users == null) {
+                  jsonelt.users = "-";
+                }
+                if (jsonelt.purpose == null) {
+                  jsonelt.purpose = "-";
+                }
+                
                 if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').text('reserved');
+                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                   /* also for duration, mark with 'reserved' value */
                   var nextTd = $(this).next();
                   for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').text('reserved');
+                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                     nextTd = nextTd.next();
                   }
                 }
@@ -1311,12 +1347,20 @@ html
               for (var i = 0; i < room2Reservation.length; i++) {
                 var jsonelt = room2Reservation[i];
                 var it = jsonelt.duration * 2; /* because table is separated with 30 min */
+                
+                if (jsonelt.users == null) {
+                  jsonelt.users = "-";
+                }
+                if (jsonelt.purpose == null) {
+                  jsonelt.purpose = "-";
+                }
+                
                 if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').text('reserved');
+                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                   /* also for duration, mark with 'reserved' value */
                   var nextTd = $(this).next();
                   for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').text('reserved');
+                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                     nextTd = nextTd.next();
                   }
                 }
@@ -1328,12 +1372,20 @@ html
               for (var i = 0; i < room3Reservation.length; i++) {
                 var jsonelt = room3Reservation[i];
                 var it = jsonelt.duration * 2; /* because table is separated with 30 min */
+                
+                if (jsonelt.users == null) {
+                  jsonelt.users = "-";
+                }
+                if (jsonelt.purpose == null) {
+                  jsonelt.purpose = "-";
+                }
+                
                 if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').text('reserved');
+                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                   /* also for duration, mark with 'reserved' value */
                   var nextTd = $(this).next();
                   for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').text('reserved');
+                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                     nextTd = nextTd.next();
                   }
                 }
@@ -1355,10 +1407,13 @@ html
         $('#reserve-hour-select').click(function() {
           var startHour = $('#select-hours').find('option:selected').attr("name");
           var roomNum   = $('#select-room').find('option:selected').attr("name");
-          var duration = $('#duration').val();
-          var reserveDate = $('#reservation-date').data("date");
+          var duration  = $('#duration').val();
+          var users     = $('#studyroom-users').val();
+          var purpose   = $('#studyroom-purpose').val();
+          var reserveDateMin = $('#studyroom-datetimepickerMin').data("date");
+          var reserveDateMax = $('#studyroom-datetimepickerMax').data("date");
           
-          if (startHour === '' || duration === '') {
+          if (startHour === '' || duration === '' || reserveDateMax === undefined) {
             alert('fill the form please..');
             return false;
           }
@@ -1369,14 +1424,20 @@ html
             data: {
               sh: startHour,
               du: duration,
-              rd: reserveDate,
-              rn: roomNum
+              rds: reserveDateMin,
+              rde: reserveDateMax,
+              rn: roomNum,
+              users: users,
+              purpose: purpose
             }
           }).done(function(results) {
             console.log(results);
             var json = JSON.parse(results);
             if (json.err == "2") {
               alert('이미 예약된 시간입니다.');
+            }
+            else if(json.err == "3") {
+              alert('24시를 넘어서는 예약할 수 없습니다.');
             }
             else if(json.err == "0") {
               alert('예약에 성공했습니다.');
@@ -1386,6 +1447,8 @@ html
             */
             $('#select-hours').prop('selectedIndex', 0);
             $('#duration').val('');
+            $('#studyroom-users').val('');
+            $('#studyroom-purpose').val('');
           });
         });
         
@@ -1435,7 +1498,7 @@ html
           $('input[name="account-price"]').val("");
         })
         /*
-          Datepicker Display
+          Datepicker Display - Account list
         */
         $('#datetimepickerMin').datetimepicker({format: 'YYYY-MM-DD'});
         $('#datetimepickerMax').datetimepicker({
@@ -1449,11 +1512,25 @@ html
           $('#datetimepickerMin').data("DateTimePicker").maxDate(e.date);
         });
         
-        /* reservation datepicker*/
-        $('#reservation-date').datetimepicker({
-          useCurrent: false,
+        /*
+          Datepicker Display - studyroom list
+        */
+        $('#studyroom-datetimepickerMin').datetimepicker({format: 'YYYY-MM-DD'});
+        $('#studyroom-datetimepickerMax').datetimepicker({
+          useCurrent: false, //Important! See issue #1075
           format: 'YYYY-MM-DD'
         });
+        $("#studyroom-datetimepickerMin").on("dp.change", function (e) {
+          $('#studyroom-datetimepickerMax').data("DateTimePicker").minDate(e.date);
+        });
+        $("#studyroom-datetimepickerMax").on("dp.change", function (e) {
+          $('#studyroom-datetimepickerMin').data("DateTimePicker").maxDate(e.date);
+        });
+        
+        /*
+          If admin clicked btn which reserve studyroom between two dates
+        */
+        
         /*
           If admin clicked btn which display accoutn list between two dates
         */
@@ -1524,7 +1601,7 @@ html
                 var editable = $parent.find('td[data-title="content"]').attr("contenteditable");
                 
                 if (editable === undefined || editable === false) {
-                  alert("내용을 변경한 뒤 다시한번 클릭해주세요.");
+                  alert("내용을 변경한 뒤 다시한번 클릭해주세요.\n\n <수정가능목록> \n  1. 장부내용\n  2. 수입/지출 표시\n  3. 가격 ");
                   console.log(editable);
                   $parent.find('td:eq(1)').attr("contenteditable", true);
                   $parent.find('td:eq(2)').attr("contenteditable", true);
@@ -1821,7 +1898,19 @@ html
         //- Periodically request to server to check whether there is users who almost spend their time
         //-
         setInterval(periodicRequest, 15 * 60 * 1000);
+        
+        /*
+          Periodically check paused members
+        */
+        setInterval(pauseTableChk, 10 * 60 * 1000);
       }); 
+      function pauseTableChk() {
+        console.log('pauseTC');
+        $.ajax({
+          url: '/clients/pausechk',
+          method: 'post'
+        });
+      }
       function periodicRequest() {
         $.ajax({
           url: '/clients/scheduler',
@@ -1840,7 +1929,7 @@ html
                 '<tr>'+
                 ' <td data-title="ID">'+ json[i].alias +'</td>' +
                 ' <td data-title="seatNum">'+ json[i].seatnum +'</td>' +
-                ' <td data-title="timeLeft">'+ json[i].left +'</td>' +
+                ' <td data-title="timeLeft">'+ json[i].left +"("+json[i].fee+' 원)</td>' +
                 ' <td date-title="delete"><a class="delete-row">[삭제하기]</a></td>' +
                 '</tr>'
               );

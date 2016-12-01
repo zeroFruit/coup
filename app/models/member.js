@@ -65,7 +65,7 @@ module.exports = {
       /*
         With this req.member, server can check whether query was successful or can be used other things
       */
-      
+
       req.member = member;
       //req.err    = member.err;
       next();
@@ -221,9 +221,17 @@ module.exports = {
             retelt.seatnum = tsobj.seatnum;
             if (minutes < 0) { /* In the case of time is over, we set alert to 1 */
               retelt.alert = "1";
+              /* change overtime as fee */
+              var hour = minutes / 60;
+              var over = minutes % 60;
+              if (over > 10) {
+                hour = hour + 1;
+              }
+              retelt.fee = hour * 800;
             }
             else {
               retelt.alert = "0";
+              retelt.fee = 0;
             }
             retarr.push(retelt);
           }
@@ -233,6 +241,18 @@ module.exports = {
       req.alert = retarr;
       console.log(retarr);
       next();
+    });
+  },
+
+  checkPause: function(req, res, next) {
+    db.member.checkPause(function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.err = results.err;
+        next();
+      }
     });
   },
 

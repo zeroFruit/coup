@@ -30,41 +30,26 @@ html
       #page-wrapper
         .row
           .col-md-12
-            h1.page-head-line 3층 입니다.
-            h1.page-subhead-line 좌석을 선택하고 좌석선택 버튼을 눌러주세요.
+            h1.page-head-line 좌석 현황입니다.
+        .row
+          .col-md-4.col-md-offset-4
+            .main-box.mb-dull
+              a#client-return.a-cursor-pointer
+                h5 돌아가기
         .row
           .col-md-3.col-md-offset-3
             .booking-details
-              h2 좌석
+              h2 3층 좌석
               hr
-              #seat-map
-          .col-md-2
+              #seat-map-3f
+          .col-md-3.col-md-offset-1
             .booking-details
-              h2 좌석 정보
-              h3
-                | 선택한 자리 (
-                span#counter -
-                | ):
-              ul#selected-seats
-              button.checkout-button#checkout 좌석선택 »
-              #legend
-          .col-md-3
-            .booking-details
-              h2 다른 층 좌석 보기
-              button.checkout-button#3f 3F - 열람실 
-              button.checkout-button#4f 4F - 열람실
-    form#seat-submit(action='/clients/seat' method='post')
-      input(type='hidden' name='seatid')
-      input(type='hidden' name='seatnum')
-      input(type='hidden' name='alias')
-      input(type='hidden' name='paymentid')
-      input(type='hidden' name='leftTime')
-      input(type='hidden' name='floorid')
-    form#floor-change(action='/clients/floor' method='post')
-      input(type='hidden' name='alias')
-      input(type='hidden' name='floornum')
-      input(type='hidden' name='pid')
-      input(type='hidden' name='lt')
+              h2 4층 좌석
+              hr
+              #seat-map-4f
+
+    form#client-return-submit(action='/clients/return' method='post')
+      input(type='hidden' name='return')
       
     //- JQUERY SCRIPTS
     script(src='public/javascripts/temp/jquery-1.10.2.js')
@@ -76,21 +61,16 @@ html
     script(src='public/javascripts/temp/custom.js')
     script(src='public/javascripts/temp/jquery.seat-charts.min.js')
     script.
-      var floorid         = "3";
-      var firstSeatLabel  = 1;
-      var accessMember    = '!{alias}';
-      var seatinfo        = '!{seatinfo}';  /* this is seat info which contains seatid, payment, memo */
-      var paymentid       = '!{paymentid}'; 
-      var leftTime        = '!{leftTime}';
+      var firstSeatLabel_3f   = 1;
+      var firstSeatLabel_4f   = 39;
+      var seatinfo            = '!{seatinfo}';  /* this is seat info which contains seatid, payment, memo */
       
       var jsonSeatInfo  = JSON.parse(seatinfo);
       //alert(seatinfo);
-      console.log(seatinfo);
-      console.log(jsonSeatInfo);
+      //console.log(seatinfo);
+      //console.log(jsonSeatInfo);
       $(document).ready(function() {
-        var $cart = $('#selected-seats'),
-          $counter = $('#counter'),
-          sc = $('#seat-map').seatCharts({
+          var sc3f = $('#seat-map-3f').seatCharts({
           map: [
             'nn_nnnn_n',
             'nn_nnnn_n',
@@ -112,7 +92,7 @@ html
             top : false,
             left: false,
             getLabel : function (character, row, column) {
-              return firstSeatLabel++;
+              return firstSeatLabel_3f++;
             },
           },
           legend : {
@@ -121,21 +101,16 @@ html
               [ 'n', 'available',   '남아있는 자리' ],
               ]					
           },
+          
           click: function () {
             if (this.status() == 'available') {
               /*
                 script about two seats simultanously  can not be reserved
               */
-              $counter.text(this.data().category+": "+this.settings.label);
-              sc.find('n.selected').status('available');
-
+              sc3f.find('n.selected').status('available');
+          
               return 'selected';
             } else if (this.status() == 'selected') {
-
-              $counter.text("-");
-              //remove the item from our cart
-              $('#cart-item-'+this.settings.id).remove();
-            
               //seat has been vacated
               return 'available';
             } else if (this.status() == 'unavailable') {
@@ -146,66 +121,87 @@ html
             }
           }
         });
+        
+        var sc4f = $('#seat-map-4f').seatCharts({
+        map: [
+          'nnnn___',
+          '_______',
+          'n_nn__n',
+          'n_nn__n',
+          'n_nn__n',
+          'n_nn__n'
+        ],
+        seats: {
+          n: {
+            price   : 100,
+            classes : 'normal-seats', //your custom CSS class
+            category: '좌석'
+          },
+        },
+        naming : {
+          top : false,
+          left: false,
+          getLabel : function (character, row, column) {
+            return firstSeatLabel_4f++;
+          },
+        },
+        legend : {
+          node : $('#legend'),
+            items : [
+            [ 'n', 'available',   '남아있는 자리' ],
+            ]					
+        },
+        
+        click: function () {
+          if (this.status() == 'available') {
+            /*
+              script about two seats simultanously  can not be reserved
+            */
+            sc4f.find('n.selected').status('available');
+        
+            return 'selected';
+          } else if (this.status() == 'selected') {
+            //seat has been vacated
+            return 'available';
+          } else if (this.status() == 'unavailable') {
+            //seat has been already booked
+            return 'unavailable';
+          } else {
+            return this.style();
+          }
+        }
+      });
         /* 
           after creating sc object, fetch unavailable seat with seatinfo object 
         */
-        var unavail_seats = [];
+        var unavail_seats_3f = [];
+        var unavail_seats_4f = [];
         for (var i = 0; i < jsonSeatInfo.length; i++) {
           var seatobj = jsonSeatInfo[i];
           /*
             We have to check whether seatobj element seat floor is same with current page floorid:3
           */
-          if (seatobj.seat_floor === floorid /* "3" */) {
-            unavail_seats.push(seatobj.seat);            
+          if (seatobj.seat_floor === "3" /* "3" */) {
+            unavail_seats_3f.push(seatobj.seat);            
+          }
+          
+          else if (seatobj.seat_floor === "4" /* "3" */) {
+            unavail_seats_4f.push(seatobj.seat);            
           }
         }
-        //console.log('this is unavail_seat');
-        //alert(unavail_seats[0]);
-        sc.status(unavail_seats, 'unavailable');
+        //- //console.log('this is unavail_seat');
+        //- //alert(unavail_seats[0]);
+        sc3f.status(unavail_seats_3f, 'unavailable');
+        sc4f.status(unavail_seats_4f, 'unavailable');
         
-        
-        //let's pretend some seats have already been booked
-        //sc.get(['1_2', '4_1', '7_1', '7_2']).status('unavailable');
-        $('#checkout').on('click', function() {
-          var seatid, seatnum;
-          sc.find('n.selected').each(function(seatId) {
-            /* there should be only one element */
-            console.log(this.settings.id);
-            seatid = this.settings.id;
-            seatnum = this.settings.label;
-          });
-          $('input[name="seatid"]').val(seatid);
-          $('input[name="alias"]').val(accessMember);
-          $('input[name="seatnum"]').val(seatnum);
-          $('input[name="paymentid"]').val(paymentid);
-          $('input[name="leftTime"]').val(leftTime);
-          $('input[name="floorid"]').val(floorid);
-          $('#seat-submit').submit();
+        /*
+          client want to return to index
+        */
+        $('#client-return').click(function() {
+          $('input[name="return"]').val('1');
+          $('#client-return-submit').submit();
         });
         
-        /* change floor button clicked */
-        $('#3f').click(function() {
-          $('input[name="floornum"]').val("3");
-          $('input[name="pid"]').val(paymentid);
-          $('input[name="lt"]').val(leftTime);
-          $('input[name="alias"]').val(accessMember);
-          
-          $('#floor-change').submit();          
-        });
-        $('#4f').click(function() {
-          $('input[name="floornum"]').val("4");
-          $('input[name="pid"]').val(paymentid);
-          $('input[name="lt"]').val(leftTime);
-          $('input[name="alias"]').val(accessMember);
-          $('#floor-change').submit();          
-        });
-        $('#b1').click(function() {
-          $('input[name="floornum"]').val("-1");
-          $('input[name="pid"]').val(paymentid);
-          $('input[name="lt"]').val(leftTime);
-          $('input[name="alias"]').val(accessMember);
-          $('#floor-change').submit();          
-        }); 
       });
       /* block go back ward */
       history.pushState(null, document.title, location.href);

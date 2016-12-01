@@ -1,0 +1,17 @@
+.seatCharts-cell {
+  height: 30px!important;
+  width: 30px!important;
+  line-height: 30px!important;
+}
+
+.seatCharts-seat {
+  background-color: #FF7777!important;
+}
+
+.seatCharts-seat.selected {
+  background-color: #8E8E8E!important;
+}
+
+.seatCharts-seat.unavailable {
+  background-color: #440011!important;
+}

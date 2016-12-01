@@ -35,10 +35,11 @@ app.set('view engine', 'jade');
 */
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/clients/public', express.static(path.join(__dirname, 'public')));
-app.use('/clients/enter/public', express.static(path.join(__dirname, 'public')));
-app.use('/clients/leave/public', express.static(path.join(__dirname, 'public')));
-app.use('/clients/pause/public', express.static(path.join(__dirname, 'public')));
-app.use('/clients/floor/public', express.static(path.join(__dirname, 'public')));
+app.use('/clients/enter/public',      express.static(path.join(__dirname, 'public')));
+app.use('/clients/leave/public',      express.static(path.join(__dirname, 'public')));
+app.use('/clients/pause/public',      express.static(path.join(__dirname, 'public')));
+app.use('/clients/floor/public',      express.static(path.join(__dirname, 'public')));
+app.use('/clients/seatstate/public',  express.static(path.join(__dirname, 'public')));
 app.use('/bower_components', express.static(path.join(__dirname, 'bower_components')));
 
 
@@ -80,6 +81,8 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
+  console.log(res.locals.error);
+  console.log(res.locals.message);
   res.render('error');
 });
 
