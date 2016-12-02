@@ -891,9 +891,10 @@ html
           if (event.target == holdoff) {
             holdoff.style.display = "none";
             var holdoffId = document.getElementById("holdoff-name").value = "";
-            var container = document.getElementById("holdoff-hidden-container");
+            var wrapper   = document.getElementById("holdoff-hidden-container");
+            var container = document.getElementById("holdoff-result"); 
             
-            container.style.display = "none";
+            wrapper.style.display = "none";
             while(container.firstChild) {
               container.removeChild(container.firstChild);
             }
@@ -913,10 +914,13 @@ html
             recharge.style.display = "none";
             var paymentList = document.getElementById("choose-payment");
             var memberList  = document.getElementById("choose-member");
+            var cash        = document.getElementById("choose-cash");
             
             while(paymentList.firstChild) {
               paymentList.removeChild(paymentList.firstChild);
             }
+            memberList.value = "";
+            cash.value = "";
             //- while(memberList.firstChild) {
             //-   memberList.removeChild(memberList.firstChild);
             //- }
@@ -1804,9 +1808,8 @@ html
           });
         });
 
-        $('#choose-payment').on('change', function(event) {
+        $('#choose-payment').on('change',$(this), function(event) {
           /* if change first erae the cash value */
-          $("#choose-cash").attr("value", "");
           
           var val = $(this).prop('selectedIndex');
           if(val === 1) {
@@ -1815,7 +1818,7 @@ html
           }
           else {
             $("#choose-cash").attr("disabled", true);
-            $("#choose-cash").attr("value", payArr[val-1].price);
+            $("#choose-cash").val(payArr[val-1].price);
           }
         })
         /*

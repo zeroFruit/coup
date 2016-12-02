@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start"   : "forever start -o out.log -e err.log ./bin/www",
+    "restart" : "forever restart -o out.log -e err.log ./bin/www"
   },
   "dependencies": {
     "body-parser": "~1.15.2",
