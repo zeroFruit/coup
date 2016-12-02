@@ -1044,12 +1044,24 @@ module.exports = {
               stopMem.push(results[i].alias);
             }
           }
-
+          /***********************************************************************************************************
+            TEMPORARY
+          ***********************************************************************************************************/
           var queryString = "(";
-          for (var i = 0; i < stopMem.length-1; i++) {
-            queryString += stopMem[i].alias + ", ";
+          if (stopMem.length == 0) {
+            return cb(null, {err: "0"});
           }
-          queryString += stopMem[stopMem.length-1].alias + ")";
+          else if (stopMem.length == 1) {
+            queryString += stopMem[0].alias + ")";
+          }
+          else {
+            for (var i = 0; i < stopMem.length-1; i++) {
+              queryString += stopMem[i].alias + ", ";
+            }
+            queryString += stopMem[stopMem.length-1].alias + ")";  
+          }
+
+
 
           var sql = 'UPDATE members SET leftDay = IF(leftDay = 0, 0, leftDay-1) WHERE alias IN ' + queryString;
           conn.query(sql, function(err, results) {
