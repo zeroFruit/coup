@@ -1,17 +1,62 @@
 .seatCharts-cell {
-  height: 30px!important;
-  width: 30px!important;
-  line-height: 30px!important;
+  height: 25px!important;
+  width: 25px!important;
+  line-height: 25px!important;
 }
 
-.seatCharts-seat {
-  background-color: #FF7777!important;
+div.seatCharts-space {
+  background-color: #dfdfdf;
+}
+div.seatCharts-seat {
+  background-color: #FF7777
 }
 
-.seatCharts-seat.selected {
-  background-color: #8E8E8E!important;
+div.seatCharts-seat.available {
+  background-color: #FF7777
 }
 
-.seatCharts-seat.unavailable {
-  background-color: #440011!important;
+div.seatCharts-seat.selected {
+  background-color: #8E8E8E
+}
+
+div.seatCharts-seat.focused {
+  background-color: #ffe3e3;
+}
+
+div.seatCharts-seat.unavailable {
+  background-color: #440011
+}
+
+div.seatCharts-row {
+  height: 32;
+}
+
+div.seatCharts-seat.premium {
+  background-color: #465254
+}
+
+div.seatCharts-seat.premium.available {
+  background-color: #465254
+}
+
+div.seatCharts-seat.premium.focused {
+  background-color: #dfebed
+}
+
+div.seatCharts-seat.premium.unavailable {
+  background-color: #111415
+}
+
+div.seatCharts-seat.premium.selected {
+  background-color: #b0cfd2
+}
+
+/**/
+div.seatCharts-seat.enterance.unavailable {
+  background-color: #111415
+}
+
+/**/
+div.seatCharts-seat.wall.unavailable {
+  background-color: #111415
 }
