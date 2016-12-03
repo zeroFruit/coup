@@ -200,6 +200,9 @@ module.exports = {
       for (var i = 0; i < results.length; i++) {
         var tsobj = results[i];
 
+        /*
+          free user don't go through here
+        */
         if (tsobj['DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s")'] !== null) { /* only when fints is not null check the state */
           /* fints Date object */
           var dateObj = new Date(Date.parse(tsobj['DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s")'].replace('-','/','g')));

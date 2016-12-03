@@ -650,87 +650,87 @@ module.exports = {
                   });
                 }
               }
-
-
-              /*
-                Now trying to pause
-              */
-              if (isPause === "0") {
-                var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
-                conn.query(sql, ["1", data.pcid], function(err, results) {
-                  if(err) {
-                    cb(new Error('query error'));
-                  }
-                  else {
-                    /* succeed at reuse */
-                    var sql = 'INSERT INTO pause_table (alias, mask) VALUES (?, 1)';
-                    conn.query(sql, [data.pcid], function(err, results) {
-                      if (err) {
-                        cb(new Error('query error'));
-                      }
-                      else {
-                        return cb(null, {err: "0", alias: data.pcid, do: "pause"})
-                      }
-                    });
-                  }
-                });
-              }
+              else {
                 /*
-                  Now trying to reuse
+                  Now trying to pause
                 */
-              else if (isPause === "1") {
-                /*
-                  If trying to reuse, we need to recalculate the fin ts
-                */
-                oldTsStr     = resultObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
-                oldfinTsStr  = resultObj['DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s")'];
-                currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-                /*
-                  get Date Object from String
-                */
-                var oldTsDate     = new Date(Date.parse(oldTsStr.replace('-','/','g')));
-                var oldfinTsDate  = new Date(Date.parse(oldfinTsStr.replace('-','/','g')));
-                var curTsDate     = new Date(Date.parse(currentTsStr.replace('-','/','g')));
-                var diff = curTsDate - oldTsDate;
-                /*
-                  FINALLY get the difference of minutes
-                */
-                var minutes = Math.floor((diff/1000)/60);
-                /*
-                  But if client use monthly or half-monthly payment fints is always next day 00:00:00 AM
-                */
-                if (payment === '1' || payment === '3' || payment === '7' || payment === '12' || payment === '13' )
-                  diff = 0;
-
-                /*
-                  before add diff, check first whether total date not go next day!
-                */
-                var newfinTsDate  = new Date(oldfinTsDate.getTime() + diff);
-                if (newfinTsDate.getDay() != oldfinTsDate.getDay()) { /* if day is changed, set limit fints to next day 00:00 */
-                  newfinTsDate.setDate(oldfinTsDate.getDate() + 1);
-                  newfinTsDate.setHours(0, 0, 0);
+                if (isPause === "0") {
+                  var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
+                  conn.query(sql, ["1", data.pcid], function(err, results) {
+                    if(err) {
+                      cb(new Error('query error'));
+                    }
+                    else {
+                      /* succeed at reuse */
+                      var sql = 'INSERT INTO pause_table (alias, mask) VALUES (?, 1)';
+                      conn.query(sql, [data.pcid], function(err, results) {
+                        if (err) {
+                          cb(new Error('query error'));
+                        }
+                        else {
+                          return cb(null, {err: "0", alias: data.pcid, do: "pause"})
+                        }
+                      });
+                    }
+                  });
                 }
+                  /*
+                    Now trying to reuse
+                  */
+                else if (isPause === "1") {
+                  /*
+                    If trying to reuse, we need to recalculate the fin ts
+                  */
+                  oldTsStr     = resultObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
+                  oldfinTsStr  = resultObj['DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s")'];
+                  currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                  /*
+                    get Date Object from String
+                  */
+                  var oldTsDate     = new Date(Date.parse(oldTsStr.replace('-','/','g')));
+                  var oldfinTsDate  = new Date(Date.parse(oldfinTsStr.replace('-','/','g')));
+                  var curTsDate     = new Date(Date.parse(currentTsStr.replace('-','/','g')));
+                  var diff = curTsDate - oldTsDate;
+                  /*
+                    FINALLY get the difference of minutes
+                  */
+                  var minutes = Math.floor((diff/1000)/60);
+                  /*
+                    But if client use monthly or half-monthly payment fints is always next day 00:00:00 AM
+                  */
+                  if (payment === '1' || payment === '3' || payment === '7' || payment === '12' || payment === '13' )
+                    diff = 0;
+
+                  /*
+                    before add diff, check first whether total date not go next day!
+                  */
+                  var newfinTsDate  = new Date(oldfinTsDate.getTime() + diff);
+                  if (newfinTsDate.getDay() != oldfinTsDate.getDay()) { /* if day is changed, set limit fints to next day 00:00 */
+                    newfinTsDate.setDate(oldfinTsDate.getDate() + 1);
+                    newfinTsDate.setHours(0, 0, 0);
+                  }
 
 
-                var newfinTsStr = moment(newfinTsDate).format('YYYY-MM-DD HH:mm:ss').toString();
-                var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") WHERE alias=?';
-                conn.query(sql, ["0", newfinTsStr, data.pcid], function(err, results) {
-                  if(err) {
-                    cb(new Error('query error'));
-                  }
-                  else {
-                    /* succeed at pause */
-                    var sql = 'INSERT INTO pause_table (alias, mask) VALUES (?, 0)';
-                    conn.query(sql, [data.pcid], function(err, results) {
-                      if (err) {
-                        cb(new Error('query error'));
-                      }
-                      else {
-                        return cb(null, {err: "0", alias: data.pcid, do: "reuse"});
-                      }
-                    });
-                  }
-                });
+                  var newfinTsStr = moment(newfinTsDate).format('YYYY-MM-DD HH:mm:ss').toString();
+                  var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") WHERE alias=?';
+                  conn.query(sql, ["0", newfinTsStr, data.pcid], function(err, results) {
+                    if(err) {
+                      cb(new Error('query error'));
+                    }
+                    else {
+                      /* succeed at pause */
+                      var sql = 'INSERT INTO pause_table (alias, mask) VALUES (?, 0)';
+                      conn.query(sql, [data.pcid], function(err, results) {
+                        if (err) {
+                          cb(new Error('query error'));
+                        }
+                        else {
+                          return cb(null, {err: "0", alias: data.pcid, do: "reuse"});
+                        }
+                      });
+                    }
+                  });
+                }
               }
             }
           });
