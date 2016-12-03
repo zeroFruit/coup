@@ -104,6 +104,21 @@ module.exports = {
     })
   },
 
+  /*
+    reserveStudyRoomCancel
+  */
+  reserveStudyRoomCancel: function(req, res, next) {
+    db.system.cancelStudyRoom(req.body, function(err, results) {
+      if (err) {
+        return next();
+      }
+      else {
+        req.cancel = results;
+        next();
+      }
+    });
+  },
+
   clientStudyRoomState: function(req, res, next) {
     db.system.clientStudyRoomState(req.body, function(err, results) {
       if (err) {

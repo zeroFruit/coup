@@ -365,7 +365,7 @@ module.exports = {
             console.log('you already entered');
             return cb(null, {err: "4"});
           }
-          else if (results[0].leftDay === 0) {
+          else if (results[0].leftDay === 0 && results[0].payment != "14") { // free user can access
             console.log('you spend all the time');
             return cb(null, {err: "5"});
           }
@@ -398,6 +398,20 @@ module.exports = {
       */
       var paymentid = data.paymentid;
       var leftTime  = data.leftTime;
+
+      /* free user */
+      if (paymentid === '14') {
+        var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
+        conn.query("1", [data.seatid, data.seatnum, data.floorid, data.alias], function(err, results) {
+          if (err) {
+            console.log(err);
+            cb(new Error('query error'));
+          }
+          else {
+            cb(null, {success: '1'});
+          }
+        });
+      }
       /* this need to set fints */
       if (paymentid === '0' || paymentid === '2' || paymentid === '4' || paymentid === '5' || paymentid === '6'
         || paymentid === '8' || paymentid === '9' || paymentid === '10' || paymentid === '11') {
@@ -597,6 +611,42 @@ module.exports = {
               var resultObj = results[0];
               isPause = resultObj.pause;
 
+              /*
+                free user
+              */
+              if (payment == "14") {
+                if (isPause === "0") {
+                  var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
+                  conn.query(sql, ["1", data.pcid], function(err, results) {
+                    if (err) {
+                      return cb(new Error('query error'));
+                    }
+                    else {
+                      /* succeed at pause */
+                      var sql = 'INSERT INTO pause_table (alias, mask) VALUES (?, 1)';
+                      conn.query(sql, [data.pcid], function(err, results) {
+                        if (err) {
+                          cb(new Error('query error'));
+                        }
+                        else {
+                          return cb(null, {err: "0", alias: data.pcid, do: "pause"})
+                        }
+                      });
+                    }
+                  });
+                }
+                else {
+                  var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
+                  conn.query(sql, ["0", data.pcid], function(err, results) {
+                    if (err) {
+                      return cb(new Error('query error'));
+                    }
+                    else {
+                      return cb(null, {err: "0", alias: data.pcid, do: "reuse"});
+                    }
+                  });
+                }
+              }
               /*
                 Now trying to pause
               */
@@ -1040,46 +1090,38 @@ module.exports = {
         else {
           var stopMem = [];
           for (var i = 0; i < results.length; i++) {
-            if (results[i].stop == 1) {
+            if (results[i].stop != 1) {
               stopMem.push(results[i].alias);
             }
           }
           /***********************************************************************************************************
             TEMPORARY
           ***********************************************************************************************************/
+          console.log('stopMem');
+          console.log(stopMem);
           var queryString = "(";
           if (stopMem.length == 0) {
             return cb(null, {err: "0"});
           }
           else if (stopMem.length == 1) {
-            queryString += stopMem[0].alias + ")";
+            queryString += stopMem[0] + ")";
           }
           else {
             for (var i = 0; i < stopMem.length-1; i++) {
-              queryString += stopMem[i].alias + ", ";
+              queryString += stopMem[i] + ", ";
             }
-            queryString += stopMem[stopMem.length-1].alias + ")";  
+            queryString += stopMem[stopMem.length-1] + ")";
           }
 
-
-
-          var sql = 'UPDATE members SET leftDay = IF(leftDay = 0, 0, leftDay-1) WHERE alias IN ' + queryString;
+          var sql = 'UPDATE members SET leftDay = IF(leftDay = 0, 0, IF((payment="0" OR payment="14"), leftDay, leftDay-1)) WHERE alias IN ' + queryString;
           conn.query(sql, function(err, results) {
             if(err) {
               console.log(err);
               cb(new Error('query error'));
             }
             else {
-              var sql = 'UPDATE members SET payment = IF(leftDay = 0, NULL, payment)'; /* make leftDay = 0 use payment as NULL */
-              conn.query(sql, function(err, results) {
-                if (err) {
-                  console.log(err);
-                  cb(new Error('query error'));
-                }
-                else {
-                  cb(null, {err: "0"});
-                }
-              });
+
+              cb(null, {err: "0"});
             }
           });
         }
@@ -1232,8 +1274,20 @@ module.exports = {
                 cb(new Error('query error'));
               }
               else {
-                console.log('success at using milage');
-                cb(null, {err: "0"});
+                /*
+                  insert into stock table
+                */
+                var sql = 'INSERT INTO stockList (content, spending, price) VALUES (?, 1, ?)';
+                conn.query(sql, [data.content, parseInt(data.milage)], function(err, results) {
+                  if (err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    console.log('success at using milage');
+                    cb(null, {err: "0"});
+                  }
+                });
               }
             });
           }
@@ -1272,8 +1326,23 @@ module.exports = {
                   cb(new Error('query error'));
                 }
                 else {
-                  console.log('success charge milage');
-                  cb(null, {err: "0"});
+                  /*
+                    insert into stockList
+                  */
+                  console.log('chargemilage');
+                  console.log(data);
+                  var sql = 'INSERT INTO stockList (content, income, price) VALUES (?, 1, ?)';
+                  console.log(sql);
+                  conn.query(sql, [data.content, parseInt(data.milage)], function(err, results) {
+                    if (err) {
+                      console.log(err);
+                      cb(new Error('query error'));
+                    }
+                    else {
+                      console.log('success charge milage');
+                      cb(null, {err: "0"});
+                    }
+                  });
                 }
               })
             }
@@ -1291,7 +1360,7 @@ module.exports = {
       var dateStart = data.reserveDate + " 00:00:00";
       var dateEnd   = data.reserveDate + " 23:59:59";
 
-      var sql = 'SELECT * FROM studyroom WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
+      var sql = 'SELECT room, users, purpose, duration, start, DATE_FORMAT(tsStart, "%Y-%m-%d"), DATE_FORMAT(tsEnd, "%Y-%m-%d") FROM studyroom WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
       conn.query(sql, [dateStart, dateEnd], function(err, results) {
         if (err) {
           console.log(err);
@@ -1369,19 +1438,19 @@ module.exports = {
             var date = moment(newDate);
             date = date.format('YYYY-MM-DD').toString();
             date += " 00:00:01";
-            insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'"),';
+            insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
           }
           // handle last element
           var newDate = new Date(rdsDate.getTime() + daydiff * 86400000);
           var date = moment(newDate);
           date = date.format('YYYY-MM-DD').toString();
           date += " 00:00:01";
-          insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'");';
+          insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
 
           console.log('insertData');
           console.log(insertData);
           /* Now reservation time is valid */
-          var sql = 'INSERT INTO studyroom (ts, start, duration, room, users, purpose) VALUES ' + insertData;
+          var sql = 'INSERT INTO studyroom (ts, start, duration, room, users, purpose, tsStart, tsEnd) VALUES ' + insertData;
           conn.query(sql, function(err, results) {
             if (err) {
               console.log(err);
@@ -1391,6 +1460,145 @@ module.exports = {
               cb(null, {err: "0"});
             }
           });
+        }
+      });
+    },
+
+    /*
+      cancelStudyRoom
+    */
+    cancelStudyRoom: function(data, cb) {
+      var rdsStr      = data.rds.toString() + " 00:00:00"; /* will use between */ var rdsDate = new Date(Date.parse(rdsStr.replace('-','/','g')));
+      var rdeStr      = data.rde.toString() + " 00:00:02"; /* will use between */ var rdeDate = new Date(Date.parse(rdsStr.replace('-','/','g')));
+      var startHour   = data.sh;
+      var roomNum     = data.rn;
+
+      var sql = 'SELECT users, DATE_FORMAT(tsStart, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(tsEnd, "%Y-%m-%d %H:%i:%s") FROM studyroom WHERE (ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")) AND start=? AND room=?';
+      conn.query(sql, [rdsStr, rdeStr, parseFloat(startHour), roomNum], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          if (results.length == 0) {
+            return cb(null, {err: "1"}); /* there's no results */
+          }
+          else {
+            var r = results[0];
+            var oldRdsStr = r['DATE_FORMAT(tsStart, "%Y-%m-%d %H:%i:%s")'];
+            var oldRdeStr = r['DATE_FORMAT(tsEnd, "%Y-%m-%d %H:%i:%s")'];
+
+            console.log('old rds/rde');
+            console.log(oldRdsStr + " " + oldRdeStr);
+
+            var sql = 'DELETE FROM studyroom WHERE (ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")) AND start=? AND room=?';
+            conn.query(sql, [rdsStr, rdeStr, parseFloat(startHour), roomNum], function(err, results) {
+              if (err) {
+                console.log(err);
+                cb(new Error('query error'));
+              }
+              else {
+                /*
+                  Now update tsStart, tsEnd
+                */
+                /* first select all the reservation list between oldRdsStr, oldRdeStr which was list of old date span */
+                var sql = 'SELECT id, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM studyroom WHERE (ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")) AND start=? AND room=?';
+                conn.query(sql, [oldRdsStr, oldRdeStr, parseFloat(startHour), roomNum], function(err, results) {
+                  if (err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    console.log('select result: '+ results.length);
+                    if (results.length == 0) { /* this means all list are deleted */
+                      cb(null, {err: "0"});
+                    }
+                    else {
+
+                      var prev = []; var prevNewRdsStr; var prevNewRdeStr;
+                      var next = []; var nextNewRdsStr; var nextNewRdeStr;
+                      for (var i = 0; i < results.length; i++) {
+                        var obj = results[i];
+                        var ts = obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")']; var tsDate = new Date(Date.parse(ts.replace('-','/','g')));
+
+                        if (rdsDate - tsDate > 0) {
+                          prevNewRdsStr = oldRdsStr;
+                          prevNewRdeStr = data.rds.toString() + " 00:00:01"; /* should reduce one day*/
+
+                          var tmp = new Date(Date.parse(prevNewRdeStr.replace('-','/','g')));
+                          var tmpDate = new Date(tmp.getTime() - 86400000);
+                          var tmpMoment = moment(tmpDate);
+                          tmp = tmpMoment.format('YYYY-MM-DD').toString();
+                          tmp += " 00:00:01";
+
+                          /* now reduced one day string */
+                          prevNewRdeStr = tmp;
+                          prev.push(obj.id);
+                        }
+                        else {
+                          nextNewRdsStr = data.rde.toString() + " 00:00:01"; /* should add one day*/
+                          nextNewRdeStr = oldRdeStr;
+
+                          var tmp = new Date(Date.parse(nextNewRdsStr.replace('-','/','g')));
+                          var tmpDate =  new Date(tmp.getTime() + 86400000);
+                          var tmpMoment = moment(tmpDate);
+                          tmp = tmpMoment.format('YYYY-MM-DD').toString();
+                          tmp += " 00:00:01";
+
+                          /* now added one day string */
+                          nextNewRdsStr = tmp;
+                          next.push(obj.id);
+                        }
+                      }
+                      /* then make query string */
+                      var prevQS = "";
+                      if (prev.length == 0) { prevQS += 0; }
+                      else {
+                        for (var i = 0; i < prev.length-1; i++) {
+                          prevQS += prev[i] + ", ";
+                        }
+                        prevQS += prev[prev.length-1];
+                      }
+                      console.log('prevQS ' + prevQS);
+
+
+                      var nextQS = "";
+                      if (next.length == 0) { nextQS += 0; }
+                      else {
+                        for (var i = 0; i < next.length-1; i++) {
+                          nextQS += next[i] += ", ";
+                        }
+                        nextQS += next[next.length-1];
+                      }
+
+
+                      console.log('nextQS ' + nextQS);
+
+                      var sql = 'UPDATE studyroom SET tsStart = DATE(STR_TO_DATE("'+prevNewRdsStr+'", "%Y-%m-%d %H:%i:%s")), tsEnd = DATE(STR_TO_DATE("'+prevNewRdeStr+'", "%Y-%m-%d %H:%i:%s")) WHERE id IN ('+prevQS+')';
+                      console.log(sql);
+                      conn.query(sql, function(err, results) {
+                        if (err) {
+                          console.log(err);
+                          cb(new Error('query error'));
+                        }
+                        else {
+                          var sql = 'UPDATE studyroom SET tsStart=DATE(STR_TO_DATE("'+nextNewRdsStr+'", "%Y-%m-%d %H:%i:%s")), tsEnd=DATE(STR_TO_DATE("'+nextNewRdeStr+'", "%Y-%m-%d %H:%i:%s")) WHERE id IN ('+nextQS+')';
+                          conn.query(sql, function(err, results) {
+                            if (err) {
+                              console.log(err);
+                            }
+                            else {
+                              cb(null, {err: "0"});
+                            }
+                          })
+                        }
+                      });
+                    }
+                  }
+                });
+              }
+            });
+          }
         }
       });
     },

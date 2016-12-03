@@ -57,7 +57,7 @@ controllers.set(app);
 const schedule  = require('node-schedule');
 const rule      = new schedule.RecurrenceRule();
 const alarm     = require('./models/alarm');
-//rule.second = [5, 15, 35, 45, 55];
+//rule.second = [30];
 schedule.scheduleJob('0 0 0 * * *', function() { /* rule should be '0 0 0 * * *' */
   console.log('####################################');
   console.log('today is finished');

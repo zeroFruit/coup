@@ -90,6 +90,10 @@ module.exports = {
     var retpack = JSON.stringify(req.reserve);
     res.send(retpack);
   },
+
+  book_cancel: function(req, res) {
+    res.send(req.cancel.err); /* "0" succ / "1" err */
+  },
   /*
     success_at_getting_reserve_state
   */

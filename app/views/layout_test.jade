@@ -234,7 +234,7 @@ html
         
     //- Use milage modal
     #use-milage-modal.modal(style='padding-top:0px')
-      form.modal-content.animate(style='width:40%')
+      form.modal-content.animate(style='width:60%')
         .col-2
           label
             | ID
@@ -243,6 +243,10 @@ html
           label
             | 마일리지
             input#amount-use-milage(placeholder='사용할 마일리지를 입력해주세요.' name='milage', type='text', required='required')
+        .col-2
+          label
+            | 내용
+            input#content-use-milage(placeholder='내용.' name='content', type='text', required='required')
         .col-submit
           button.submitbtn#use-milage-submit 사용하기
         //-THERE'S HIDDEN FORM TO SEND TOKENS
@@ -259,6 +263,10 @@ html
           label
             | 마일리지
             input#amount-charge-milage(placeholder='충전할 마일리지를 입력해주세요.' name='milage', type='text', required='required')
+        .col-2
+          label
+            | 내용
+            input#content-charge-milage(placeholder='내용.' name='content', type='text', required='required')
         .col-submit
           button.submitbtn#charge-milage-submit 충전하기
         //-THERE'S HIDDEN FORM TO SEND TOKENS
@@ -267,7 +275,7 @@ html
         
     //- STUDY ROOM RESERVATION
     #studyroom-reservation-modal.modal(style='padding-top:0px')
-      .modal-content.animate#reservation-wrapper(style='width:50%; height:90%; padding-top:20px; margin-top:10px')
+      .modal-content.animate#reservation-wrapper(style='width:50%; height:100%; padding-top:20px; margin-top:10px;overflow-y:scroll')
         #account-head.container(style='width:100%')
           h1.page-subhead-line 스터디룸 예약 날짜를 선택해주세요.
           .col-md-4
@@ -287,6 +295,7 @@ html
               a#reserve-date-select.a-cursor-pointer
                 h6 선택
         #select-hours-container.container(style="width:100%; display:none")
+          h1.page-subhead-line 예약하기
           .row
             .col-md-3
               .form-group
@@ -350,13 +359,65 @@ html
               label
                 | 사용 목적
               input.form-control#studyroom-purpose(type='text' placeholder='사용목적을 입력해주세요.')
+          hr
+          h1.page-subhead-line 예약취소
+          .row
+            .col-md-3
+              .form-group
+                label 시작 시간
+                //-input.form-control#start-hour(type='text' placeholder='ex: 7 (07:00), 15.5 (15:30)')
+                select.form-control#select-hours-cancel
+                  option(name='7')    07:00
+                  option(name='7.5')  07:30
+                  option(name='8')    08:00
+                  option(name='8.5')  08:30
+                  option(name='9')    09:00
+                  option(name='9.5')  09:30
+                  option(name='10')   10:00
+                  option(name='10.5') 10:30
+                  option(name='11')   11:00
+                  option(name='11.5') 11:30
+                  option(name='12')   12:00
+                  option(name='12.5') 12:30
+                  option(name='13')   13:00
+                  option(name='13.5') 13:30
+                  option(name='14')   14:00
+                  option(name='14.5') 14:30
+                  option(name='15')   15:00
+                  option(name='15.5') 15:30
+                  option(name='16')   16:00
+                  option(name='16.5') 16:30
+                  option(name='17')   17:00
+                  option(name='17.5') 17:30
+                  option(name='18')   18:00
+                  option(name='18.5') 18:30
+                  option(name='19')   19:00
+                  option(name='19.5') 19:30
+                  option(name='20')   20:00
+                  option(name='20.5') 20:30
+                  option(name='21')   21:00
+                  option(name='21.5') 21:30
+                  option(name='22')   22:00
+                  option(name='22.5') 22:30
+                  option(name='23')   23:00
+            .col-md-3
+              label
+                | 방 번호
+              select.form-control#select-room-cancel
+                option(name='1') 1
+                option(name='2') 2
+                option(name='3') 3
+            .col-md-3
+              .main-box.mb-dull(style='padding:5px')
+                a#reserve-hour-select-cancel.a-cursor-pointer
+                  h6 예약취소
         .container(style='width:100%')
           .col-md-12
             h1.page-subhead-line 예약 현황 
         .container(style='width:100%')
           .col-md-4
             h5 1번 스터디룸
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:40%')
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%')
               //- Table starts here
               table#account-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
@@ -472,7 +533,7 @@ html
                     th(name='avail')
           .col-md-4
             h5 2번 스터디룸
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:40%')
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%')
               //- Table starts here
               table#account-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
@@ -588,7 +649,7 @@ html
                     th(name='avail')
           .col-md-4
             h5 3번 스터디룸
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:40%')
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%')
               //- Table starts here
               table#account-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
@@ -721,74 +782,77 @@ html
         #page-wrapper
           #page-inner
             .row
-              .col-md-12
-                h1.page-head-line CRM
-                h1.page-subhead-line 도구 모음 
-            // /. ROW
-            .row
-              .col-md-3
-                .main-box.mb-dull
-                  a#all-members.a-cursor-pointer
-                    i.fa.fa-bolt.fa-5x
-                    h5 !{renderSrc.numOfMem} 명의 회원이 등록하였습니다.
-              .col-md-3
-                .main-box.mb-dull
-                  a#active-members
-                    i.fa.fa-plug.fa-5x
-                    h5 !{renderSrc.numOfActiveMem} 명의 회원이 이용중입니다. 
-              .col-md-3
-                .main-box.mb-dull
-                  a#recharge.a-cursor-pointer
-                    i.fa.fa-dollar.fa-5x
-                    h5 요금제 등록
-              .col-md-3
-                .main-box.mb-dull
-                  a#reserve-studyroom.a-cursor-pointer
-                    i.fa.fa-check-square-o.fa-5x
-                    h5 스터디룸 예약
-            .row
-              .col-md-3
-                .main-box.mb-dull
-                  a#account-management.a-cursor-pointer
-                    i.fa.fa-book.fa-5x
-                    h5 장부 관리
-              .col-md-3
-                .main-box.mb-dull
-                  a#use-milage.a-cursor-pointer
-                    i.fa.fa-minus-square.fa-5x
-                    h5 마일리지 사용
-              .col-md-3
-                .main-box.mb-dull
-                  a#charge-milage.a-cursor-pointer
-                    i.fa.fa-plus-square.fa-5x
-                    h5 마일리지 충전
-              .col-md-3
-                .main-box.mb-dull
-                  a#payback.a-cursor-pointer
-                    i.fa.fa-reply.fa-5x
-                    h5 환불
-            .row
-              .col-md-6
-                h1.page-head-line 퇴실 필요 회원들 
-              .col-md-3
-                .main-box.mb-dull
-                  a#holdoff.a-cursor-pointer
-                    i.fa.fa-pause.fa-5x
-                    h5 사용보류
-            .row
-              .col-md-6
-                .scroll-table
-                  .table-responsive-vertical.shadow-z-1
-                    //- Table starts here
-                    table#table.table.table-hover.table-bordered.table-mc-light-blue
-                      thead
-                        tr
-                          th ID
-                          th 좌석번호
-                          th 잔여시간 (분)
-                          th 
-                      tbody#alert-member-table-body
-
+              .col-md-6(style='padding-left:30px; padding-right:30px')
+                .row
+                  .col-md-12
+                    h1.page-head-line 도구 모음
+                .row
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#all-members.a-cursor-pointer
+                        i.fa.fa-bolt.fa-5x
+                        h5 !{renderSrc.numOfMem} 명의 회원이 등록하였습니다.
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#active-members
+                        i.fa.fa-plug.fa-5x
+                        h5 !{renderSrc.numOfActiveMem} 명의 회원이 이용중입니다. 
+                .row  
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#recharge.a-cursor-pointer
+                        i.fa.fa-dollar.fa-5x
+                        h5 요금제 등록
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#reserve-studyroom.a-cursor-pointer
+                        i.fa.fa-check-square-o.fa-5x
+                        h5 스터디룸 예약
+                .row
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#account-management.a-cursor-pointer
+                        i.fa.fa-book.fa-5x
+                        h5 장부 관리
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#use-milage.a-cursor-pointer
+                        i.fa.fa-minus-square.fa-5x
+                        h5 마일리지 사용
+                .row
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#charge-milage.a-cursor-pointer
+                        i.fa.fa-plus-square.fa-5x
+                        h5 마일리지 충전
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#payback.a-cursor-pointer
+                        i.fa.fa-reply.fa-5x
+                        h5 환불
+                .row
+                  .col-md-6
+                    .main-box.mb-dull
+                      a#holdoff.a-cursor-pointer
+                        i.fa.fa-pause.fa-5x
+                        h5 사용보류
+              .col-md-6(style='padding-left:30px; padding-right:30px')
+                .row
+                  .col-md-12
+                    h1.page-head-line 퇴실 필요 회원들 
+                .row
+                  .col-md-12
+                    .scroll-table
+                      .table-responsive-vertical.shadow-z-1
+                        //- Table starts here
+                        table#table.table.table-hover.table-bordered.table-mc-light-blue
+                          thead
+                            tr
+                              th ID
+                              th 좌석번호
+                              th 잔여시간 (분)
+                              th 
+                          tbody#alert-member-table-body
 
     //- This is for rendering client page
     form#to-client-page(action='/clients/index' method='post')
@@ -1292,7 +1356,18 @@ html
         });
         /* send the selected date value to server and get the reservation state */
         $('#reserve-date-select').click(function(event) {
-          
+          /*
+            should clear the table before fetch new data
+          */
+          $('tbody#reservation-table-body-1').children('tr').each(function() {
+            $(this).find('th[name="avail"]').css('background', 'white').attr('title', '');
+          });
+          $('tbody#reservation-table-body-2').children('tr').each(function() {
+            $(this).find('th[name="avail"]').css('background', 'white').attr('title', '');
+          });
+          $('tbody#reservation-table-body-3').children('tr').each(function() {
+            $(this).find('th[name="avail"]').css('background', 'white').attr('title', '');
+          });
           /* 
             open the select hour form 
           */
@@ -1333,13 +1408,15 @@ html
                 if (jsonelt.purpose == null) {
                   jsonelt.purpose = "-";
                 }
-                
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+
                 if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                   /* also for duration, mark with 'reserved' value */
                   var nextTd = $(this).next();
                   for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                     nextTd = nextTd.next();
                   }
                 }
@@ -1359,12 +1436,15 @@ html
                   jsonelt.purpose = "-";
                 }
                 
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                
                 if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                   /* also for duration, mark with 'reserved' value */
                   var nextTd = $(this).next();
                   for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                     nextTd = nextTd.next();
                   }
                 }
@@ -1384,12 +1464,15 @@ html
                   jsonelt.purpose = "-";
                 }
                 
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                
                 if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                   /* also for duration, mark with 'reserved' value */
                   var nextTd = $(this).next();
                   for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
                     nextTd = nextTd.next();
                   }
                 }
@@ -1418,7 +1501,7 @@ html
           var reserveDateMax = $('#studyroom-datetimepickerMax').data("date");
           
           if (startHour === '' || duration === '' || reserveDateMax === undefined) {
-            alert('fill the form please..');
+            alert('입력되지 않은 값이 있습니다..');
             return false;
           }
           
@@ -1456,6 +1539,42 @@ html
           });
         });
         
+        /* cancel reservation */
+        $('#reserve-hour-select-cancel').click(function() {
+          var startHour = $('#select-hours-cancel').find('option:selected').attr("name");
+          var roomNum   = $('#select-room-cancel').find('option:selected').attr("name");
+          var reserveDateMin = $('#studyroom-datetimepickerMin').data("date");
+          var reserveDateMax = $('#studyroom-datetimepickerMax').data("date");
+          
+          if (startHour === '' || duration === '' || reserveDateMax === undefined) {
+            alert('입력되지 않은 값이 있습니다..');
+            return false;
+          }
+          
+          $.ajax({
+            url: '/system/reserve-studyroom-cancel',
+            method: 'post',
+            data: {
+              sh: startHour,
+              rds: reserveDateMin,
+              rde: reserveDateMax,
+              rn: roomNum
+            }
+          }).done(function(results) {
+            if (results == "0") {
+              alert("취소하였습니다.");
+              
+              /*
+                Should clear the select hour form after that..
+              */
+              $('#select-hours-cancel').prop('selectedIndex', 0);
+              $('#select-room-cancel').prop('selectedIndex', 0);
+            }
+            else if (results == "1") {
+              alert("취소실패! 취소 날짜와 시작시간을 한 번 더 확인해주세요.");
+            }
+          });
+        });
         /*
           Display Account List 
         */
@@ -1681,6 +1800,7 @@ html
           var valRefresh = window.localStorage.getItem('refreshToken');
           var membername = $('#use-milage-name').val();
           var milage     = $('#amount-use-milage').val();
+          var content    = $('#content-use-milage').val();
           
           $.ajax({
             url: '/system/use-milage',
@@ -1689,7 +1809,8 @@ html
               accessToken   : valAccess,
               refreshToken  : valRefresh,
               membername    : membername,
-              milage        : milage
+              milage        : milage,
+              content       : content
             }
           }).done( function (results) {
             var json = JSON.parse(results);
@@ -1706,6 +1827,7 @@ html
             
             $('#use-milage-name').val("");
             $('#amount-use-milage').val("");
+            $('#content-use-milage').val("");
           });
         });
         
@@ -1722,6 +1844,7 @@ html
           var valRefresh = window.localStorage.getItem('refreshToken');
           var membername = $('#charge-milage-name').val();
           var milage     = $('#amount-charge-milage').val();
+          var content    = $('#content-charge-milage').val();
           
           $.ajax({
             url: '/system/charge-milage',
@@ -1730,13 +1853,15 @@ html
               accessToken   : valAccess,
               refreshToken  : valRefresh,
               membername    : membername,
-              milage        : milage
+              milage        : milage,
+              content       : content
             }
           }).done(function(result) {
             if (result == "success") {
               alert('충전되었습니다.');
               $('#charge-milage-name').val("");
-              $('#amount-charge-milage').val("");              
+              $('#amount-charge-milage').val("");   
+              $('#content-charge-milage').val("");           
             }
             else if (result == "err1") {
               alert('ID가 잘못되었습니다.');
@@ -1923,10 +2048,14 @@ html
           var json = JSON.parse(results);
           console.log(json);
           
+          var alert_member_table_body = document.getElementById('alert-member-table-body');
+          while (alert_member_table_body.firstChild) {
+            alert_member_table_body.removeChild(alert_member_table_body.firstChild);
+          }
           /* 
             If there's no element in the table, just add all of them 
           */
-          if ($('#alert-member-table-body').children().children('td[data-title="ID"]').length === 0) { 
+          //- if ($('#alert-member-table-body').children().children('td[data-title="ID"]').length === 0) { 
             for (var i = 0; i < json.length; i++) {
               $('#alert-member-table-body').append(
                 '<tr>'+
@@ -1940,39 +2069,39 @@ html
                 $(this).parent().parent('tr').remove();
               });
             }
-          }
-          else {
-            /*
-              If there's elements, we should check redundent element first
-            */
-            var oldelt = [];
-            $('#alert-member-table-body').children().children('td[data-title="ID"]').each(function () {
-              oldelt.push($(this).text());
-            });
-            console.log('this is oldelt');
-            console.log(oldelt);
-            for (var i = 0; i < json.length; i++ ) {
-              var checkRedun = 0;
-              for (var j = 0; j < oldelt.length; j++) {
-                if (json[i].alias === oldelt[j]) checkRedun = 1;
-              } 
-              /* we finished comparing all the old elements with new one
-                and if new is real new, then checkRedun = 1
-              */
-              if(checkRedun === 0) {
-                $('#alert-member-table-body').append(
-                  '<tr>'+
-                  ' <td data-title="ID">'+ json[i].alias +'</td>' +
-                  ' <td data-title="seatNum">'+ json[i].seatnum +'</td>' +
-                  ' <td data-title="timeLeft">'+ json[i].left +'</td>' +
-                  ' <td date-title="delete"><a class="delete-row">[삭제하기]</a></td>' +
-                  '</tr>'
-                );
-                $('.delete-row').click(function() {
-                  $(this).parent().parent('tr').remove();
-                });  
-              } /* end of appending */
-            } /* end of json loop */
-          }
+          //- }
+          //- else {
+          //-   /*
+          //-     If there's elements, we should check redundent element first
+          //-   */
+          //-   var oldelt = [];
+          //-   $('#alert-member-table-body').children().children('td[data-title="ID"]').each(function () {
+          //-     oldelt.push($(this).text());
+          //-   });
+          //-   console.log('this is oldelt');
+          //-   console.log(oldelt);
+          //-   for (var i = 0; i < json.length; i++ ) {
+          //-     var checkRedun = 0;
+          //-     for (var j = 0; j < oldelt.length; j++) {
+          //-       if (json[i].alias === oldelt[j]) checkRedun = 1;
+          //-     } 
+          //-     /* we finished comparing all the old elements with new one
+          //-       and if new is real new, then checkRedun = 1
+          //-     */
+          //-     if(checkRedun === 0) {
+          //-       $('#alert-member-table-body').append(
+          //-         '<tr>'+
+          //-         ' <td data-title="ID">'+ json[i].alias +'</td>' +
+          //-         ' <td data-title="seatNum">'+ json[i].seatnum +'</td>' +
+          //-         ' <td data-title="timeLeft">'+ json[i].left +'</td>' +
+          //-         ' <td date-title="delete"><a class="delete-row">[삭제하기]</a></td>' +
+          //-         '</tr>'
+          //-       );
+          //-       $('.delete-row').click(function() {
+          //-         $(this).parent().parent('tr').remove();
+          //-       });  
+          //-     } /* end of appending */
+          //-   } /* end of json loop */
+          //- }
         });
       }

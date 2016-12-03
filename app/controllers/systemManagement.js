@@ -252,6 +252,23 @@ module.exports.set = function(app, passport) {
   });
 
   /*
+    /system/reserve-studyroom-cancel
+  */
+  app.post('/system/reserve-studyroom-cancel', function(req, res, next) {
+    console.log(req.body);
+    system.reserveStudyRoomCancel(req, res, next);
+  }, function(req, res, next) {
+    console.log(req.cancel);
+    if (req.cancel.err == "1") {
+      /* there's no matching reservation */
+      return respond.book_cancel(req, res);
+    }
+    else if(req.cancel.err == "0") {
+      return respond.book_cancel(req, res);
+    }
+  });
+
+  /*
     Payback
   */
   app.post('/system/payback', function(req, res, next) {

@@ -70,7 +70,7 @@ body {
   cautious member scroll bar
 */
 .scroll-table {
-  height: 300px;
+  height: 90%;
   overflow-y: scroll;
 }
 

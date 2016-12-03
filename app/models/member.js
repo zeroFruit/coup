@@ -222,7 +222,7 @@ module.exports = {
             if (minutes < 0) { /* In the case of time is over, we set alert to 1 */
               retelt.alert = "1";
               /* change overtime as fee */
-              var hour = minutes / 60;
+              var hour = parseInt(minutes / 60);
               var over = minutes % 60;
               if (over > 10) {
                 hour = hour + 1;
