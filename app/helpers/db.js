@@ -402,7 +402,7 @@ module.exports = {
       /* free user */
       if (paymentid === '14') {
         var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
-        conn.query("1", [data.seatid, data.seatnum, data.floorid, data.alias], function(err, results) {
+        conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, data.alias], function(err, results) {
           if (err) {
             console.log(err);
             cb(new Error('query error'));
@@ -596,6 +596,7 @@ module.exports = {
         else {
           /* save payment */
           payment = results[0].payment;
+          console.log('payment: ' + payment);
           /*
             when matcing client is exist, first insert into pause_table
           */
@@ -615,7 +616,7 @@ module.exports = {
                 free user
               */
               if (payment == "14") {
-                if (isPause === "0") {
+                if (isPause == "0") {
                   var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
                   conn.query(sql, ["1", data.pcid], function(err, results) {
                     if (err) {
@@ -623,6 +624,7 @@ module.exports = {
                     }
                     else {
                       /* succeed at pause */
+                      console.log('success pause');
                       var sql = 'INSERT INTO pause_table (alias, mask) VALUES (?, 1)';
                       conn.query(sql, [data.pcid], function(err, results) {
                         if (err) {
@@ -635,7 +637,8 @@ module.exports = {
                     }
                   });
                 }
-                else {
+                else if(isPause == "1") {
+                  console.log('hello');
                   var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
                   conn.query(sql, ["0", data.pcid], function(err, results) {
                     if (err) {
@@ -647,6 +650,8 @@ module.exports = {
                   });
                 }
               }
+
+
               /*
                 Now trying to pause
               */
@@ -657,7 +662,7 @@ module.exports = {
                     cb(new Error('query error'));
                   }
                   else {
-                    /* succeed at pause */
+                    /* succeed at reuse */
                     var sql = 'INSERT INTO pause_table (alias, mask) VALUES (?, 1)';
                     conn.query(sql, [data.pcid], function(err, results) {
                       if (err) {
@@ -921,6 +926,7 @@ module.exports = {
       var paymentId = data.paymentId;
       var leftDay;
 
+      console.log('hello!!');
       /*
         get the left day
       */
@@ -932,7 +938,21 @@ module.exports = {
         }
         else {
           leftDay = results[0].leftDay;
-
+          /*
+            free
+          */
+          if (data.type === 'free') {
+            var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
+            conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+              if(err) {
+                console.log(err);
+                cb(new Error('query error'));
+              }
+              else {
+                cb(null, {paymentId: data.paymentId});
+              }
+            });
+          }
           /*
             prepay
           */

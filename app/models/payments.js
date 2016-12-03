@@ -45,6 +45,8 @@ function id2name(id) {
       return "야간자유이용권";
     case "13":
       return "관리형반";
+    case "14":
+      return "무료이용권"
     default:
       return "-";
   }
@@ -83,6 +85,8 @@ function name2Id(name) {
       return "12";
     case "관리형반":
       return "13";
+    case "무료이용권":
+      return "14";
     default:
       return "-1";
   }
