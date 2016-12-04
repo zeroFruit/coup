@@ -19,6 +19,7 @@ html
     link(href='public/stylesheets/temp/modal-form.css',     rel='stylesheet')
     //- GOOGLE FONTS
     link(href='http://fonts.googleapis.com/css?family=Open+Sans', rel='stylesheet', type='text/css')
+    link(href='http://fonts.googleapis.com/earlyaccess/jejugothic.css', rel='stylesheet', type='text/css')
     //- TEMPLATE CLIENT-PAGE-STYLE
     link(href='public/stylesheets/temp/client-page-style.css',     rel='stylesheet')
     //-link(href='public/stylesheets/temp/seats-style-test.css' rel='stylesheet')
@@ -99,7 +100,8 @@ html
             'nnnnnn__n',
             '________n',
             'nnnn_____',
-            'nnnn_____'
+            'nnnn_____',
+            'WWWWWEEWW'
           ],
           seats: {
             n: {
@@ -107,11 +109,23 @@ html
               classes : 'normal-seats', //your custom CSS class
               category: '좌석'
             },
+            E: {
+              classes: 'enterance'
+            },
+            W: {
+              classes: 'wall'
+            }
           },
           naming : {
             top : false,
             left: false,
             getLabel : function (character, row, column) {
+              if ((row == 9 && column == 6) || (row == 9 && column == 7)) {
+                return 'E';
+              }
+              if ((row==9&&column==1)||(row==9&&column==2)||(row==9&&column==2)||(row==9&&column==3)||(row==9&&column==4)||(row==9&&column==5)||(row==9&&column==8)||(row==9&&column==9)) {
+                return '';
+              }
               return firstSeatLabel++;
             },
           },
@@ -119,6 +133,7 @@ html
             node : $('#legend'),
               items : [
               [ 'n', 'available',   '남아있는 자리' ],
+              [ 'E', 'unavailable', '입구']
               ]					
           },
           click: function () {
@@ -162,7 +177,10 @@ html
         //console.log('this is unavail_seat');
         //alert(unavail_seats[0]);
         sc.status(unavail_seats, 'unavailable');
-        
+        /*
+          enterance
+        */
+        sc.get(['9_1', '9_2', '9_3', '9_4', '9_5', '9_6', '9_7', '9_8','9_9']).status('unavailable');
         
         //let's pretend some seats have already been booked
         //sc.get(['1_2', '4_1', '7_1', '7_2']).status('unavailable');

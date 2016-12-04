@@ -274,6 +274,7 @@ module.exports.set = function(app, passport) {
     member.getSeatInfo(req, res, next);
   },
   function(req, res, next) {
+    console.log('this is client-floor');
     console.log(req.body);
     var floorNum = req.body.floornum;
     console.log(floorNum);

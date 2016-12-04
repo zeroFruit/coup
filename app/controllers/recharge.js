@@ -11,6 +11,7 @@ var jwtauth     = require('../middlewares/jwtauth');
 var requireAuth = require('../middlewares/requireAuth');
 var member      = require('../models/member');
 var payments    = require('../models/payments');
+var account     = require('../models/account');
 var rendering   = require('../models/renderingPage');
 var respond     = require('../helpers/respond');
 var express     = require('express');
@@ -92,6 +93,15 @@ module.exports.set = function(app, passport) {
       req.newMilages have updated milages
     */
   }, function(req, res, next) {
+    /*
+      add register info to account db
+    */
+    req.body.content = req.body.member + ":" + req.body.paymentName;
+    req.body.inout = 'true';
+    req.body.service = req.body.discount;
+    account.addList(req, res, next);
+  },
+  function(req, res, next) {
     if (req.err == "1") {
       return respond.still_use_other_payment(req, res);
     }

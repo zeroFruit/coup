@@ -19,7 +19,7 @@
 
 .main-box {
     text-align:center;
-    padding:30px;
+    padding:10px;
     border-radius:5px;
     -moz-border-radius:5px ;
     -webkit-border-radius:5px;
@@ -27,6 +27,9 @@
     margin-top: 30px;
     margin-left: 0px;
     margin-right: 0px
+}
+.main-box h5 {
+  font-size: 40%;
 }
     .main-box a,.main-box a:hover {
         color:#fff;
@@ -81,14 +84,14 @@ form {
   background: #fff;
   border: 1px solid #e4e4e4;
   border-radius: 5px;
-  font-size: 62.5%;
+  font-size: 50%;
 }
 
 form > div > label {
   display: block;
   padding: 20px 20px 10px;
   vertical-align: top;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: bold;
   text-transform: uppercase;
   color: #939393;
@@ -103,7 +106,7 @@ input {
   display: inline-block;
   position: relative;
   width: 100%;
-  height: 40px;
+  height: 30px;
   line-height: 27px;
   margin: 0px 0px 0;
   padding: 3px 5px 3px;
@@ -112,7 +115,7 @@ input {
   color: #555;
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 15px;
   opacity: .6;
   transition: all linear .3s;
   text-align: center;
@@ -125,8 +128,8 @@ input {
   cursor: pointer;
 }
 .client-login {
-  font-size: 30px;
-  height: 80px;
+  font-size: 20px;
+  height: 60px;
 
 }
 label {

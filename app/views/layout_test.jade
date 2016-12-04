@@ -19,6 +19,7 @@ html
     link(href='public/stylesheets/temp/modal-form.css',     rel='stylesheet')
     //- GOOGLE FONTS
     link(href='http://fonts.googleapis.com/css?family=Open+Sans', rel='stylesheet', type='text/css')
+    link(href='http://fonts.googleapis.com/earlyaccess/jejugothic.css', rel='stylesheet', type='text/css')
     //- TEMPLATE SNACKBAR STYLES
     link(href='public/stylesheets/temp/snackbar.css',     rel='stylesheet')
     //- TEMPLATE TABLE STYLES
@@ -70,20 +71,24 @@ html
         //- MODAL REGISTER FORM
     #recharge-form.modal
       form.modal-content.animate
-        .col-3
+        .col-4
           label ID
             | 
             input#choose-member(name='choose-member' placeholder='ID를 입력해주세요.')
             //- javascript dynamically insert members
-        .col-3
+        .col-4
           label
             | 요금제
             select#choose-payment
             //- javascript dynamically insert payments
-        .col-3
+        .col-4
           label
             | 충전하실 금액을 입력해주세요.
             input#choose-cash(name='recharge-cash' placeholder='요금제일 때만 입력해주세요.' disabled='true')
+        .col-4
+          label
+            | 할인금액
+            input#choose-discount(name='discount-cash' placeholder='할인금액')
         .col-submit
           button.submitbtn#charge-btn 충전하기
         input(type='hidden' name='minPerDay')
@@ -124,8 +129,8 @@ html
           tbody#active-members-table-body
         //- DISPLAY ACTIVE MEMBERS LIST
     //- DISPLAY ACCOUNT
-    #account-list.modal(style='padding-top:0px')
-      .modal-content.animate#account-wrapper(style='width:70%; padding-top:20px; margin-top:10px')
+    #account-list.modal(style='padding-top:0px;overflow-y:scroll')
+      .modal-content.animate#account-wrapper(style='width:70%; padding-top:20px; margin-top:10px;')
         #account-head.container
           h1.page-subhead-line 장부 조회
           .col-md-2.col-md-offset-2
@@ -788,51 +793,51 @@ html
                     h1.page-head-line 도구 모음
                 .row
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#all-members.a-cursor-pointer
                         i.fa.fa-bolt.fa-5x
                         h5 !{renderSrc.numOfMem} 명의 회원이 등록하였습니다.
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#active-members
                         i.fa.fa-plug.fa-5x
                         h5 !{renderSrc.numOfActiveMem} 명의 회원이 이용중입니다. 
                 .row  
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
                       a#recharge.a-cursor-pointer
                         i.fa.fa-dollar.fa-5x
                         h5 요금제 등록
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
                       a#reserve-studyroom.a-cursor-pointer
                         i.fa.fa-check-square-o.fa-5x
                         h5 스터디룸 예약
                 .row
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
                       a#account-management.a-cursor-pointer
                         i.fa.fa-book.fa-5x
                         h5 장부 관리
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
                       a#use-milage.a-cursor-pointer
                         i.fa.fa-minus-square.fa-5x
                         h5 마일리지 사용
                 .row
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
                       a#charge-milage.a-cursor-pointer
                         i.fa.fa-plus-square.fa-5x
                         h5 마일리지 충전
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
                       a#payback.a-cursor-pointer
                         i.fa.fa-reply.fa-5x
                         h5 환불
                 .row
                   .col-md-6
-                    .main-box.mb-dull
+                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
                       a#holdoff.a-cursor-pointer
                         i.fa.fa-pause.fa-5x
                         h5 사용보류
@@ -842,7 +847,7 @@ html
                     h1.page-head-line 퇴실 필요 회원들 
                 .row
                   .col-md-12
-                    .scroll-table
+                    .scroll-table(style='margin-right:40px; margin-left:40px')
                       .table-responsive-vertical.shadow-z-1
                         //- Table starts here
                         table#table.table.table-hover.table-bordered.table-mc-light-blue
@@ -1955,9 +1960,10 @@ html
         $("#charge-btn").click(function(event) {
           event.preventDefault();
           
-          var memberId = $("#choose-member").val();
-          var paymentIdx = $("#choose-payment").prop('selectedIndex');
-          var cash = $("#choose-cash").val();
+          var memberId    = $("#choose-member").val();
+          var paymentIdx  = $("#choose-payment").prop('selectedIndex');
+          var cash        = $("#choose-cash").val();
+          var discount    = $('#choose-discount').val();
           
           if (paymentIdx === 0) {
             alert("요금제를 선택해주세요.");
@@ -1969,21 +1975,20 @@ html
             event.preventDefault();
           }
           else {
-            //- $('input[name="minPerDay"]').val(payArr[paymentIdx-1].timePerDay);
-            //- $('input[name="member"]').val(memberId);
-            //- $('input[name="paymentId"]').val(payArr[paymentIdx-1].id);
-            //- $('input[name="type"]').val(payArr[paymentIdx-1].type);
-            //- $('input[name="price"]').val($("#choose-cash").val());
-            //- 
+            if (true) {
+              
+            }
             $.ajax({
               url: '/charge',
               method: 'post',
               data: {
-                minPerDay: payArr[paymentIdx-1].timePerDay,
-                member: memberId,
-                paymentId: payArr[paymentIdx-1].id,
-                type: payArr[paymentIdx-1].type,
-                price: $('#choose-cash').val()
+                minPerDay:  payArr[paymentIdx-1].timePerDay,
+                member:     memberId,
+                paymentId:  payArr[paymentIdx-1].id,
+                type:       payArr[paymentIdx-1].type,
+                price:      $('#choose-cash').val(),
+                paymentName:payArr[paymentIdx-1].name,
+                discount:   discount
               }
             }).done(function(result) {
               if (result == "err0") {
@@ -1996,6 +2001,7 @@ html
               $("#choose-member").val("");
               $("#choose-payment").prop('selectedIndex', 0);
               $("#choose-cash").val("");
+              $('#choose-discount').val("");
             });
           }
         });

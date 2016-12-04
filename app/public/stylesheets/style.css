@@ -11,9 +11,8 @@ color combination
 
 */
 
-
 body {
-  font-family: "Lato", "sans-serif";
+  font-family: /*"Lato", "sans-serif", */'Jeju Gothic', serif;
   background-color: #F3F3F3;
 }
 /* The side navigation menu*/

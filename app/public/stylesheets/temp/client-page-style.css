@@ -1,5 +1,6 @@
 body {
     overflow-y: visible;
+    font-family: "Jeju Gothic", serif;
 }
 .seat-wrapper {
   height: calc(100vh - 20px);

@@ -19,6 +19,7 @@ html
     link(href='public/stylesheets/temp/modal-form.css',     rel='stylesheet')
     //- GOOGLE FONTS
     link(href='http://fonts.googleapis.com/css?family=Open+Sans', rel='stylesheet', type='text/css')
+    link(href='http://fonts.googleapis.com/earlyaccess/jejugothic.css', rel='stylesheet', type='text/css')
     //- TEMPLATE CLIENT-PAGE-STYLE
     link(href='public/stylesheets/temp/client-page-style.css',     rel='stylesheet')
     //-link(href='public/stylesheets/temp/seats-style-test.css' rel='stylesheet')
@@ -92,12 +93,22 @@ html
           $counter = $('#counter'),
           sc = $('#seat-map').seatCharts({
           map: [
-            'nnnn___',
-            '_______',
-            'n_nn__n',
-            'n_nn__n',
-            'n_nn__n',
-            'n_nn__n'
+            '_nn_nn_n_n',
+            '_nn_nn____',
+            '_nn_nn__nn',
+            '_nn_nn__nn',
+            '__________',
+            '________nn',
+            '________nn',
+            'nn___nnWWW',
+            'PPPP___W__',
+            '_______W__',
+            'P_PP__PW__',
+            'P_PP__PW__',
+            'P_PP__PW__',
+            'P_PP__PW__',
+            '_______E__',
+            '_______E__'
           ],
           seats: {
             n: {
@@ -105,11 +116,27 @@ html
               classes : 'normal-seats', //your custom CSS class
               category: '좌석'
             },
+            P: {
+              classes: 'premium',
+              category: '관리형반'
+            },
+            E: {
+              classes: 'enterance'
+            },
+            W: {
+              classes: 'wall'
+            }
           },
           naming : {
             top : false,
             left: false,
             getLabel : function (character, row, column) {
+              if ((row == 15 && column == 8) || (row == 16 && column == 8)) {
+                return 'E';
+              }
+              if ((row==14&&column==8)||(row==13&&column==8)||(row==12&&column==8)||(row==11&&column==8)||(row==10&&column==8)||(row==9&&column==8)||(row==8&&column==10)||(row==8&&column==9)||(row==8&&column==8)) {
+                return '';
+              }
               return firstSeatLabel++;
             },
           },
@@ -117,6 +144,8 @@ html
             node : $('#legend'),
               items : [
               [ 'n', 'available',   '남아있는 자리' ],
+              [ 'P', 'available',   '관리형반 자리' ],
+              [ 'E', 'unavailable', '입구']
               ]					
           },
           click: function () {
@@ -126,7 +155,7 @@ html
               */
               $counter.text(this.data().category+": "+this.settings.label);
               sc.find('n.selected').status('available');
-        
+              sc.find('P.selected').status('available');
               return 'selected';
             } else if (this.status() == 'selected') {
         
@@ -144,6 +173,11 @@ html
             }
           }
         });
+        
+        /*
+          Enterance
+        */
+        sc.get(['15_8', '16_8', '14_8', '13_8', '12_8','11_8','10_8','9_8','8_8','8_9','8_10']).status('unavailable');
         /* 
           after creating sc object, fetch unavailable seat with seatinfo object 
         */
@@ -157,8 +191,8 @@ html
             unavail_seats.push(seatobj.seat); 
           }
         }
-        //console.log('this is unavail_seat');
-        //alert(unavail_seats[0]);
+        
+        console.log(unavail_seats);
         sc.status(unavail_seats, 'unavailable');
         
         
@@ -166,12 +200,31 @@ html
         //sc.get(['1_2', '4_1', '7_1', '7_2']).status('unavailable');
         $('#checkout').on('click', function() {
           var seatid, seatnum;
-          sc.find('n.selected').each(function(seatId) {
-            /* there should be only one element */
-            console.log(this.settings.id);
-            seatid = this.settings.id;
-            seatnum = this.settings.label;
-          });
+          if (sc.find('n.selected').length == 0) {
+            sc.find('P.selected').each(function(seatId) {
+              /* there should be only one element */
+              console.log(this.settings.id);
+              seatid = this.settings.id;
+              seatnum = this.settings.label;
+            });
+            
+            /*
+              if user other than management type select this seats alert and abort
+            */
+            if (paymentid !== '13') {
+              alert('관리형반 자리입니다.');
+              return false;
+            }
+          }
+          else {
+            sc.find('n.selected').each(function(seatId) {
+              /* there should be only one element */
+              console.log(this.settings.id);
+              seatid = this.settings.id;
+              seatnum = this.settings.label;
+            });
+          }
+          
           $('input[name="seatid"]').val(seatid);
           $('input[name="alias"]').val(accessMember);
           $('input[name="seatnum"]').val(seatnum);
@@ -206,6 +259,8 @@ html
           
           $('#floor-change').submit();                    
         }); 
+        
+        
       });
       /* block go back ward */
       history.pushState(null, document.title, location.href);
