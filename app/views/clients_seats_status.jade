@@ -19,6 +19,7 @@ html
     link(href='public/stylesheets/temp/modal-form.css',     rel='stylesheet')
     //- GOOGLE FONTS
     link(href='http://fonts.googleapis.com/css?family=Open+Sans', rel='stylesheet', type='text/css')
+    link(href='http://fonts.googleapis.com/earlyaccess/jejugothic.css', rel='stylesheet', type='text/css')
     //- TEMPLATE CLIENT-PAGE-STYLE
     link(href='public/stylesheets/temp/client-page-style.css',     rel='stylesheet')
     //-link(href='public/stylesheets/temp/seats-style-test.css' rel='stylesheet')
@@ -42,11 +43,15 @@ html
               h2 3층 좌석
               hr
               #seat-map-3f
+              hr
+              #legend-3f
           .col-md-3.col-md-offset-1
             .booking-details
               h2 4층 좌석
               hr
               #seat-map-4f
+              hr
+              #legend-4f
 
     form#client-return-submit(action='/clients/return' method='post')
       input(type='hidden' name='return')
@@ -79,7 +84,8 @@ html
             'nnnnnn__n',
             '________n',
             'nnnn_____',
-            'nnnn_____'
+            'nnnn_____',
+            'WWWWWEEWW'
           ],
           seats: {
             n: {
@@ -87,18 +93,31 @@ html
               classes : 'normal-seats', //your custom CSS class
               category: '좌석'
             },
+            E: {
+              classes: 'enterance'
+            },
+            W: {
+              classes: 'wall'
+            }
           },
           naming : {
             top : false,
             left: false,
             getLabel : function (character, row, column) {
+              if ((row == 9 && column == 6) || (row == 9 && column == 7)) {
+                return 'E';
+              }
+              if ((row==9&&column==1)||(row==9&&column==2)||(row==9&&column==2)||(row==9&&column==3)||(row==9&&column==4)||(row==9&&column==5)||(row==9&&column==8)||(row==9&&column==9)) {
+                return '';
+              }
               return firstSeatLabel_3f++;
             },
           },
           legend : {
-            node : $('#legend'),
+            node : $('#legend-3f'),
               items : [
               [ 'n', 'available',   '남아있는 자리' ],
+              [ 'E', 'unavailable', '입구']
               ]					
           },
           
@@ -124,12 +143,22 @@ html
         
         var sc4f = $('#seat-map-4f').seatCharts({
         map: [
-          'nnnn___',
-          '_______',
-          'n_nn__n',
-          'n_nn__n',
-          'n_nn__n',
-          'n_nn__n'
+          '_nn_nn_n_n',
+          '_nn_nn____',
+          '_nn_nn__nn',
+          '_nn_nn__nn',
+          '__________',
+          '________nn',
+          '________nn',
+          'nn___nnWWW',
+          'PPPP___W__',
+          '_______W__',
+          'P_PP__PW__',
+          'P_PP__PW__',
+          'P_PP__PW__',
+          'P_PP__PW__',
+          '_______E__',
+          '_______E__'
         ],
         seats: {
           n: {
@@ -137,18 +166,36 @@ html
             classes : 'normal-seats', //your custom CSS class
             category: '좌석'
           },
+          P: {
+            classes: 'premium',
+            category: '관리형반'
+          },
+          E: {
+            classes: 'enterance'
+          },
+          W: {
+            classes: 'wall'
+          }
         },
         naming : {
           top : false,
           left: false,
           getLabel : function (character, row, column) {
+            if ((row == 15 && column == 8) || (row == 16 && column == 8)) {
+              return 'E';
+            }
+            if ((row==14&&column==8)||(row==13&&column==8)||(row==12&&column==8)||(row==11&&column==8)||(row==10&&column==8)||(row==9&&column==8)||(row==8&&column==10)||(row==8&&column==9)||(row==8&&column==8)) {
+              return '';
+            }
             return firstSeatLabel_4f++;
           },
         },
         legend : {
-          node : $('#legend'),
+          node : $('#legend-4f'),
             items : [
             [ 'n', 'available',   '남아있는 자리' ],
+            [ 'P', 'available',   '관리형반 자리' ],
+            [ 'E', 'unavailable', '입구']
             ]					
         },
         
@@ -193,6 +240,9 @@ html
         //- //alert(unavail_seats[0]);
         sc3f.status(unavail_seats_3f, 'unavailable');
         sc4f.status(unavail_seats_4f, 'unavailable');
+        
+        sc3f.get(['9_1', '9_2', '9_3', '9_4', '9_5', '9_6', '9_7', '9_8','9_9']).status('unavailable');
+        sc4f.get(['15_8', '16_8', '14_8', '13_8', '12_8','11_8','10_8','9_8','8_8','8_9','8_10']).status('unavailable');
         
         /*
           client want to return to index
