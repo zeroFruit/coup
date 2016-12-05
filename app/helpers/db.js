@@ -365,7 +365,7 @@ module.exports = {
             console.log('you already entered');
             return cb(null, {err: "4"});
           }
-          else if (results[0].leftDay === 0 && results[0].payment != "14") { // free user can access
+          else if (results[0].leftDay === 0 && results[0].payment != "14" && results[0].payment != "0") { // free user can access
             console.log('you spend all the time');
             return cb(null, {err: "5"});
           }
@@ -926,152 +926,170 @@ module.exports = {
       var paymentId = data.paymentId;
       var leftDay;
 
-      console.log('hello!!');
       /*
-        get the left day
+        first we need to check whether that member exist
       */
-      var sql = 'SELECT leftDay FROM payments WHERE paymentId=?';
-      conn.query(sql, [paymentId], function(err, results) {
-        if(err) {
+      var sql = 'SELECT membername FROM members WHERE alias=?';
+      conn.query(sql, [alias], function(err, results) {
+        if (err) {
           console.log(err);
           cb(new Error('query error'));
         }
         else {
-          leftDay = results[0].leftDay;
-          /*
-            free
-          */
-          if (data.type === 'free') {
-            var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-            conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
-              if(err) {
-                console.log(err);
-                cb(new Error('query error'));
-              }
-              else {
-                cb(null, {paymentId: data.paymentId});
-              }
-            });
+          console.log('updateList');
+          console.log(results);
+          console.log(results.length);
+          if (results.length === 0) {
+            return cb(null, {err: "2"});
           }
           /*
-            prepay
+            get the left day
           */
-          /* Before we update payments of member, we should get the left milges so that we can add to it */
-          if(data.type === 'prepay') {
-            var sql = 'SELECT milage, payment FROM members WHERE alias=?';
-            conn.query(sql, [alias], function(err, results) {
-              if(err) {
-                console.log(err);
-                cb(new Error('query error'));
-              }
-              else {
-                console.log(results);
-                var pid = results[0].payment;
-
-                if (pid != "0" && pid != null) {
-                  return cb(null, {err: "1"}); /* still using other payment */
-                }
-
-                var oldMilages = Number(results[0].milage);
-                var newMilages = Number(data.price) + oldMilages; /* Now we get new milages*/
-                var newLeftTime = "" + Math.round((Number(data.price) / 800) * 60); /* Now update left time */
-                console.log(oldMilages);
-                console.log(newMilages);
-                var sql = 'UPDATE members SET milage=?, payment=?, leftTime=?, leftDay=? WHERE alias=?';
-                conn.query(sql, [newMilages, data.paymentId, newLeftTime, leftDay, alias], function(err, results) {
+          var sql = 'SELECT leftDay FROM payments WHERE paymentId=?';
+          conn.query(sql, [paymentId], function(err, results) {
+            if(err) {
+              console.log(err);
+              cb(new Error('query error'));
+            }
+            else {
+              leftDay = results[0].leftDay;
+              /*
+                free
+              */
+              if (data.type === 'free') {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
                   }
                   else {
-                    cb(null, {newMilages: newMilages, paymentId: data.paymentId}); /* response with new milages */
+                    cb(null, {paymentId: data.paymentId});
                   }
                 });
               }
-            });
-          }
+              /*
+                prepay
+              */
+              /* Before we update payments of member, we should get the left milges so that we can add to it */
+              if(data.type === 'prepay') {
+                var sql = 'SELECT milage, payment FROM members WHERE alias=?';
+                conn.query(sql, [alias], function(err, results) {
+                  if(err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    console.log(results);
+                    var pid = results[0].payment;
 
-          /*
-            daily
-          */
-          else if (data.type === 'daily') {
-            var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-            conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
-              if(err) {
-                console.log(err);
-                cb(new Error('query error'));
-              }
-              else {
-                cb(null, {paymentId: data.paymentId});
-              }
-            });
-          }
+                    if (pid != "0" && pid != null) {
+                      return cb(null, {err: "1"}); /* still using other payment */
+                    }
 
-          /*
-            monthly
-          */
-          else if (data.type === 'monthly') {
-            var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-            conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
-              if(err) {
-                console.log(err);
-                cb(new Error('query error'));
+                    var oldMilages = Number(results[0].milage);
+                    var newMilages = Number(data.price) + oldMilages; /* Now we get new milages*/
+                    var newLeftTime = "" + Math.round((Number(data.price) / 800) * 60); /* Now update left time */
+                    console.log(oldMilages);
+                    console.log(newMilages);
+                    var sql = 'UPDATE members SET milage=?, payment=?, leftTime=?, leftDay=? WHERE alias=?';
+                    conn.query(sql, [newMilages, data.paymentId, newLeftTime, leftDay, alias], function(err, results) {
+                      if(err) {
+                        console.log(err);
+                        cb(new Error('query error'));
+                      }
+                      else {
+                        cb(null, {newMilages: newMilages, paymentId: data.paymentId}); /* response with new milages */
+                      }
+                    });
+                  }
+                });
               }
-              else {
-                cb(null, {paymentId: data.paymentId});
-              }
-            });
-          }
 
-          /*
-            halfmonthly
-          */
-          else if (data.type === 'halfmonthly') {
-            var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-            conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
-              if(err) {
-                console.log(err);
-                cb(new Error('query error'));
+              /*
+                daily
+              */
+              else if (data.type === 'daily') {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                  if(err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {paymentId: data.paymentId});
+                  }
+                });
               }
-              else {
-                cb(null, {paymentId: data.paymentId});
-              }
-            });
-          }
 
-          /*
-            night
-          */
-          else if (data.type === 'night') {
-            var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-            conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
-              if(err) {
-                console.log(err);
-                cb(new Error('query error'));
+              /*
+                monthly
+              */
+              else if (data.type === 'monthly') {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                  if(err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {paymentId: data.paymentId});
+                  }
+                });
               }
-              else {
-                cb(null, {paymentId: data.paymentId});
-              }
-            });
-          }
 
-          /*
-            special
-          */
-          else if (data.type === 'special') {
-            var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-            conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
-              if(err) {
-                console.log(err);
-                cb(new Error('query error'));
+              /*
+                halfmonthly
+              */
+              else if (data.type === 'halfmonthly') {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                  if(err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {paymentId: data.paymentId});
+                  }
+                });
               }
-              else {
-                cb(null, {paymentId: data.paymentId});
+
+              /*
+                night
+              */
+              else if (data.type === 'night') {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                  if(err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {paymentId: data.paymentId});
+                  }
+                });
               }
-            });
-          }
+
+              /*
+                special
+              */
+              else if (data.type === 'special') {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                  if(err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {paymentId: data.paymentId});
+                  }
+                });
+              }
+            }
+          });
         }
       });
+
 
     },
     id2PaymentInfo: function(id, cb) {
@@ -1680,6 +1698,65 @@ module.exports = {
             var isStop = result[0].stop;
             cb(null, {err: "0", do: isStop});
           });
+        }
+      });
+    },
+
+    vacantSeat: function(data, cb) {
+      /*
+        first select member payment, if that member is prepay member get the ts and get min diff
+      */
+      console.log(data);
+      var sql = 'SELECT payment, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+      conn.query(sql, [data.alias], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          var obj = results[0];
+          var paymentId = obj.payment;
+
+          if (paymentId == '0') {
+            /* get time diff */
+            var ts  = obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
+            var cts = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+
+            /*
+              get Date Object from String
+            */
+            var oldTsDate     = new Date(Date.parse(ts.replace('-','/','g')));
+            var curTsDate     = new Date(Date.parse(cts.replace('-','/','g')));
+            var diff = curTsDate - oldTsDate;
+            /*
+              FINALLY get the difference of minutes
+            */
+            var minutes = Math.floor((diff/1000)/60);
+
+            var sql = 'UPDATE members SET seat="0", ts=NULL, fints=NULL, seatnum="0", pause="0", enterance="0", milage=IF(milage-?>0, milage-?, 0), seat_floor=NULL WHERE alias=?';
+            conn.query(sql, [minutes*800, minutes*800, data.alias], function(err, results) {
+              if (err) {
+                console.log(err);
+                cb(new Error('query error'));
+              }
+              else {
+                cb(null, {err: "0"});
+              }
+            })
+
+          }
+          else {
+            var sql = 'UPDATE members SET seat="0", ts=NULL, fints=NULL, seatnum="0", pause="0", enterance="0", seat_floor=NULL WHERE alias=?';
+            conn.query(sql, [data.alias], function(err, results) {
+              if (err) {
+                console.log(err);
+                cb(new Error("query error"));
+              }
+              else {
+                cb(null, {err: "0"});
+              }
+            })
+          }
         }
       });
     }

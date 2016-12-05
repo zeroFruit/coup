@@ -126,6 +126,7 @@ html
               th 이름
               th 출입시간
               th 일시정지 여부
+              th 
           tbody#active-members-table-body
         //- DISPLAY ACTIVE MEMBERS LIST
     //- DISPLAY ACCOUNT
@@ -804,40 +805,40 @@ html
                         h5 !{renderSrc.numOfActiveMem} 명의 회원이 이용중입니다. 
                 .row  
                   .col-md-6
-                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#recharge.a-cursor-pointer
                         i.fa.fa-dollar.fa-5x
                         h5 요금제 등록
                   .col-md-6
-                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#reserve-studyroom.a-cursor-pointer
                         i.fa.fa-check-square-o.fa-5x
                         h5 스터디룸 예약
                 .row
                   .col-md-6
-                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#account-management.a-cursor-pointer
                         i.fa.fa-book.fa-5x
                         h5 장부 관리
                   .col-md-6
-                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#use-milage.a-cursor-pointer
                         i.fa.fa-minus-square.fa-5x
                         h5 마일리지 사용
                 .row
                   .col-md-6
-                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#charge-milage.a-cursor-pointer
                         i.fa.fa-plus-square.fa-5x
                         h5 마일리지 충전
                   .col-md-6
-                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#payback.a-cursor-pointer
                         i.fa.fa-reply.fa-5x
                         h5 환불
                 .row
                   .col-md-6
-                    .main-box.mb-pink(style='margin-right:20px; margin-left:20px')
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#holdoff.a-cursor-pointer
                         i.fa.fa-pause.fa-5x
                         h5 사용보류
@@ -1208,13 +1209,35 @@ html
               var ispause = '-';
               if (jsonObj.pause === '1') ispause = '일시정지 중';
               $('#active-members-table-body').append(
-                '<tr>'+
+                '<tr name="active-member-'+i+'">'+
                 ' <td data-title="ID">'+ jsonObj.alias +'</td>' +
                 ' <td data-title="membername">'+ jsonObj.membername +'</td>' +
                 ' <td data-title="enterts">'+ jsonObj['DATE_FORMAT(ts, "%H:%i")'] +'</td>' +
                 ' <td date-title="ispause">'+ ispause+'</td>' +
+                ' <td date-title="vacant"><i class="fa fa-times vacant-seat" aria-hidden="true" style="cursor:pointer"></i></td>' +
                 '</tr>'
               );
+              
+              /*
+                all member VACANT-SEAT click event handler
+              */
+              $('tr[name="active-member-'+i+'"] td i.vacant-seat').on('click', function(event) {
+                var $parent = $(this).parent().parent('tr');
+                var alias = $parent.find('td:eq(0)').text();
+                
+                $.ajax({
+                  url: '/system/vacant-seat',
+                  method: 'post',
+                  data: {alias: alias}
+                }).done(function(result) {
+                  if (result == "0") {
+                    alert('퇴실처리 하였습니다.');
+                    //$parent.parent().remove('tr[name="active-member-'+i+'"]');
+                  }
+                });
+              });
+              
+              
             }
             
             $('#active-members-list').css("display", "block");
@@ -1782,6 +1805,7 @@ html
                   data: { id: id}
                 }).done(function(result) {
                   alert("삭제하였습니다.");
+                  $(this).parent().parent('tr[name="row-'+i+'"]').remove();
                 });
               });
               // end of delete handler
@@ -1965,6 +1989,10 @@ html
           var cash        = $("#choose-cash").val();
           var discount    = $('#choose-discount').val();
           
+          if (discount == "") {
+            discount=0;
+          }
+          
           if (paymentIdx === 0) {
             alert("요금제를 선택해주세요.");
             event.preventDefault();
@@ -1996,6 +2024,9 @@ html
               }
               else if (result == "err1") {
                 alert('다른 요금제를 사용중입니다. 환불 절차를 먼저 거쳐주세요.');
+              }
+              else if(result =="err2") {
+                alert('존재하지 않는 ID입니다.');
               }
               // clean up
               $("#choose-member").val("");

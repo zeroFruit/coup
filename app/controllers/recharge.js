@@ -93,6 +93,12 @@ module.exports.set = function(app, passport) {
       req.newMilages have updated milages
     */
   }, function(req, res, next) {
+    if (req.payment.err == "1") {
+      return respond.still_use_other_payment(req, res);
+    }
+    else if (req.payment.err == "2") {
+      return respond.no_member(req,res);
+    }
     /*
       add register info to account db
     */
@@ -102,11 +108,6 @@ module.exports.set = function(app, passport) {
     account.addList(req, res, next);
   },
   function(req, res, next) {
-    if (req.err == "1") {
-      return respond.still_use_other_payment(req, res);
-    }
-    else {
-      respond.recharge_succ(req, res);
-    }
+    respond.recharge_succ(req, res);
   });
 }

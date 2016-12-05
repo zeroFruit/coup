@@ -10,6 +10,12 @@ module.exports = {
   SYSTEM
   ***************************************************************************************/
   /*
+    vacant-seat
+  */
+  vacant_seat: function(req, res) {
+    res.send(req.err);
+  },
+  /*
     hold_on_off
   */
   hold_on_off: function(req, res) {
@@ -416,7 +422,14 @@ module.exports = {
   */
   still_use_other_payment: function(req, res) {
     res.send('err1');
-},
+  },
+
+  /*
+    no_member
+  */
+  no_member: function(req, res) {
+    res.send('err2');
+  },
   /*
     recharge success
   */

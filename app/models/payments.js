@@ -114,13 +114,14 @@ module.exports = {
         return next(err);
       }
       else {
+        req.payment = {};
         if (results.err != undefined) {
-          req.err = results.err;
+          req.payment.err = results.err;
           return next();
         }
 
         req.newMilages = results.newMilages;
-        req.err = "0";
+        req.payment.err = "0";
         next();
       }
     });

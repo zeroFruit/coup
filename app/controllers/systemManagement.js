@@ -26,6 +26,17 @@ module.exports.set = function(app, passport) {
   //   respond.auth(req, res);
   // });
   /*
+    /system/vacant-seat
+  */
+  app.post('/system/vacant-seat', function(req, res, next) {
+    system.vacantSeat(req, res, next);
+  }, function(req, res, next) {
+    console.log(req.err);
+    if (req.err == "0") {
+      respond.vacant_seat(req, res);
+    }
+  });
+  /*
     /system/modify-member-info
   */
   app.post('/system/modify-member-info', function(req, res, next) {

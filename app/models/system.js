@@ -181,5 +181,18 @@ module.exports = {
         next();
       }
     });
+  },
+
+  vacantSeat: function(req, res, next) {
+    db.system.vacantSeat(req.body, function(err, results) {
+      if (err) {
+        return next();
+      }
+      else {
+        console.log(results);
+        req.err = results.err;
+        next();
+      }
+    });
   }
 }
