@@ -194,5 +194,20 @@ module.exports = {
         next();
       }
     });
+  },
+
+  getPauseTs: function(req, res, alias, member, isfin, cb) { /* isfin, member is just for passing to callback */
+    db.system.getPauseTs(alias, function(err, results) {
+      if (err) {
+        console.log(err);
+        return; //next();
+      }
+      else {
+        console.log(results);
+        req.err = results.err;
+        req.pts = results.pts;
+        cb(req.pts, member, isfin);
+      }
+    });
   }
 }

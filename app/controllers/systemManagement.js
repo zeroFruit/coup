@@ -13,7 +13,9 @@ var system      = require('../models/system');
 var payment     = require('../models/payments');
 var respond     = require('../helpers/respond');
 var express     = require('express');
-
+var Async       = require('async');
+var moment      = require('moment');
+var moment_tz   = require('moment-timezone');
 
 module.exports.set = function(app, passport) {
   /*
@@ -100,13 +102,147 @@ module.exports.set = function(app, passport) {
   }, function(req, res, next) {
     console.log(req.member);
     var memberList = req.member;
-    var retpack = [];
+    req.retpack = []; /* make array in req for passing array to final callback */
+    req.pmember = []; /* for those of who paused, they process next callback*/
     for (var i = 0; i < memberList.length; i++) {
+      /*
+        only contains those of who enterance == 1
+      */
       if (memberList[i].enterance === "1") {
-        retpack.push(memberList[i]); /* push only those of who enter */
+        var tmp = memberList[i];
+
+        /*
+          for those of who enter, there need different information
+
+            - if not paused : we need [ts, lts (last time stamp), payment, used mins]
+            - if paused :     we need [ts, paused ts, payment, used mins]
+        */
+
+        if (tmp.pause == '0') { /* if user not pause just display usedMin, fints, entts*/
+          payment.id2NameSingle(tmp.payment, function(pname) {
+            /*
+              update payment id to payment name
+            */
+            tmp.payment = pname;
+
+            console.log(tmp);
+            var finTsStr    = tmp['DATE_FORMAT(fints, "%Y-%m-%d %H:%i")'];
+            var oldTsStr    = tmp['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'];
+            var currTsStr   = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm').toString();
+
+            /*
+              get Date Object from String
+            */
+            var oldTsDate = new Date(Date.parse(oldTsStr.replace('-','/','g')));
+            var curTsDate = new Date(Date.parse(currTsStr.replace('-','/','g')));
+
+            var diff = curTsDate - oldTsDate;
+            console.log(finTsStr);
+            console.log(oldTsStr);
+            console.log(diff);
+            /*
+              FINALLY get the diff mins
+            */
+            var minutes = Math.floor((diff/1000)/60);
+            if (minutes < 0) {
+              minutes = minutes + 1440;
+            }
+            tmp.usedMin = minutes;
+            if (finTsStr == null ) {
+              tmp.lts = '-';
+            }
+            else {
+              tmp.lts = finTsStr;
+            }
+          });
+
+          req.retpack.push(tmp);
+        }
+
+        else if(tmp.pause == '1') { /* if member in pause state */
+          req.pmember.push(tmp);
+
+        }
       }
     }
-    var json = JSON.stringify(retpack);
+    next();
+  },
+  function(req, res, next) { /* in this cb, process payment name for those of who paused */
+    var pMember = req.pmember;
+    var idList = [];
+
+    /*
+      if there's no paused member just pass
+    */
+    if (pMember.length == 0) {
+      return next();
+    }
+
+    for (var i = 0; i < pMember.length; i++) {
+      idList.push(pMember[i].payment);
+    }
+    payment.paymentId2Name(req, idList, function(nmList) {
+      for (var i = 0; i < pMember.length; i++) {
+        pMember[i].payment = nmList[i];
+      }
+      req.pmember = pMember;
+      next();
+    });
+  },
+  function(req, res, next) {
+    var pMember = req.pmember;
+
+    /*
+      if there's no paused member just pass
+    */
+    if (pMember.length == 0) {
+      return next();
+    }
+
+    for (var i = 0; i < pMember.length; i++) {
+      var pm = pMember[i];
+
+      system.getPauseTs(req, res, pm.alias, pm, i, function(pts, member, isfin) {
+        console.log(pts);
+        if (pts == null) { /* which means there's no pause member */
+          return next();
+        }
+        if (req.err == "1") {
+          console.log('query result is not 1');
+          return res.send('1');
+        }
+        else {
+          var oldTsStr    = member['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'];
+          var pTsStr      = pts; /* this is paused time : querying result from pause_table */
+          /*
+            get Date Object from String
+          */
+          var oldTsDate = new Date(Date.parse(oldTsStr.replace('-','/','g')));
+          var curTsDate = new Date(Date.parse(pTsStr.replace('-','/','g')));
+          var diff = curTsDate - oldTsDate;
+          /*
+            FINALLY get the diff mins
+          */
+          var minutes = Math.floor((diff/1000)/60);
+          member.usedMin = minutes;
+          member.lts     = pTsStr;
+
+          /* add to retpack */
+          req.retpack.push(member);
+          /* determine when to jump next cb */
+          if (isfin == pMember.length-1) {
+
+            return next();
+          }
+        }
+      });
+
+    }
+  }, function(req, res) {
+    /*
+      now finally retpack contains all members
+    */
+    var json = JSON.stringify(req.retpack);
     res.send(json);
   });
 

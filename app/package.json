@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start"   : "forever start -o out.log -e err.log ./bin/www",
-    "restart" : "forever restart -o out.log -e err.log ./bin/www"
+    "start": "forever start -o out.log -e err.log ./bin/www",
+    "restart": "forever restart -o out.log -e err.log ./bin/www"
   },
   "dependencies": {
+    "async": "^2.1.4",
     "body-parser": "~1.15.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",

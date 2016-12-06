@@ -130,6 +130,9 @@ module.exports.set = function(app, passport) {
     else if(req.member.err === "6") {
       respond.stop_member_err(req, res);
     }
+    else if(req.member.err === "7") {
+      respond.lack_milage_err(req, res);
+    }
     else {
       /* if success at auth, then get the seats info */
       // respond.client_auth_succ(req, res);

@@ -92,6 +92,8 @@ html
           | 퇴실하였습니다.
         #stop-member-err-snackbar
           | 보류회원은 먼저 보류상태를 풀어야 합니다.
+        #prepay-lack-milage-err-snackbar
+          | 선불제 회원: 마일리지가 부족합니다.
         
           
     //- JQUERY SCRIPTS
@@ -113,6 +115,7 @@ html
       var already_exited            = '!{already_exited}';
       var client_leave_succ         = '!{client_leave_succ}';
       var stop_member_err           = '!{stop_member_err}';
+      var prepay_lack_milage_err    = '!{lack_milage_err}';
       
       window.onload = function() {
         if (password_err === "1") {
@@ -147,6 +150,9 @@ html
         }
         else if(stop_member_err === "1") {
           show_snackbar('stop-member-err-snackbar'); return false;
+        }
+        else if(prepay_lack_milage_err === "1") {
+          show_snackbar('prepay-lack-milage-err-snackbar'); return false;
         }
       }
       //- SNACKBAR

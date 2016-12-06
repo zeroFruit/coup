@@ -267,7 +267,7 @@ module.exports = {
           -name, phone number, payment, milage, seat
     */
     getList: function(cb) {
-      var sql = 'SELECT membername, payment, milage, seatnum, alias, pause, enterance, sex, memo, leftDay, prepare, DATE_FORMAT(ts, "%H:%i") FROM members';
+      var sql = 'SELECT membername, payment, milage, seatnum, alias, pause, enterance, sex, memo, leftDay, prepare, DATE_FORMAT(ts, "%Y-%m-%d %H:%i"), DATE_FORMAT(fints, "%Y-%m-%d %H:%i") FROM members';
       conn.query(sql, function(err, results) {
         if (err) {
           console.log(err);
@@ -374,6 +374,14 @@ module.exports = {
             console.log('you should first change your stop mask');
             return cb(null, {err: "6"});
           }
+          /* if user who is prepay member dont have milage than abort */
+          else if(results[0].payment === '0' && results[0].milage <= 0) {
+            console.log('you are prepay member but no milage, abort');
+            return cb(null, {err: "7"});
+          }
+          // else if() {
+          //
+          // }
           else {
             console.log('this is enter');
             console.log(results);
@@ -529,11 +537,17 @@ module.exports = {
                   FINALLY get the difference of minutes
                 */
                 var minutes = Math.floor((diff/1000)/60);
+                var hour = parseInt(minutes / 60);
+                var over = minutes % 60;
+                if (over > 10) {
+                  hour = hour + 1;
+                }
+                var fee = hour * 800;
                 /*
                   Then with MINUTES update member data
                 */
                 var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias = ?';
-                conn.query(sql, [minutes, (minutes * 13), data.lcid], function(err, results) {
+                conn.query(sql, [minutes, fee, data.lcid], function(err, results) {
                   if(err) {
                     cb(new Error('query error'));
                   }
@@ -645,11 +659,25 @@ module.exports = {
                       return cb(new Error('query error'));
                     }
                     else {
-                      return cb(null, {err: "0", alias: data.pcid, do: "reuse"});
+                      /*
+                        succeed at reuse
+                        then we should erase pause_table record -> set=0
+                      */
+                      var sql = 'UPDATE pause_table SET mask=0 WHERE alias=? AND mask=1';
+                      conn.query(sql, [data.pcid], function(err, results) {
+                        if (err) {
+                          console.log(err);
+                          return cb(new Error('query error'));
+                        }
+                        return cb(null, {err: "0", alias: data.pcid, do: "reuse"});
+                      });
                     }
                   });
                 }
               }
+              /*
+                not free user
+              */
               else {
                 /*
                   Now trying to pause
@@ -661,7 +689,7 @@ module.exports = {
                       cb(new Error('query error'));
                     }
                     else {
-                      /* succeed at reuse */
+
                       var sql = 'INSERT INTO pause_table (alias, mask) VALUES (?, 1)';
                       conn.query(sql, [data.pcid], function(err, results) {
                         if (err) {
@@ -725,7 +753,18 @@ module.exports = {
                           cb(new Error('query error'));
                         }
                         else {
-                          return cb(null, {err: "0", alias: data.pcid, do: "reuse"});
+                          /*
+                            succeed at reuse
+                            then we should erase pause_table record -> set=0
+                          */
+                          var sql = 'UPDATE pause_table SET mask=0 WHERE alias=? AND mask=1';
+                          conn.query(sql, [data.pcid], function(err, results) {
+                            if (err) {
+                              console.log(err);
+                              return cb(new Error('query error'));
+                            }
+                            return cb(null, {err: "0", alias: data.pcid, do: "reuse"});
+                          });
                         }
                       });
                     }
@@ -771,9 +810,13 @@ module.exports = {
             var obj = results[i];
             var tsStr = obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
             var tsObj = new Date(Date.parse(tsStr.replace('-','/','g')));
-            var diff = Math.abs(new Date() - tsObj);
+            var tsCur = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+            var diff = Math.abs(tsCur - tsObj);
 
             var minutes = Math.floor((diff/1000)/60);
+
+            console.log(minutes);
+
             if (minutes > 60) {
               uptList.push(obj.alias);
               pauseStartDate.push(tsObj);
@@ -925,6 +968,10 @@ module.exports = {
       var alias = data.member;
       var paymentId = data.paymentId;
       var leftDay;
+      var night = 0;
+      if (data.night == true) {
+        night = 1;
+      }
 
       /*
         first we need to check whether that member exist
@@ -957,8 +1004,8 @@ module.exports = {
                 free
               */
               if (data.type === 'free') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -992,8 +1039,8 @@ module.exports = {
                     var newLeftTime = "" + Math.round((Number(data.price) / 800) * 60); /* Now update left time */
                     console.log(oldMilages);
                     console.log(newMilages);
-                    var sql = 'UPDATE members SET milage=?, payment=?, leftTime=?, leftDay=? WHERE alias=?';
-                    conn.query(sql, [newMilages, data.paymentId, newLeftTime, leftDay, alias], function(err, results) {
+                    var sql = 'UPDATE members SET milage=?, payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                    conn.query(sql, [newMilages, data.paymentId, newLeftTime, leftDay, night, alias], function(err, results) {
                       if(err) {
                         console.log(err);
                         cb(new Error('query error'));
@@ -1010,8 +1057,8 @@ module.exports = {
                 daily
               */
               else if (data.type === 'daily') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1026,8 +1073,8 @@ module.exports = {
                 monthly
               */
               else if (data.type === 'monthly') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1042,8 +1089,8 @@ module.exports = {
                 halfmonthly
               */
               else if (data.type === 'halfmonthly') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1058,8 +1105,8 @@ module.exports = {
                 night
               */
               else if (data.type === 'night') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=?WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1074,8 +1121,8 @@ module.exports = {
                 special
               */
               else if (data.type === 'special') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, alias], function(err, results) {
+                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1756,6 +1803,33 @@ module.exports = {
                 cb(null, {err: "0"});
               }
             })
+          }
+        }
+      });
+    },
+
+    /*
+      getPauseTs
+    */
+    getPauseTs: function(alias, cb) {
+      var sql = 'SELECT alias, DATE_FORMAT(ts, "%Y-%m-%d %H:%i") FROM pause_table WHERE alias=? AND mask=1';
+      conn.query(sql, [alias], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          var tmp = results[0];
+          console.log('db');
+          console.log(results);
+          if (results.length > 1) {
+            return cb(null, {err: "1"}); /* querying result is not 1*/
+          }
+          else if(results.length == 0) {
+            cb(null, {err: "0", pts: null})
+          }
+          else {
+            cb(null, {err: "0", pts: tmp['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")']});
           }
         }
       });

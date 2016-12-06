@@ -237,6 +237,14 @@ module.exports = {
   stop_member_err: function(req, res) {
     res.render('clients_index', {stop_member_err : "1"});
   },
+
+  /*
+    lack_milage_err
+  */
+  lack_milage_err: function(req, res) {
+    res.render('clients_index', {lack_milage_err : "1"});
+  },
+
   /*
     Periodic check
   */
