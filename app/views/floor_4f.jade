@@ -207,7 +207,10 @@ html
               seatid = this.settings.id;
               seatnum = this.settings.label;
             });
-            
+            if (sc.find('n.selected').length == 0 || sc.find('P.selected').length == 0) {
+              alert('좌석을 선택해주세요');
+              return false;
+            }
             /*
               if user other than management type select this seats alert and abort
             */
@@ -224,6 +227,7 @@ html
               seatnum = this.settings.label;
             });
           }
+          
           
           $('input[name="seatid"]').val(seatid);
           $('input[name="alias"]').val(accessMember);

@@ -186,6 +186,12 @@ html
         //sc.get(['1_2', '4_1', '7_1', '7_2']).status('unavailable');
         $('#checkout').on('click', function() {
           var seatid, seatnum;
+          
+          if (sc.find('n.selected').length == 0) {
+            alert('좌석을 선택해주세요');
+            return false;
+          }
+          
           sc.find('n.selected').each(function(seatId) {
             /* there should be only one element */
             console.log(this.settings.id);
