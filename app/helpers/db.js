@@ -527,10 +527,7 @@ module.exports = {
       /* before get data, check whether form data is valid */
       console.log('hello');
       var sql = 'SELECT membername, password, enterance, payment, seatnum FROM members WHERE alias=?'; /* first check the existence of member*/
-      console.log(data);
       conn.query(sql, [data.lcid], function(err, results) {
-        console.log('results');
-        console.log(results);
         var memInfo = results[0];
         if(err) {
           console.log(err);
