@@ -89,11 +89,11 @@ html
           label
             | 할인금액
             input#choose-discount(name='discount-cash' placeholder='할인금액')
-        //- .col-1
-        //-   label
-        //-     | 야간 월권 추가
-        //-     center(style='position:relative;margin-bottom:8px;')
-        //-       input.switchery.js-switch(type='checkbox' name='using-night')
+        .col-1
+          label
+            | 야간 월권 추가
+            center(style='position:relative;margin-bottom:8px;')
+              input.switchery.js-switch(type='checkbox' name='using-night')
         .col-submit
           button.submitbtn#charge-btn 충전하기
         input(type='hidden' name='minPerDay')
@@ -1265,6 +1265,9 @@ html
               var jsonObj = json[i];
               var ispause = '-';
               if (jsonObj.pause === '1') ispause = '일시정지 중';
+              var total = parseInt(jsonObj.usedMin);
+              var hour  = total / 60;
+              var min   = total % 60;
               $('#active-members-table-body').append(
                 '<tr name="active-member-'+i+'">'+
                 ' <td data-title="ID">'+ jsonObj.alias +'</td>' +
@@ -1272,7 +1275,7 @@ html
                 ' <td data-title="payment">'+ jsonObj.payment +'</td>' +
                 ' <td data-title="enterts">'+ jsonObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'] +'</td>' +
                 ' <td data-title="fints">'+ jsonObj.lts +'</td>' +
-                ' <td data-title="usedMin">'+ jsonObj.usedMin +'</td>' +
+                ' <td data-title="usedMin">'+ hour +' 시간 '+ min +' 분'+'</td>' +
                 ' <td date-title="ispause">'+ ispause+'</td>' +
                 ' <td date-title="vacant"><i class="fa fa-times vacant-seat" aria-hidden="true" style="cursor:pointer"></i></td>' +
                 '</tr>'
@@ -2078,6 +2081,9 @@ html
         /*
           When trying to submit the form, just validate the input value, and check emptyness.
         */
+        $("input[name='using-night']").click(function(event) {
+          alert($(this).is(':checked'));
+        });
         $("#charge-btn").click(function(event) {
           event.preventDefault();
           
@@ -2085,7 +2091,8 @@ html
           var paymentIdx  = $("#choose-payment").prop('selectedIndex');
           var cash        = $("#choose-cash").val();
           var discount    = $('#choose-discount').val();
-          //var night       = $('input[name="using-night"]').is(':checked');
+          var night       = $('input[name="using-night"]').is(':checked');
+          
           if (discount == "") {
             discount=0;
           }
