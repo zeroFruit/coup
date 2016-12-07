@@ -137,9 +137,21 @@ html
               th 퇴실처리하기
           tbody#active-members-table-body
         //- DISPLAY ACTIVE MEMBERS LIST
+    #history-modal.modal(style='padding-top:10px;')
+      .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:40%; margin-top:3%')
+        //- Table starts here
+        table#history-table.table.table-hover.table-bordered
+          thead
+            tr
+              th 시간
+              th ID
+              th 좌석번호
+              th 상태
+          tbody#history-table-body
+        //- DISPLAY ACTIVE MEMBERS LIST
     //- DISPLAY ACCOUNT
     #account-list.modal(style='padding-top:0px;overflow-y:scroll')
-      .modal-content.animate#account-wrapper(style='width:70%; padding-top:20px; margin-top:10px;')
+      .modal-content.animate#account-wrapper(style='width:80%; padding-top:20px; margin-top:3%;')
         #account-head.container
           h1.page-subhead-line 장부 조회
           .col-md-2.col-md-offset-2
@@ -220,12 +232,13 @@ html
             .col-md-12
               #payback-result(style='padding-top:5%;padding-bottom:5%;padding-left:10%')
           .row
-            .col-md-6.form-group
-              input.form-control#payback-cashback(type='text' placeholder='환불 마일리지를 입력해주세요.')
-            .col-md-6
-              .main-box.mb-dull
-                a#payback-determine.a-cursor-pointer
-                  h6 환불하기
+            #payback-submitform(style='display:none')
+              .col-md-6.form-group
+                input.form-control#payback-cashback(type='text' placeholder='환불 마일리지를 입력해주세요.' )
+              .col-md-6
+                .main-box.mb-dull
+                  a#payback-determine.a-cursor-pointer
+                    h6 환불하기
     //- Holdoff modal
     #holdoff-modal.modal      
       .modal-content.animate(style='width:40%')
@@ -850,6 +863,11 @@ html
                       a#holdoff.a-cursor-pointer
                         i.fa.fa-pause.fa-5x
                         h5 사용보류
+                  .col-md-6
+                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
+                      a#history.a-cursor-pointer
+                        i.fa.fa-history.fa-5x
+                        h5 사용기록
               .col-md-6(style='padding-left:30px; padding-right:30px')
                 .row
                   .col-md-12
@@ -965,6 +983,7 @@ html
           var reserve_studyroom   = document.getElementById('studyroom-reservation-modal');
           var payback             = document.getElementById('payback-modal');
           var holdoff             = document.getElementById('holdoff-modal');
+          var history             = document.getElementById('history-modal');
         
           if (event.target == holdoff) {
             holdoff.style.display = "none";
@@ -976,16 +995,23 @@ html
             while(container.firstChild) {
               container.removeChild(container.firstChild);
             }
+            
+            return false;
           }
+          
           if (event.target == payback) {
             payback.style.display = "none";
             var paybackId = document.getElementById("payback-name").value = "";
-            var container = document.getElementById("payback-hidden-container");
+            var container = document.getElementById("payback-result");
+            var submitform= document.getElementById("payback-submitform");
             
             container.style.display = "none";
             while (container.firstChild) {
               container.removeChild(container.firstChild);
             }
+            submitform.style.display = "none";
+            
+            return false;
           }
           
           if (event.target == recharge) {
@@ -999,13 +1025,14 @@ html
             }
             memberList.value = "";
             cash.value = "";
-            //- while(memberList.firstChild) {
-            //-   memberList.removeChild(memberList.firstChild);
-            //- }
+            
+            return false;
           }
           
           if (event.target == register) {
               register.style.display = "none";
+              
+              return false;
           }
           
           if(event.target == active_members_list) {
@@ -1015,6 +1042,8 @@ html
             while(tbody.firstChild) {
               tbody.removeChild(tbody.firstChild);
             }
+            
+            return false;
           }
           
           if (event.target == all_members_list) {
@@ -1024,6 +1053,8 @@ html
             while (tbody.firstChild) {
               tbody.removeChild(tbody.firstChild);
             }
+            
+            return false;
           }
           
           if (event.target == account_list) {
@@ -1035,18 +1066,24 @@ html
             while (tbody.firstChild) {
               tbody.removeChild(tbody.firstChild);
             }
+            
+            return false;
           }
           
           if (event.target == use_milage) {
             use_milage.style.display = "none";
             document.getElementById("use-milage-name").value = "";
             document.getElementById("amount-use-milage").value = "";
+            
+            return false;
           }
           
           if (event.target == charge_milage) {
             charge_milage.style.display = "none";
             document.getElementById("charge-milage-name").value = "";
             document.getElementById("amount-charge-milage").value = "";
+            
+            return false;
           }
           
           if (event.target == reserve_studyroom) {
@@ -1056,6 +1093,17 @@ html
               also hide select hour form
             */
             select_hours_container.style.display = 'none';
+            
+            return false;
+          }
+          
+          if(event.target == history) {
+            history.style.display = "none";
+            var history_table = document.getElementById('history-table-body');
+            while(history_table.firstChild) {
+              history_table.removeChild(history_table.firstChild);
+            }
+            return false;
           }
         }// end of function
 
@@ -1256,7 +1304,42 @@ html
           });          
         });
         
-        
+        /*
+          history
+        */
+        $('#history').click(function(event) {
+          
+          $.ajax({
+            url: '/system/history',
+            method: 'post'
+          }).done(function(results) {
+            console.log(results);
+            for (var i = 0; i < results.length; i++) {
+              var obj = results[i];
+              $('#history-table-body').append(
+                '<tr name="history-'+i+'">'+
+                ' <td data-title="ID">'+ obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'] +'</td>' +
+                ' <td data-title="alias">'+ obj.alias +'</td>' +
+                ' <td data-title="seatnum">'+ obj.seatnum +'</td>' +
+                ' <td data-title="do">'+ obj.do +'</td>' +
+                '</tr>'
+              );
+              if (obj.job == 0) {
+                $('tr[name="history-'+i+'"]').css('background-color', '#baffc9');
+              }
+              else if(obj.job == 1) {
+                $('tr[name="history-'+i+'"]').css('background-color', '#ffffba');
+              }
+              else if(obj.job == 2) {
+                $('tr[name="history-'+i+'"]').css('background-color', '#bae1ff');
+              }
+              else if(obj.job == 3) {
+                $('tr[name="history-'+i+'"]').css('background-color', '#ffb3ba');
+              }
+            }
+            $('#history-modal').css("display", "block");
+          });
+        });
         
         
         
@@ -1354,6 +1437,7 @@ html
             var json = JSON.parse(results);
             console.log(json);
             $('#payback-hidden-container').css('display', 'block');
+            $('#payback-submitform').css('display', 'block');
             $('#payback-result').append(
               '<h4> 이름: '+json.membername+'</h4><br>' + 
               '<h4> 이용 요금제: '+json.payment+'</h4><br>' +
@@ -1378,12 +1462,13 @@ html
               alert('환불처리 되었습니다.');
               // clean up
               $('payback-hidden-container').css('display', 'none');
-              var container = document.getElementById('payback-hidden-container');
+              var container = document.getElementById('payback-result');
               while(container.firstChild) {
                 container.removeChild(container.firstChild);
               }
               $('input[name="payback-id"]').val("");
               $('#payback-name').val("");
+              $('#payback-submitform').css('display', 'none');
             }
           });
         });

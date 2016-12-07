@@ -166,8 +166,7 @@ module.exports.set = function(app, passport) {
       }
     }
     next();
-  },
-  function(req, res, next) { /* in this cb, process payment name for those of who paused */
+  }, function(req, res, next) { /* in this cb, process payment name for those of who paused */
     var pMember = req.pmember;
     var idList = [];
 
@@ -188,8 +187,8 @@ module.exports.set = function(app, passport) {
       req.pmember = pMember;
       next();
     });
-  },
-  function(req, res, next) {
+
+  }, function(req, res, next) {
     var pMember = req.pmember;
 
     /*
@@ -213,7 +212,7 @@ module.exports.set = function(app, passport) {
         }
         else {
           var oldTsStr    = member['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'];
-          var pTsStr      = pts; /* this is paused time : querying result from pause_table */
+          var pTsStr      = pts;  /* this is paused time : querying result from pause_table */
           /*
             get Date Object from String
           */
@@ -244,6 +243,17 @@ module.exports.set = function(app, passport) {
     */
     var json = JSON.stringify(req.retpack);
     res.send(json);
+  });
+
+  /*
+    /system/history
+  */
+  app.post('/system/history', function(req, res, next) {
+    system.getHistroy(req, res, next);
+  }, function(req, res, next) {
+    if (req.err == "0") {
+      res.send(req.history);
+    }
   });
 
   /*

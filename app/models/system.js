@@ -196,6 +196,11 @@ module.exports = {
     });
   },
 
+  /*
+    getPauseTs
+
+      this is for getting members who paused
+  */
   getPauseTs: function(req, res, alias, member, isfin, cb) { /* isfin, member is just for passing to callback */
     db.system.getPauseTs(alias, function(err, results) {
       if (err) {
@@ -209,5 +214,35 @@ module.exports = {
         cb(req.pts, member, isfin);
       }
     });
+  },
+
+  getHistroy: function(req, res, next) {
+    db.system.getHistroy(function(err, results) {
+      if (err) {
+        console.log(err);
+        return next();
+      }
+      else {
+        req.err     = results.err;
+
+        var history = results.results;
+        for (var i = 0; i < history.length; i++) {
+          if (history[i].job == 0) {
+            history[i].do = '입실';
+          }
+          else if(history[i].job == 1) {
+            history[i].do = '일시정지';
+          }
+          else if(history[i].job == 2) {
+            history[i].do = '재시작';
+          }
+          else if(history[i].job == 3) {
+            history[i].do = '퇴실';
+          }
+        }
+        req.history = history;
+        next();
+      }
+    })
   }
 }
