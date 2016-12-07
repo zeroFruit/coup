@@ -969,9 +969,9 @@ module.exports = {
       var paymentId = data.paymentId;
       var leftDay;
       var night = 0;
-      if (data.night == true) {
-        night = 1;
-      }
+      // if (data.night == true) {
+      //   night = 1;
+      // }
 
       /*
         first we need to check whether that member exist
