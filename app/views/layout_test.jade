@@ -89,11 +89,11 @@ html
           label
             | 할인금액
             input#choose-discount(name='discount-cash' placeholder='할인금액')
-        //- .col-1
-        //-   label
-        //-     | 야간 월권 추가
-        //-     center(style='position:relative;margin-bottom:8px;')
-        //-       input.switchery.js-switch(type='checkbox' name='using-night')
+        .col-1
+          label
+            | 야간 월권 추가
+            center(style='position:relative;margin-bottom:8px;')
+              input.switchery.js-switch(type='checkbox' name='using-night')
         .col-submit
           button.submitbtn#charge-btn 충전하기
         input(type='hidden' name='minPerDay')
@@ -2085,7 +2085,7 @@ html
           var paymentIdx  = $("#choose-payment").prop('selectedIndex');
           var cash        = $("#choose-cash").val();
           var discount    = $('#choose-discount').val();
-          //var night       = $('input[name="using-night"]').is(':checked');
+          var night       = $('input[name="using-night"]').is(':checked');
           if (discount == "") {
             discount=0;
           }

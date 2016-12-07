@@ -525,7 +525,7 @@ module.exports = {
       //retval.oldts;
       //retval.newts = {};
       /* before get data, check whether form data is valid */
-      var sql = 'SELECT membername, password, enterance, payment FROM members WHERE alias=?'; /* first check the existence of member*/
+      var sql = 'SELECT membername, password, enterance, payment, seatnum FROM members WHERE alias=?'; /* first check the existence of member*/
       console.log(data);
       conn.query(sql, [data.lcid], function(err, results) {
         var memInfo = results[0];
@@ -555,8 +555,8 @@ module.exports = {
             then insert history of leave that member
           */
           var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-          var sql = 'INSERT INTO history (ts, job, alias) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 3, ?)';
-          conn.query(sql, [data.lcid], function(err, results) {
+          var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 3, ?, ?)';
+          conn.query(sql, [data.lcid, memInfo.seatnum], function(err, results) {
             if (err) {
               console.log(err);
               cb(new Error('query error'));
