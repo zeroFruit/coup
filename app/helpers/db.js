@@ -547,6 +547,8 @@ module.exports = {
           return cb(null, {err: "3"});
         }
         else {
+          console.log('meminfo');
+          console.log(memInfo);
           /*
             when matcing client is exist
           */
