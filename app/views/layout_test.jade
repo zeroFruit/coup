@@ -134,6 +134,8 @@ html
               th 정지/퇴실시간
               th 사용시간(분)
               th 일시정지 여부
+              th 휴식시간(누적)
+              th 일시정지 시간
               th 퇴실처리하기
           tbody#active-members-table-body
         //- DISPLAY ACTIVE MEMBERS LIST
@@ -145,6 +147,7 @@ html
             tr
               th 시간
               th ID
+              th 이름
               th 좌석번호
               th 상태
           tbody#history-table-body
@@ -1257,6 +1260,10 @@ html
               var total = parseInt(jsonObj.usedMin);
               var hour  = parseInt(total / 60);
               var min   = total % 60;
+              
+              var btotal = parseInt(jsonObj.break);
+              var bhour  = parseInt(btotal/60);
+              var bmin   = btotal % 60;
               $('#active-members-table-body').append(
                 '<tr name="active-member-'+i+'">'+
                 ' <td data-title="ID">'+ jsonObj.alias +'</td>' +
@@ -1266,6 +1273,8 @@ html
                 ' <td data-title="fints">'+ jsonObj.lts +'</td>' +
                 ' <td data-title="usedMin">'+ hour +' 시간 '+ min +' 분'+'</td>' +
                 ' <td date-title="ispause">'+ ispause+'</td>' +
+                ' <td date-title="break">'+  bhour +' 시간 '+ bmin +' 분'+'</td>' +
+                ' <td date-title="pts">'+ jsonObj.pts +'</td>' +
                 ' <td date-title="vacant"><i class="fa fa-times vacant-seat" aria-hidden="true" style="cursor:pointer"></i></td>' +
                 '</tr>'
               );
@@ -1312,6 +1321,7 @@ html
                 '<tr name="history-'+i+'">'+
                 ' <td data-title="ID">'+ obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'] +'</td>' +
                 ' <td data-title="alias">'+ obj.alias +'</td>' +
+                ' <td data-title="membername">'+ obj.membername +'</td>' +
                 ' <td data-title="seatnum">'+ obj.seatnum +'</td>' +
                 ' <td data-title="do">'+ obj.do +'</td>' +
                 '</tr>'

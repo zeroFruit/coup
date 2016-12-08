@@ -152,6 +152,11 @@ module.exports.set = function(app, passport) {
             else {
               tmp.lts = finTsStr;
             }
+
+            /*
+              and set pts (pause time) to '-'
+            */
+            tmp.pts = '-';
           });
 
           req.retpack.push(tmp);
@@ -209,6 +214,7 @@ module.exports.set = function(app, passport) {
         }
         else {
           var oldTsStr    = member['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'];
+          var finTsStr    = member['DATE_FORMAT(fints, "%Y-%m-%d %H:%i")'];
           var pTsStr      = pts;  /* this is paused time : querying result from pause_table */
           /*
             get Date Object from String
@@ -221,7 +227,20 @@ module.exports.set = function(app, passport) {
           */
           var minutes = Math.floor((diff/1000)/60);
           member.usedMin = minutes;
-          member.lts     = pTsStr;
+
+          /*
+            set pts (pause time)
+          */
+          member.pts     = pTsStr;
+          /*
+            set lts
+          */
+          if (finTsStr == null ) {
+            member.lts = '-';
+          }
+          else {
+            member.lts = finTsStr;
+          }
 
           /* add to retpack */
           req.retpack.push(member);

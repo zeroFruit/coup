@@ -265,7 +265,7 @@ module.exports = {
           -name, phone number, payment, milage, seat
     */
     getList: function(cb) {
-      var sql = 'SELECT membername, payment, milage, seatnum, alias, pause, enterance, sex, memo, leftDay, prepare, DATE_FORMAT(ts, "%Y-%m-%d %H:%i"), DATE_FORMAT(fints, "%Y-%m-%d %H:%i") FROM members';
+      var sql = 'SELECT membername, payment, milage, seatnum, alias, pause, enterance, sex, memo, leftDay, break, prepare, DATE_FORMAT(ts, "%Y-%m-%d %H:%i"), DATE_FORMAT(fints, "%Y-%m-%d %H:%i") FROM members';
       conn.query(sql, function(err, results) {
         if (err) {
           console.log(err);
@@ -384,7 +384,8 @@ module.exports = {
                 alias: data.ecid,
                 do: "enter",
                 paymentid: results[0].payment,
-                leftTime: results[0].leftTime.toString()
+                leftTime: results[0].leftTime.toString(),
+                membername: results[0].membername
               });
           }
         }
@@ -398,8 +399,9 @@ module.exports = {
       /*
         data.paymentid
       */
-      var paymentid = data.paymentid;
-      var leftTime  = data.leftTime;
+      var paymentid  = data.paymentid;
+      var leftTime   = data.leftTime;
+      var membername = data.membername;
 
 
       /*
@@ -419,8 +421,8 @@ module.exports = {
               now update history of this user
             */
             var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-            var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?)';
-            conn.query(sql, [data.alias, data.seatnum], function(err, results) {
+            var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+            conn.query(sql, [data.alias, data.seatnum, data.membername], function(err, results) {
               if (err) {
                 console.log(err);
                 cb(new Error('query error'));
@@ -446,8 +448,8 @@ module.exports = {
                 now update history of this user
               */
               var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-              var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?)';
-              conn.query(sql, [data.alias, data.seatnum], function(err, results) {
+              var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+              conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
                 if (err) {
                   console.log(err);
                   cb(new Error('query error'));
@@ -475,8 +477,8 @@ module.exports = {
               now update history of this user
             */
             var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-            var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?)';
-            conn.query(sql, [data.alias, data.seatnum], function(err, results) {
+            var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+            conn.query(sql, [data.alias, data.seatnum, data.membername], function(err, results) {
               if (err) {
                 console.log(err);
                 cb(new Error('query error'));
@@ -517,8 +519,7 @@ module.exports = {
       //retval.oldts;
       //retval.newts = {};
       /* before get data, check whether form data is valid */
-      console.log('hello');
-      var sql = 'SELECT membername, password, enterance, payment, seatnum FROM members WHERE alias=?'; /* first check the existence of member*/
+      var sql = 'SELECT membername, password, enterance, payment, seatnum, break FROM members WHERE alias=?'; /* first check the existence of member*/
       conn.query(sql, [data.lcid], function(err, results) {
         var memInfo = results[0];
         if(err) {
@@ -540,14 +541,18 @@ module.exports = {
         }
         else {
           /*
+            how many minutes user break
+          */
+          var breaks = memInfo.break;
+          /*
             when matcing client is exist
           */
           /*
             then insert history of leave that member
           */
           var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-          var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 3, ?, ?)';
-          conn.query(sql, [data.lcid, memInfo.seatnum], function(err, results) {
+          var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 3, ?, ?, ?)';
+          conn.query(sql, [data.lcid, memInfo.seatnum, memInfo.membername], function(err, results) {
             if (err) {
               console.log(err);
               cb(new Error('query error'));
@@ -588,7 +593,7 @@ module.exports = {
                         /*
                           FINALLY get the difference of minutes
                         */
-                        var minutes = Math.floor((diff/1000)/60);
+                        var minutes = Math.floor((diff/1000)/60) - breaks;
                         var hour = parseInt(minutes / 60);
                         var over = minutes % 60;
                         if (over > 10) {
@@ -598,7 +603,7 @@ module.exports = {
                         /*
                           Then with MINUTES update member data
                         */
-                        var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias = ?';
+                        var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0", break=0 WHERE alias = ?';
                         conn.query(sql, [minutes, fee, data.lcid], function(err, results) {
                           if(err) {
                             cb(new Error('query error'));
@@ -614,7 +619,7 @@ module.exports = {
                     He/She is not prepay payment member
                   */
                   else {
-                    var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=? AND password=?';
+                    var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0", break=0 WHERE alias=? AND password=?';
                     conn.query(sql, [data.lcid, data.lcpwd], function(err, results) {
                       if(err) {
                         cb(new Error('query error'));
@@ -640,6 +645,7 @@ module.exports = {
       var isPause;
       var oldTs, oldfinTs;
       var payment;
+      var pts, rts;
       /*
         before doing something first auth the member
       */
@@ -664,13 +670,14 @@ module.exports = {
         }
         else {
           /* save payment */
-          payment = results[0].payment;
-          seatnum = results[0].seatnum;
+          payment     = results[0].payment;
+          seatnum     = results[0].seatnum;
+          membername  = results[0].membername;
           /*
             when matcing client is exist, first insert into pause_table
           */
 
-          var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s"), pause FROM members WHERE alias=?';
+          var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s"), pause FROM members WHERE alias=?';
           conn.query(sql, [data.pcid, data.pcpwd], function(err, results) {
             if(err) {
               cb(new Error('query error'));
@@ -680,13 +687,24 @@ module.exports = {
               console.log(results);
               var resultObj = results[0];
               isPause = resultObj.pause;
-
+              pts = resultObj['DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s")'];
+              var ptsDate;
+              if (pts != null) {
+                ptsDate = new Date(Date.parse(pts.replace('-','/','g')));
+              }
               /*
                 free user
               */
               if (payment == "14") {
+
+                /*
+                  if free member tries to pause
+                */
                 if (isPause == "0") {
-                  var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
+                  // curent time
+                  var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                  console.log(currentTsStr);
+                  var sql = 'UPDATE members SET pause=?, pts=DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s") WHERE alias=?'; /* just update pause bit, not ts */
                   conn.query(sql, ["1", data.pcid], function(err, results) {
                     if (err) {
                       return cb(new Error('query error'));
@@ -703,9 +721,9 @@ module.exports = {
                           /*
                             after update pause bit, then add this history to db
                           */
-                          var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-                          var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 1, ?, ?)';
-                          conn.query(sql, [data.pcid, seatnum], function(err, results) {
+
+                          var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 1, ?, ?, ?)';
+                          conn.query(sql, [data.pcid, seatnum, membername], function(err, results) {
                             if (err) {
                               console.log(err);
                               return cb(new Error('query error'));
@@ -719,10 +737,23 @@ module.exports = {
                     }
                   });
                 }
+                /*
+                  if free user tries to reuse
+                */
                 else if(isPause == "1") {
-                  console.log('hello');
-                  var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
-                  conn.query(sql, ["0", data.pcid], function(err, results) {
+
+
+                  // current time
+                  var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                  /*
+                    before update rts, let's calculate break min
+                  */
+                  var curTsDate = new Date(Date.parse(currentTsStr.replace('-','/','g'))); // this will going to be rts
+                  var diff = curTsDate - ptsDate;
+                  var breaks = Math.floor((diff/1000)/60);
+
+                  var sql = 'UPDATE members SET pause=?, rts=DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), break=break+? WHERE alias=?'; /* just update pause bit, not ts */
+                  conn.query(sql, ["0", breaks, data.pcid], function(err, results) {
                     if (err) {
                       return cb(new Error('query error'));
                     }
@@ -741,9 +772,9 @@ module.exports = {
                           /*
                             after update pause bit, then add this history to db
                           */
-                          var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-                          var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 2, ?, ?)';
-                          conn.query(sql, [data.pcid, seatnum], function(err, results) {
+
+                          var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 2, ?, ?, ?)';
+                          conn.query(sql, [data.pcid, seatnum, membername], function(err, results) {
                             if (err) {
                               console.log(err);
                               return cb(new Error('query error'));
@@ -758,6 +789,8 @@ module.exports = {
                   });
                 }
               }
+
+
               /*
                 not free user
               */
@@ -766,7 +799,11 @@ module.exports = {
                   Now trying to pause
                 */
                 if (isPause === "0") {
-                  var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
+                  console.log('hello');
+                  // curent time
+                  var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+
+                  var sql = 'UPDATE members SET pause=?, pts=DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s") WHERE alias=?'; /* just update pause bit, not ts */
                   conn.query(sql, ["1", data.pcid], function(err, results) {
                     if(err) {
                       cb(new Error('query error'));
@@ -783,8 +820,8 @@ module.exports = {
                             after update pause bit, then add this history to db
                           */
                           var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-                          var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 1, ?, ?)';
-                          conn.query(sql, [data.pcid, seatnum], function(err, results) {
+                          var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 1, ?, ?, ?)';
+                          conn.query(sql, [data.pcid, seatnum, membername], function(err, results) {
                             if (err) {
                               console.log(err);
                               return cb(new Error('query error'));
@@ -802,6 +839,15 @@ module.exports = {
                     Now trying to reuse
                   */
                 else if (isPause === "1") {
+                  // curent time
+                  var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                  /*
+                    before update rts, let's calculate break min
+                  */
+                  var curTsDate = new Date(Date.parse(currentTsStr.replace('-','/','g'))); // this will going to be rts
+                  var diff = curTsDate - ptsDate;
+                  var breaks = Math.floor((diff/1000)/60);
+
                   /*
                     If trying to reuse, we need to recalculate the fin ts
                   */
@@ -816,9 +862,11 @@ module.exports = {
                   var curTsDate     = new Date(Date.parse(currentTsStr.replace('-','/','g')));
                   var diff = curTsDate - oldTsDate;
                   /*
-                    FINALLY get the difference of minutes
+                    FINALLY get the difference of minutes [inital enter ~ reuse time]
                   */
                   var minutes = Math.floor((diff/1000)/60);
+
+
                   /*
                     But if client use monthly or half-monthly payment fints is always next day 00:00:00 AM
                   */
@@ -836,8 +884,8 @@ module.exports = {
 
 
                   var newfinTsStr = moment(newfinTsDate).format('YYYY-MM-DD HH:mm:ss').toString();
-                  var sql = 'UPDATE members SET pause=?, ts=CURRENT_TIMESTAMP, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") WHERE alias=?';
-                  conn.query(sql, ["0", newfinTsStr, data.pcid], function(err, results) {
+                  var sql = 'UPDATE members SET pause=?, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s"), rts=DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), break=break+? WHERE alias=?'; /* not change ts, but update fints depends on payment and time */
+                  conn.query(sql, ["0", newfinTsStr, breaks, data.pcid], function(err, results) {
                     if(err) {
                       cb(new Error('query error'));
                     }
@@ -864,8 +912,8 @@ module.exports = {
                                 after update pause bit, then add this history to db
                               */
                               var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-                              var sql = 'INSERT INTO history (ts, job, alias, seatnum) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 2, ?, ?)';
-                              conn.query(sql, [data.pcid, seatnum], function(err, results) {
+                              var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 2, ?, ?, ?)';
+                              conn.query(sql, [data.pcid, seatnum, membername], function(err, results) {
                                 if (err) {
                                   console.log(err);
                                   return cb(new Error('query error'));
@@ -1943,7 +1991,7 @@ module.exports = {
       newDate += " 05:00:00";
 
 
-      var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i"), alias, job, seatnum FROM history WHERE (ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")) ORDER BY ts DESC';
+      var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i"), alias, job, seatnum, membername FROM history WHERE (ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")) ORDER BY ts DESC';
       conn.query(sql, [prevDate, newDate], function(err, results) {
         if (err) {
           console.log(err);
