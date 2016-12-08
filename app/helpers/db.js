@@ -563,69 +563,80 @@ module.exports = {
             }
             else {
               /*
-                if the use is prepay user, when he/she tries to exit then we should update the milage and left time
+                And after insert history, also set mask=0 to pause_table
               */
-              if (memInfo.payment === "0") {
-                var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
-                conn.query(sql, [data.lcid], function(err, results) {
-                  if (err) {
-                    cb(new Error('query error'));
+              var sql = 'UPDATE pause_table SET mask=0 WHERE alias=? AND mask=1';
+              conn.query(sql, [data.lcid], function(err, results) {
+                if (err) {
+                  cb(new Error('query error'));
+                }
+                else {
+                  /*
+                    if the use is prepay user, when he/she tries to exit then we should update the milage and left time
+                  */
+                  if (memInfo.payment === "0") {
+                    var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+                    conn.query(sql, [data.lcid], function(err, results) {
+                      if (err) {
+                        cb(new Error('query error'));
+                      }
+                      else {
+                        console.log('leaving prepay member');
+                        /*
+                          If trying to reuse, we need to recalculate the fin ts
+                        */
+                        var resultObj    = results[0];
+                        var oldTsStr     = resultObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
+                        var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                        /*
+                          get Date Object from String
+                        */
+                        var oldTsDate     = new Date(Date.parse(oldTsStr.replace('-','/','g')));
+                        var curTsDate     = new Date(Date.parse(currentTsStr.replace('-','/','g')));
+                        var diff = curTsDate - oldTsDate;
+                        /*
+                          FINALLY get the difference of minutes
+                        */
+                        var minutes = Math.floor((diff/1000)/60);
+                        var hour = parseInt(minutes / 60);
+                        var over = minutes % 60;
+                        if (over > 10) {
+                          hour = hour + 1;
+                        }
+                        var fee = hour * 800;
+                        /*
+                          Then with MINUTES update member data
+                        */
+                        var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias = ?';
+                        conn.query(sql, [minutes, fee, data.lcid], function(err, results) {
+                          if(err) {
+                            cb(new Error('query error'));
+                          }
+                          else {
+                            cb(null, {err: "0", alias: data.lcid, do: "leave"});
+                          }
+                        })
+                      }
+                    });
                   }
+                  /*
+                    He/She is not prepay payment member
+                  */
                   else {
-                    console.log('leaving prepay member');
-                    /*
-                      If trying to reuse, we need to recalculate the fin ts
-                    */
-                    var resultObj    = results[0];
-                    var oldTsStr     = resultObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
-                    var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-                    /*
-                      get Date Object from String
-                    */
-                    var oldTsDate     = new Date(Date.parse(oldTsStr.replace('-','/','g')));
-                    var curTsDate     = new Date(Date.parse(currentTsStr.replace('-','/','g')));
-                    var diff = curTsDate - oldTsDate;
-                    /*
-                      FINALLY get the difference of minutes
-                    */
-                    var minutes = Math.floor((diff/1000)/60);
-                    var hour = parseInt(minutes / 60);
-                    var over = minutes % 60;
-                    if (over > 10) {
-                      hour = hour + 1;
-                    }
-                    var fee = hour * 800;
-                    /*
-                      Then with MINUTES update member data
-                    */
-                    var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias = ?';
-                    conn.query(sql, [minutes, fee, data.lcid], function(err, results) {
+                    var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=? AND password=?';
+                    conn.query(sql, [data.lcid, data.lcpwd], function(err, results) {
                       if(err) {
                         cb(new Error('query error'));
                       }
                       else {
+                        console.log('this is leave');
+                        console.log(results);
                         cb(null, {err: "0", alias: data.lcid, do: "leave"});
                       }
-                    })
+                    });
                   }
-                });
-              }
-              /*
-                He/She is not prepay payment member
-              */
-              else {
-                var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=? AND password=?';
-                conn.query(sql, [data.lcid, data.lcpwd], function(err, results) {
-                  if(err) {
-                    cb(new Error('query error'));
-                  }
-                  else {
-                    console.log('this is leave');
-                    console.log(results);
-                    cb(null, {err: "0", alias: data.lcid, do: "leave"});
-                  }
-                });
-              }
+                }
+              });
             }
           });
         }
