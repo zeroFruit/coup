@@ -818,12 +818,12 @@ html
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#all-members.a-cursor-pointer
                         i.fa.fa-bolt.fa-5x
-                        h5 등록회원
+                        h5 !{renderSrc.numOfMem} 명이 등록하였습니다.
                   .col-md-6
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#active-members
                         i.fa.fa-plug.fa-5x
-                        h5 이용 중인 회원
+                        h5 !{renderSrc.numOfActiveMem} 명이 이용 중입니다.
                 .row  
                   .col-md-6
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
@@ -1132,16 +1132,10 @@ html
         */
         $('a#all-members').click(function(event) {
           /* get the token */
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken');
           
           $.ajax({
             url: '/system/all-members',
             method: 'post',
-            data: {
-              accessToken: valAccess,
-              refreshToken: valRefresh
-            }
           }).done(function(results) {
             var json = JSON.parse(results);
             console.log(json);
@@ -1249,16 +1243,9 @@ html
         */
         $('a#active-members').click(function(event) {
           /* get the token */
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken'); 
-          
           $.ajax({
             url: '/system/active-members',
             method: 'post',
-            data: {
-              accessToken: valAccess,
-              refreshToken: valRefresh
-            }
           }).done(function(results) {
             var json = JSON.parse(results);
             console.log(json);
@@ -1716,8 +1703,6 @@ html
           /* prevent go else where */
           event.preventDefault();
           
-          var valAccess   = window.localStorage.getItem('accessToken');    
-          var valRefresh  = window.localStorage.getItem('refreshToken');
           var content     = $('input[name="account-content"]').val();
           var inout       = $('input[name="account-inout"]').is(':checked');
           var price       = $('input[name="account-price"]').val();
@@ -1727,8 +1712,6 @@ html
             url: '/system/add-account-list',
             method: 'post',
             data: {
-              accessToken: valAccess,
-              refreshToken: valRefresh, /* list data */
               content: content,
               inout: inout,
               price: price,
