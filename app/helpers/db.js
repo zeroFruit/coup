@@ -401,7 +401,7 @@ module.exports = {
       */
       var paymentid  = data.paymentid;
       var leftTime   = data.leftTime;
-      var membername = data.membername;
+      var membername = data.mn;
 
 
       /*
@@ -422,7 +422,7 @@ module.exports = {
             */
             var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
             var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
-            conn.query(sql, [data.alias, data.seatnum, data.membername], function(err, results) {
+            conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
               if (err) {
                 console.log(err);
                 cb(new Error('query error'));
@@ -478,7 +478,7 @@ module.exports = {
             */
             var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
             var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
-            conn.query(sql, [data.alias, data.seatnum, data.membername], function(err, results) {
+            conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
               if (err) {
                 console.log(err);
                 cb(new Error('query error'));
@@ -1988,8 +1988,7 @@ module.exports = {
 
       var newDate = new Date(tmp.getTime() + 86400000);
       newDate = moment(newDate).format('YYYY-MM-DD').toString();
-      newDate += " 05:00:00";
-
+      newDate += " 23:59:59";
 
       var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i"), alias, job, seatnum, membername FROM history WHERE (ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")) ORDER BY ts DESC';
       conn.query(sql, [prevDate, newDate], function(err, results) {

@@ -289,6 +289,7 @@ module.exports = {
       seatinfo: json,
       paymentid: req.query.pid,
       leftTime: req.query.lt,
+      membername: req.query.mn
     });
   },
 
@@ -319,7 +320,8 @@ module.exports = {
       alias: req.body.alias,
       seatinfo: json,
       paymentid: req.body.pid,
-      leftTime: req.body.lt
+      leftTime: req.body.lt,
+      membername: req.body.mn
     });
   },
   view_4f: function(req, res) {
@@ -335,7 +337,8 @@ module.exports = {
       alias: req.body.alias,
       seatinfo: json,
       paymentid: req.body.pid,
-      leftTime: req.body.lt
+      leftTime: req.body.lt,
+      membername: req.body.mn
     });
   },
   view_b1: function(req, res) {

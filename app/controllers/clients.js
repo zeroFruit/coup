@@ -146,7 +146,7 @@ module.exports.set = function(app, passport) {
   },*/ function(req, res, next) {
     //console.log(req.seatinfo); /* print seat info */
     //respond.client_enter_succ(req, res);
-    res.redirect('/clients/floor?alias='+req.member.alias+'&pid='+req.member.paymentid+'&lt='+req.member.leftTime);
+    res.redirect('/clients/floor?alias='+req.member.alias+'&pid='+req.member.paymentid+'&lt='+req.member.leftTime+'&mn='+req.member.membername);
   });
 
   /*

@@ -60,12 +60,14 @@ html
       input(type='hidden' name='alias')
       input(type='hidden' name='paymentid')
       input(type='hidden' name='leftTime')
-      input(type='hidden' name='floorid') 
+      input(type='hidden' name='floorid')
+      input(type='hidden' name='mn')
     form#floor-change(action='/clients/floor' method='post')
       input(type='hidden' name='alias')
       input(type='hidden' name='floornum')
       input(type='hidden' name='pid')
       input(type='hidden' name='lt')
+      input(type='hidden' name='mn')
       
     //- JQUERY SCRIPTS
     script(src='public/javascripts/temp/jquery-1.10.2.js')
@@ -83,6 +85,7 @@ html
       var seatinfo        = '!{seatinfo}';  /* this is seat info which contains seatid, payment, memo */
       var paymentid       = '!{paymentid}'; 
       var leftTime        = '!{leftTime}';
+      var membername      = '!{membername}';
       
       var jsonSeatInfo  = JSON.parse(seatinfo);
       //alert(seatinfo);
@@ -235,6 +238,7 @@ html
           $('input[name="paymentid"]').val(paymentid);
           $('input[name="leftTime"]').val(leftTime);
           $('input[name="floorid"]').val(floorid); /* this indicate which floor are you going to book */
+          $('input[name="mn"]').val(membername);
           $('#seat-submit').submit();
         });
         
@@ -244,6 +248,7 @@ html
           $('input[name="pid"]').val(paymentid);
           $('input[name="lt"]').val(leftTime);
           $('input[name="alias"]').val(accessMember);
+          $('input[name="mn"]').val(membername);
           
           $('#floor-change').submit();                   
         });
@@ -252,6 +257,7 @@ html
           $('input[name="pid"]').val(paymentid);
           $('input[name="lt"]').val(leftTime);
           $('input[name="alias"]').val(accessMember);
+          $('input[name="mn"]').val(membername);
           
           $('#floor-change').submit();                   
         });
