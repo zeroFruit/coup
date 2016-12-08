@@ -33,7 +33,6 @@ module.exports.set = function(app, passport) {
   app.post('/system/vacant-seat', function(req, res, next) {
     system.vacantSeat(req, res, next);
   }, function(req, res, next) {
-    console.log(req.err);
     if (req.err == "0") {
       respond.vacant_seat(req, res);
     }
@@ -83,8 +82,6 @@ module.exports.set = function(app, passport) {
     }
     payment.paymentId2Name(req, pidArr, function(results) {
       var retpack = {};
-      console.log(req.member);
-      console.log(results);
       retpack.memberList = req.member;
       retpack.pnameList = results;
 
@@ -106,7 +103,6 @@ module.exports.set = function(app, passport) {
       /* req.member contain informations */
 
   }, function(req, res, next) {
-    console.log(req.member);
     var memberList = req.member;
     req.retpack = []; /* make array in req for passing array to final callback */
     req.pmember = []; /* for those of who paused, they process next callback*/
@@ -131,7 +127,6 @@ module.exports.set = function(app, passport) {
             */
             tmp.payment = pname;
 
-            console.log(tmp);
             var finTsStr    = tmp['DATE_FORMAT(fints, "%Y-%m-%d %H:%i")'];
             var oldTsStr    = tmp['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'];
             var currTsStr   = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm').toString();
@@ -143,9 +138,6 @@ module.exports.set = function(app, passport) {
             var curTsDate = new Date(Date.parse(currTsStr.replace('-','/','g')));
 
             var diff = curTsDate - oldTsDate;
-            console.log(finTsStr);
-            console.log(oldTsStr);
-            console.log(diff);
             /*
               FINALLY get the diff mins
             */
@@ -208,7 +200,6 @@ module.exports.set = function(app, passport) {
       var pm = pMember[i];
 
       system.getPauseTs(req, res, pm.alias, pm, i, function(pts, member, isfin) {
-        console.log(pts);
         if (pts == null) { /* which means there's no pause member */
           return next();
         }
@@ -271,7 +262,6 @@ module.exports.set = function(app, passport) {
   },jwtauth, requireAuth, function(req, res, next) {
     /* first, add list with given data*/
     console.log('this is add list');
-    console.log(req.body);
     account.addList(req, res, next);
   }, function(req, res, next) {
     /* if success at inserting db, req.err contains "0" */
@@ -297,7 +287,6 @@ module.exports.set = function(app, passport) {
   */
   app.post('/system/view-account-list', function(req, res, next) {
     console.log('this is view');
-    console.log(req.body);
     account.viewList(req, res, next);
   }, function(req, res, next) {
     /*
@@ -314,12 +303,10 @@ module.exports.set = function(app, passport) {
   */
   app.post('/system/modify-account-list', function(req, res, next) {
     console.log('this is modify list');
-    console.log(req.body);
 
     account.modifyList(req, res, next);
   }, function(req, res, next) {
     console.log('modify route');
-    console.log(req.err);
     if (req.err === "1") {
       return respond.err_ep(req, res);
     }
@@ -331,7 +318,6 @@ module.exports.set = function(app, passport) {
   */
   app.post('/system/delete-account-list', function(req, res, next) {
     console.log('this is delete account list');
-    console.log(req.body);
 
     account.deleteList(req, res, next);
   }, function(req, res, next) {
@@ -344,14 +330,11 @@ module.exports.set = function(app, passport) {
   */
   app.post('/system/use-milage', function(req, res, next) {
     console.log('this is use-milage');
-    console.log(req.body);
     system.useMilage(req, res, next);
   }, function(req, res, next) {
     console.log('this is use-milage -- after');
-    console.log(req.useMilage.err);
 
     if (req.useMilage.err === "1") {
-      console.log('here');
       return respond.lack_of_milage(req, res);
     }
     else {
@@ -364,7 +347,6 @@ module.exports.set = function(app, passport) {
   */
   app.post('/system/charge-milage', function(req, res, next) {
     console.log('this is charge-milage');
-    console.log(req.body);
     system.chargeMilage(req, res, next);
   }, function(req, res, next) {
     if (req.err === "0") {
@@ -388,7 +370,6 @@ module.exports.set = function(app, passport) {
   */
   app.post('/system/studyroom-currentstate', function(req, res, next) {
     console.log('this is studyroom current state');
-    console.log(req.body);
     system.studyRoomCurrentState(req, res, next);
   }, function(req, res, next) {
     if (req.err === "1") {
@@ -402,10 +383,8 @@ module.exports.set = function(app, passport) {
     system/reserve-studyRoom ()
   */
   app.post('/system/reserve-studyroom', function(req, res, next) {
-    console.log(req.body); /*sh, du, rd, rn*/
     system.reserveStudyRoom(req, res, next);
   }, function(req, res, next) {
-    console.log(req.reserve);
     if (req.reserve.err === "2") {
       return respond.already_booked(req, res);
     }
@@ -421,10 +400,8 @@ module.exports.set = function(app, passport) {
     /system/reserve-studyroom-cancel
   */
   app.post('/system/reserve-studyroom-cancel', function(req, res, next) {
-    console.log(req.body);
     system.reserveStudyRoomCancel(req, res, next);
   }, function(req, res, next) {
-    console.log(req.cancel);
     if (req.cancel.err == "1") {
       /* there's no matching reservation */
       return respond.book_cancel(req, res);
@@ -438,12 +415,10 @@ module.exports.set = function(app, passport) {
     Payback
   */
   app.post('/system/payback', function(req, res, next) {
-    console.log(req.body);
     member.getMemberInfo(req, res, next);
   }, function(req, res, next) {
     var pid = req.member.payment;
     payment.id2NameSingle(pid, function(pname) {
-      console.log(pname);
       req.member.payment = pname;
       next();
     });
@@ -459,7 +434,6 @@ module.exports.set = function(app, passport) {
     /system/payback-determine
   */
   app.post('/system/payback-determine', function(req, res, next) {
-    console.log(req.body);
     system.payback(req, res, next);
   }, function(req, res, next) {
     if (req.err === "0") {
@@ -471,12 +445,10 @@ module.exports.set = function(app, passport) {
     /system/defer
   */
   app.post('/system/holdoff', function(req, res, next) {
-    console.log(req.body);
     member.getMemberInfo(req, res, next);
   }, function(req, res, next) {
     var pid = req.member.payment;
     payment.id2NameSingle(pid, function(pname) {
-      console.log(pname);
       req.member.payment = pname;
       next();
     });
@@ -492,7 +464,6 @@ module.exports.set = function(app, passport) {
     /system/holdoff-determine
   */
   app.post('/system/holdoff-determine', function(req, res, next) {
-    console.log(req.body);
     system.holdoff(req, res, next);
   }, function(req, res, next) {
     if (req.err == "0") {

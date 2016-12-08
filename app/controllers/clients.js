@@ -89,7 +89,6 @@ module.exports.set = function(app, passport) {
     retpack.room1 = room1State;
     retpack.room2 = room2State;
     retpack.room3 = room3State;
-    console.log(retpack);
     var json = JSON.stringify(retpack);
     res.render('clients_studyroom', { roomState: json });
   });
@@ -107,11 +106,9 @@ module.exports.set = function(app, passport) {
       this route is for authenticate the client when enter
   */
   app.post('/clients/enter/auth', function(req, res, next) {
-    console.log(req.body);
 
     member.Enter(req, res, next);
   }, function(req, res, next) {
-    console.log(req.member);
     /*
       error checking
     */
@@ -158,8 +155,6 @@ module.exports.set = function(app, passport) {
       service the map of the seat
   */
   app.get('/clients/floor', /* NEED SECURITY */ function(req, res, next) {
-    console.log(req.query.alias);
-    console.log(req.query.pid);
     if(req.query.alias === undefined || req.query.pid === undefined || req.query.lt === undefined) {
       return res.send('bad request');
     }
@@ -190,7 +185,6 @@ module.exports.set = function(app, passport) {
       this route is for authenticate the client when leaving
   */
   app.post('/clients/leave/auth', function(req, res, next) {
-    console.log(req.body);
     member.Leave(req, res, next);
   }, function(req, res, next) {
     /*
@@ -218,7 +212,6 @@ module.exports.set = function(app, passport) {
   */
   app.post('/clients/pause/auth', function(req, res, next) {
     console.log('this is pause router');
-    console.log(req.body);
     member.Pause(req, res, next);
   }, function(req, res, next) {
     /*
@@ -241,7 +234,6 @@ module.exports.set = function(app, passport) {
     /clients/seat (POST)
   */
   app.post('/clients/seat', function(req, res, next) {
-    console.log(req.body);
     /*
       now should update the db
 
@@ -258,7 +250,6 @@ module.exports.set = function(app, passport) {
     /clients/scheduler (POST)
   */
   app.post('/clients/scheduler', function(req, res, next) {
-    console.log(req.body);
     //res.send('success');
     member.checkFinish(req, res, next);
   }, function(req, res, next) {

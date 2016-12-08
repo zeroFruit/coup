@@ -28,7 +28,6 @@ module.exports.set = function(app, passport) {
   app.post('/recharge',
   function(req, res, next) {
     console.log('this is recharge');
-    console.log(req.body);
 
     member.getMemberList(req, res, next);
   },
@@ -44,9 +43,6 @@ module.exports.set = function(app, passport) {
     retpack.memberArr = [];
     retpack.paymentObj = [];
 
-    console.log(paymentList);
-    console.log(memberList.length);
-    console.log(retpack);
     for (var i = 0; i < memberList.length; i++) {
       /*
         var lastnum = utils.getLastPhoneNum(memberList[i].phonenum);
@@ -65,7 +61,6 @@ module.exports.set = function(app, passport) {
       retpack.paymentObj.push(payp);
     }
       //paymentArr.push(payp);
-    console.log(retpack);
     //memberArr.reverse(); /* Now most updated one goes first */
 
     next();
@@ -87,7 +82,6 @@ module.exports.set = function(app, passport) {
       req.body.
     */
     console.log('this is charge');
-    console.log(req.body);
     payments.updatePaymentList(req, res, next);
     /*
       req.newMilages have updated milages
