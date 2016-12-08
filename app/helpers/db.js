@@ -173,9 +173,7 @@ module.exports = {
         * FIX : handling error caused by too long data
     */
     addToList: function(data, cb) {
-      //test
-      console.log('this is addToList');
-      console.log(data);
+
 
       /*
         sex
@@ -226,7 +224,6 @@ module.exports = {
           cb(new Error('query error'));
         }
         else {
-          console.log(results);
           if(results.affectedRows === 0) {
             cb(new Error('affected row is 0'));
           }
@@ -284,7 +281,7 @@ module.exports = {
       getInfo
     */
     getInfo: function(data, cb) {
-      console.log(data);
+
       var sql
         = 'SELECT * FROM members WHERE  alias=?'; /* add seat num */
       conn.query(sql, [data.alias, data.phonenum], function(err, results) {
@@ -296,8 +293,6 @@ module.exports = {
           return cb(null, {err: "1"});
         }
         else {
-          console.log('query results');
-          console.log(results[0]);
           cb(null, {result: results[0], err: "0"}); /* return every info of querying member, if take care of security, select some of them */
         }
       });
@@ -313,7 +308,6 @@ module.exports = {
           cb(new Error('query error'));
         }
         else {
-          console.log(results[0]);
           cb(null, results[0]);
         }
       });
@@ -329,7 +323,6 @@ module.exports = {
           cb(new Error('query error'));
         }
         else {
-          console.log(results[0]);
           cb(null, results[0]);
         }
       });
@@ -340,7 +333,6 @@ module.exports = {
     Enter: function(data, cb) {
       /* Before change the enterance mark first compare the id and pwd */
       var sql = 'SELECT * FROM members WHERE alias=?'; /* first check the existence of member*/
-      console.log(data);
       conn.query(sql, [data.ecid], function(err, results) {
         if(err) {
           console.log(err);
@@ -510,7 +502,6 @@ module.exports = {
         }
         else {
           console.log('this is get seat info db');
-          console.log(results);
           cb(null, results);
         }
       })
@@ -630,7 +621,6 @@ module.exports = {
                       }
                       else {
                         console.log('this is leave');
-                        console.log(results);
                         cb(null, {err: "0", alias: data.lcid, do: "leave"});
                       }
                     });
@@ -936,7 +926,6 @@ module.exports = {
 
             var minutes = Math.floor((diff/1000)/60);
 
-            console.log(minutes);
 
             if (minutes > 60) {
               uptList.push(obj.alias);
@@ -1055,6 +1044,7 @@ module.exports = {
     },
 
     deleteMemberInfo: function(data, cb) {
+      console.log('delete member info');
       console.log(data);
       var sql = 'DELETE FROM members WHERE alias=?';
       conn.query(sql,[data.id], function(err, results) {
@@ -1150,7 +1140,6 @@ module.exports = {
                     cb(new Error('query error'));
                   }
                   else {
-                    console.log(results);
                     var pid = results[0].payment;
                     //
                     // if (pid != "0" && pid != null) {
@@ -1160,8 +1149,6 @@ module.exports = {
                     var oldMilages = Number(results[0].milage);
                     var newMilages = Number(data.price) + oldMilages; /* Now we get new milages*/
                     var newLeftTime = "" + Math.round((Number(data.price) / 800) * 60); /* Now update left time */
-                    console.log(oldMilages);
-                    console.log(newMilages);
                     var sql = 'UPDATE members SET milage=?, payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
                     conn.query(sql, [newMilages, data.paymentId, newLeftTime, leftDay, night, alias], function(err, results) {
                       if(err) {
@@ -1306,7 +1293,6 @@ module.exports = {
             TEMPORARY
           ***********************************************************************************************************/
           console.log('stopMem');
-          console.log(stopMem);
           var queryString = "(";
           if (stopMem.length == 0) {
             return cb(null, {err: "0"});
@@ -1384,12 +1370,8 @@ module.exports = {
       /*
         data.mindate, date.maxdate
       */
-      console.log(data.mindate);
-      console.log(data.maxdate);
       var fullmindate = data.mindate + " 00:00:00";
       var fullmaxdate = data.maxdate + " 23:59:59";
-      console.log(fullmindate);
-      console.log(fullmaxdate);
       var sql = 'SELECT id, DATE_FORMAT(ts, "%Y-%m-%d"), content, ep, price, service FROM account WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
       conn.query(sql, [fullmindate, fullmaxdate], function(err, results) {
         if(err) {
@@ -1398,7 +1380,6 @@ module.exports = {
         }
         else {
           console.log('this is viewlist db');
-          console.log(results);
           cb(null, results);
         }
       })
@@ -1576,7 +1557,6 @@ module.exports = {
         }
         else {
           console.log('this is view studyroom reservation list');
-          console.log(results);
           cb(null, results);
         }
       });
@@ -1610,7 +1590,6 @@ module.exports = {
         }
         else {
           console.log('this is reserveStudyRoom');
-          console.log(results);
 
           /*
             before check vaildity, chage str date to float, int
@@ -1656,7 +1635,6 @@ module.exports = {
           insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
 
           console.log('insertData');
-          console.log(insertData);
           /* Now reservation time is valid */
           var sql = 'INSERT INTO studyroom (ts, start, duration, room, users, purpose, tsStart, tsEnd) VALUES ' + insertData;
           conn.query(sql, function(err, results) {
@@ -1696,8 +1674,6 @@ module.exports = {
             var oldRdsStr = r['DATE_FORMAT(tsStart, "%Y-%m-%d %H:%i:%s")'];
             var oldRdeStr = r['DATE_FORMAT(tsEnd, "%Y-%m-%d %H:%i:%s")'];
 
-            console.log('old rds/rde');
-            console.log(oldRdsStr + " " + oldRdeStr);
 
             var sql = 'DELETE FROM studyroom WHERE (ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")) AND start=? AND room=?';
             conn.query(sql, [rdsStr, rdeStr, parseFloat(startHour), roomNum], function(err, results) {
@@ -1717,7 +1693,6 @@ module.exports = {
                     cb(new Error('query error'));
                   }
                   else {
-                    console.log('select result: '+ results.length);
                     if (results.length == 0) { /* this means all list are deleted */
                       cb(null, {err: "0"});
                     }
@@ -1767,7 +1742,6 @@ module.exports = {
                         }
                         prevQS += prev[prev.length-1];
                       }
-                      console.log('prevQS ' + prevQS);
 
 
                       var nextQS = "";
@@ -1780,10 +1754,8 @@ module.exports = {
                       }
 
 
-                      console.log('nextQS ' + nextQS);
 
                       var sql = 'UPDATE studyroom SET tsStart = DATE(STR_TO_DATE("'+prevNewRdsStr+'", "%Y-%m-%d %H:%i:%s")), tsEnd = DATE(STR_TO_DATE("'+prevNewRdeStr+'", "%Y-%m-%d %H:%i:%s")) WHERE id IN ('+prevQS+')';
-                      console.log(sql);
                       conn.query(sql, function(err, results) {
                         if (err) {
                           console.log(err);
@@ -1826,7 +1798,6 @@ module.exports = {
         }
         else {
           console.log('this is view studyroom reservation list');
-          console.log(results);
           cb(null, {results: results, err: "0"});
         }
       });
@@ -1876,7 +1847,6 @@ module.exports = {
       /*
         first select member payment, if that member is prepay member get the ts and get min diff
       */
-      console.log(data);
       var sql = 'SELECT payment, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
       conn.query(sql, [data.alias], function(err, results) {
         if (err) {
