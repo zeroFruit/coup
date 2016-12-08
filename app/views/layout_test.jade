@@ -1179,10 +1179,10 @@ html
                 var id = $parent.find('td:eq(0)').text();
                 var editable = $parent.find('td:eq(1)').attr("contenteditable");
                 if (editable === undefined || editable == 'false') {
-                  alert("내용을 변경한 뒤 다시한번 클릭해주세요. \n\n <수정가능목록> \n  1. 이름\n  2. 성별\n  3. 준비시험\n  4. 메모");
-                  $parent.find('td:eq(1)').attr("contenteditable", true);
+                  alert("내용을 변경한 뒤 다시한번 클릭해주세요. \n\n <수정가능목록> \n  1. 이름\n  2. 잔여 일\n  3. 성별\n  4. 준비시험\n  5. 메모");
+                  $parent.find('td:eq(1)').attr("contenteditable", true); // membername
                   //$parent.find('td:eq(2)').attr("contenteditable", true);
-                  //$parent.find('td:eq(3)').attr("contenteditable", true);
+                  $parent.find('td:eq(3)').attr("contenteditable", true); // left day
                   //$parent.find('td:eq(4)').attr("contenteditable", true);
                   $parent.find('td:eq(5)').attr("contenteditable", true);
                   $parent.find('td:eq(6)').attr("contenteditable", true);
@@ -1193,7 +1193,7 @@ html
                   
                   $parent.find('td:eq(1)').attr("contenteditable", false);
                   //$parent.find('td:eq(2)').attr("contenteditable", false);
-                  //$parent.find('td:eq(3)').attr("contenteditable", false);
+                  $parent.find('td:eq(3)').attr("contenteditable", false);
                   //$parent.find('td:eq(4)').attr("contenteditable", false);
                   $parent.find('td:eq(5)').attr("contenteditable", false);
                   $parent.find('td:eq(6)').attr("contenteditable", false);
@@ -1202,6 +1202,7 @@ html
                   /* should pack modified data and ajax */
                   var membername  = $parent.find('td:eq(1)').text();
                   //var payment     = $parent.find('td:eq(2)').text();
+                  var leftDay     = $parent.find('td:eq(3)').text();
                   var sex         = $parent.find('td:eq(5)').text();
                   var prepare     = $parent.find('td:eq(6)').text();
                   var memo        = $parent.find('td:eq(8)').text();
@@ -1212,6 +1213,7 @@ html
                     data: {
                       id: id,
                       membername: membername,
+                      leftDay: leftDay,
                       //payment: payment,
                       sex: sex,
                       prepare: prepare,

@@ -1031,8 +1031,8 @@ module.exports = {
       var sex;
       if (data.sex === '남') sex = 0;
       else                   sex = 1;
-      var sql = 'UPDATE members SET membername=?, sex=?, prepare=?, memo=? WHERE alias=?';
-      conn.query(sql, [data.membername, sex, data.prepare, data.memo, data.id], function(err, results) {
+      var sql = 'UPDATE members SET membername=?, sex=?, prepare=?, memo=?, leftDay=? WHERE alias=?';
+      conn.query(sql, [data.membername, sex, data.prepare, data.memo, data.leftDay, data.id], function(err, results) {
         if(err) {
           console.log(err);
           cb(new Error('query error'));
