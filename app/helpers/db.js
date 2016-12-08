@@ -131,9 +131,11 @@ module.exports = {
       findUserOfToken
     */
     findUserOfToken: function(data, cb) {
+      console.log('this is find User of Token');
+      console.log(data);
       if(!data.refreshToken)
         return cb(new Error('invalid token'));
-      var sql = "SELECT * FROM clients WHERE refreshToken='"+ data.refreshToken +"'";
+      var sql = "SELECT username FROM clients WHERE refreshToken='"+ data.refreshToken +"'";
 
       conn.query(sql, function(err, results) {
         if(err) {
@@ -141,10 +143,9 @@ module.exports = {
           cb(err);
         }
         else {
-          console.log(results[0]);
-          return cb(null,
-            { username: results[0].username }
-          );
+          console.log('findUserOfToken');
+          console.log(results[300]);
+          return cb(null, { username: results[300].username });
         }
       });
     },
