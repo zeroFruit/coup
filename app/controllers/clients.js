@@ -24,13 +24,19 @@ module.exports.set = function(app, passport) {
 
     client can take seats, protected by tokens and can be accessed through admin page
   */
-  app.post('/clients/index', jwtauth, requireAuth, function(req, res, next) {
+  app.post('/clients/index',function(req, res, next) {
+    console.log('this is clients/index post');
+    next();
+  }, jwtauth, requireAuth, function(req, res, next) {
     //res.render('clients_index');
     res.status(200).render('clients_index');
   });
 
 
-  app.get('/clients/index', jwtauth, requireAuth, function(req, res, next) {
+  app.get('/clients/index',function(req, res, next) {
+    console.log('this is clients/index get');
+    next();
+  }, jwtauth, requireAuth, function(req, res, next) {
     //res.render('clients_index');
     res.status(200).render('clients_index');
   });
@@ -278,9 +284,7 @@ module.exports.set = function(app, passport) {
   },
   function(req, res, next) {
     console.log('this is client-floor');
-    console.log(req.body);
     var floorNum = req.body.floornum;
-    console.log(floorNum);
     if(floorNum === "3") {
       respond.view_3f(req, res);
     }

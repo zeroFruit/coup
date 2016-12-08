@@ -83,7 +83,6 @@ module.exports = {
         If query succeed, req.member contain every member's name, phonenum, payment, milage.
       */
       req.member = memberlist;
-      console.log(memberlist);
       next();
     })
   },
@@ -98,7 +97,6 @@ module.exports = {
       /*
         With this req.member, server can check whether query was successful or can be used other things
       */
-      console.log(member);
       req.member = member.result;
       req.err    = member.err;
       next();
@@ -110,11 +108,9 @@ module.exports = {
   */
   Enter: function(req, res, next) {
     console.log('this is member');
-    console.log(req.body);
     db.member.Enter(req.body, function(err, member) {
       if(err)
         return next(err);
-      console.log(member);
       req.member = member;
       next();
     });
@@ -125,12 +121,10 @@ module.exports = {
   */
   takeSeat: function(req, res, next) {
     console.log('this is takeSeat');
-    console.log(req.body); /* req.body contains: seatid, seatnum, alias, paymentid */
     db.member.takeSeat(req.body, function(err, member) {
       if(err)
         return next(err);
 
-      console.log(member);
       req.member = member;
       next();
     });
@@ -168,7 +162,6 @@ module.exports = {
         return next(err);
       req.member = result;
       console.log('this is in leave!');
-      console.log(result);
       next();
     })
   },
@@ -183,7 +176,6 @@ module.exports = {
         return next(err);
       }
       console.log('this is member Pause');
-      console.log(result);
       req.member = result;
       next();
     });
@@ -213,7 +205,6 @@ module.exports = {
 
           /* Now we get minutes */
           var minutes = Math.floor((diff/1000)/60);
-          console.log(minutes);
 
           /* Then set the return package */
           var retelt = {};
@@ -242,7 +233,6 @@ module.exports = {
       } // end of for loop
 
       req.alert = retarr;
-      console.log(retarr);
       next();
     });
   },
@@ -267,7 +257,6 @@ module.exports = {
       else {
         req.dirty = result;
         console.log('this is protectqs');
-        console.log(result);
         next();
       }
     });

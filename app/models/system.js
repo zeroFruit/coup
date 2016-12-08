@@ -189,7 +189,6 @@ module.exports = {
         return next();
       }
       else {
-        console.log(results);
         req.err = results.err;
         next();
       }
@@ -208,7 +207,6 @@ module.exports = {
         return; //next();
       }
       else {
-        console.log(results);
         req.err = results.err;
         req.pts = results.pts;
         cb(req.pts, member, isfin);

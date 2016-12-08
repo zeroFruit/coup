@@ -23,12 +23,9 @@ module.exports = {
       }
       else {
         console.log('this is addList-- account');
-        console.log(results);
         currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD').toString();
         req.err = results;
         req.body.ts = currentTsStr;
-        console.log(req.err);
-        console.log(req.body.ts);
         next();
       }
     });

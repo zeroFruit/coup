@@ -102,7 +102,6 @@ module.exports = {
         return next(err);
       }
       else {
-        console.log(results);
         req.payments = results;
         next();
       }
