@@ -22,7 +22,10 @@ module.exports.set = function(app, passport) {
   /*
     /register (POST)
   */
-  app.post('/register', jwtauth, requireAuth,
+  app.post('/register', function(req, res, next) {
+    console.log('this is register');
+    next();
+  },jwtauth, requireAuth,
   member.registerMember,
   rendering.getNumOfMem,
   rendering.getNumOfAttendMem,

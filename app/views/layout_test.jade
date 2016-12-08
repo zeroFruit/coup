@@ -1266,7 +1266,7 @@ html
               var ispause = '-';
               if (jsonObj.pause === '1') ispause = '일시정지 중';
               var total = parseInt(jsonObj.usedMin);
-              var hour  = total / 60;
+              var hour  = parseInt(total / 60);
               var min   = total % 60;
               $('#active-members-table-body').append(
                 '<tr name="active-member-'+i+'">'+

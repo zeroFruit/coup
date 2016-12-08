@@ -63,7 +63,10 @@ module.exports.set = function(app, passport) {
 
       - send all member info to client
   */
-  app.post('/system/all-members', jwtauth, requireAuth, function(req, res, next) {
+  app.post('/system/all-members', function(req, res, next) {
+    console.log('this is all-members');
+    next();
+  },jwtauth, requireAuth, function(req, res, next) {
     member.getMemberList(req, res, next);
   }, function(req, res, next) {
     var memberList = req.member;
@@ -95,7 +98,10 @@ module.exports.set = function(app, passport) {
 
       - send active member list to client
   */
-  app.post('/system/active-members', jwtauth, requireAuth, function(req, res, next) {
+  app.post('/system/active-members', function(req, res, next) {
+    console.log('this is active-members get');
+    next();
+  },jwtauth, requireAuth, function(req, res, next) {
     member.getMemberList(req, res, next);
       /* req.member contain informations */
 
@@ -259,7 +265,10 @@ module.exports.set = function(app, passport) {
   /*
     /system/add-account-list
   */
-  app.post('/system/add-account-list', jwtauth, requireAuth, function(req, res, next) {
+  app.post('/system/add-account-list', function(req, res, next) {
+    console.log('this is add-account-list');
+    next();
+  },jwtauth, requireAuth, function(req, res, next) {
     /* first, add list with given data*/
     console.log('this is add list');
     console.log(req.body);
