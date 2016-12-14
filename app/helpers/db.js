@@ -1614,6 +1614,8 @@ module.exports = {
       reserveStudyRoom
     */
     reserveStudyRoom: function(data, cb) {
+      var option      = data.option; // whether all day, weekend, weekday reservation
+      console.log(option);
       var users       = data.users;
       var purpose     = data.purpose;
 
@@ -1652,6 +1654,14 @@ module.exports = {
           if ((fstartHour + fduration) > 24) {
             return cb(null, {err: "3"});
           }
+          /*
+            update:
+              if 00:00 dur: 6hr => this is error
+          */
+          if ((fstartHour + fduration) > 5 && (fstartHour + fduration) <= 7) {
+            return cb(null, {err: "4"});
+          }
+
           for (var i = 0; i < results.length; i++) {
             var booked = results[i]; /* float, integer */
             if (booked.start < fstartHour && (booked.start + booked.duration) > fstartHour ) {
@@ -1667,22 +1677,93 @@ module.exports = {
           /*
             Then make query INSERT data
           */
+
+          /*
+            Before we making query string, we first need to check whether clients wants to reserve
+
+            only in weekday, or weekend or don't care.
+          */
           var insertData = "";
-          for (var i = 0; i < daydiff; i++) {
-            var newDate = new Date(rdsDate.getTime() + i * 86400000);
+          var days = 0;
+
+          if (option == 'allday') {
+            // if clients want allday
+            for (var i = 0; i < daydiff; i++) {
+              var newDate = new Date(rdsDate.getTime() + i * 86400000);
+              var date = moment(newDate);
+              date = date.format('YYYY-MM-DD').toString();
+              date += " 00:00:01";
+              insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
+
+              days++;
+            }
+            // handle last element
+            var newDate = new Date(rdsDate.getTime() + daydiff * 86400000);
             var date = moment(newDate);
             date = date.format('YYYY-MM-DD').toString();
             date += " 00:00:01";
-            insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
+            insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
+            days++;
           }
-          // handle last element
-          var newDate = new Date(rdsDate.getTime() + daydiff * 86400000);
-          var date = moment(newDate);
-          date = date.format('YYYY-MM-DD').toString();
-          date += " 00:00:01";
-          insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
+          else if (option == 'weekend') {
+            // if clients want weekend only
+            for (var i = 0; i < daydiff; i++) {
+              var newDate = new Date(rdsDate.getTime() + i * 86400000);
+              var date = moment(newDate);
+              if (date.isoWeekday() === 6 || date.isoWeekday() === 7) {
+                date = date.format('YYYY-MM-DD').toString();
+                date += " 00:00:01";
+                insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
+
+                days++;
+              }
+            }
+            // handle last element
+            var newDate = new Date(rdsDate.getTime() + daydiff * 86400000);
+            var date = moment(newDate);
+            if (date.isoWeekday() === 6 || date.isoWeekday() === 7) {
+              date = date.format('YYYY-MM-DD').toString();
+              date += " 00:00:01";
+              insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
+
+              days++;
+            }
+            else {
+              insertData = insertData.substr(0, insertData.length-2) + ';';
+
+            }
+          }
+          else if (option == 'weekday') {
+            // if clients want weekdays only
+            for (var i = 0; i < daydiff; i++) {
+              var newDate = new Date(rdsDate.getTime() + i * 86400000);
+              var date = moment(newDate);
+              if (date.isoWeekday() !== 6 && date.isoWeekday() !== 7) {
+                date = date.format('YYYY-MM-DD').toString();
+                date += " 00:00:01";
+                insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
+
+                days++;
+              }
+            }
+            // handle last element
+            var newDate = new Date(rdsDate.getTime() + daydiff * 86400000);
+            var date = moment(newDate);
+            if (date.isoWeekday() !== 6 && date.isoWeekday() !== 7) {
+              date = date.format('YYYY-MM-DD').toString();
+              date += " 00:00:01";
+              insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
+
+              days++;
+            }
+            else {
+              insertData = insertData.slice(0, insertData.length-2) + ';';
+
+            }
+          }
 
           console.log('insertData');
+          console.log(insertData+"\r\n");
           /* Now reservation time is valid */
           var sql = 'INSERT INTO studyroom (ts, start, duration, room, users, purpose, tsStart, tsEnd) VALUES ' + insertData;
           conn.query(sql, function(err, results) {
@@ -1691,7 +1772,8 @@ module.exports = {
               cb(new Error('query error'));
             }
             else {
-              cb(null, {err: "0"});
+              console.log(days);
+              cb(null, {err: "0", days: days});
             }
           });
         }
@@ -1895,7 +1977,7 @@ module.exports = {
       /*
         first select member payment, if that member is prepay member get the ts and get min diff
       */
-      var sql = 'SELECT payment, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+      var sql = 'SELECT payment, membername, seatnum, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
       conn.query(sql, [data.alias], function(err, results) {
         if (err) {
           console.log(err);
@@ -1903,13 +1985,18 @@ module.exports = {
         }
         else {
           var obj = results[0];
-          var paymentId = obj.payment;
+          var paymentId   = obj.payment;
+          var membername  = obj.membername;
+          var seatnum     = obj.seatnum;
+
+          // get current time
+          var cts = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
 
           if (paymentId == '0') {
             /* get time diff */
             var ts  = obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
-            var cts = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
 
+            console.log(cts);
             /*
               get Date Object from String
             */
@@ -1921,27 +2008,47 @@ module.exports = {
             */
             var minutes = Math.floor((diff/1000)/60);
 
-            var sql = 'UPDATE members SET seat="0", ts=NULL, fints=NULL, seatnum="0", pause="0", enterance="0", milage=IF(milage-?>0, milage-?, 0), seat_floor=NULL WHERE alias=?';
+            var sql = 'UPDATE members SET seat="0", ts=NULL, fints=NULL, seatnum="0", pause="0", enterance="0", milage=IF(milage-?>0, milage-?, 0), seat_floor=NULL, break=0 WHERE alias=?';
             conn.query(sql, [minutes*800, minutes*800, data.alias], function(err, results) {
               if (err) {
                 console.log(err);
                 cb(new Error('query error'));
               }
               else {
-                cb(null, {err: "0"});
+                // also update history
+                var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+cts+'", "%Y-%m-%d %H:%i:%s"), 3, ?, ?, ?)';
+                conn.query(sql, [data.alias, seatnum, membername], function(err, results) {
+                  if (err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {err: "0"});
+                  }
+                });
               }
             })
 
           }
           else {
-            var sql = 'UPDATE members SET seat="0", ts=NULL, fints=NULL, seatnum="0", pause="0", enterance="0", seat_floor=NULL WHERE alias=?';
+            var sql = 'UPDATE members SET seat="0", ts=NULL, fints=NULL, seatnum="0", pause="0", enterance="0", seat_floor=NULL, break=0 WHERE alias=?';
             conn.query(sql, [data.alias], function(err, results) {
               if (err) {
                 console.log(err);
                 cb(new Error("query error"));
               }
               else {
-                cb(null, {err: "0"});
+                // also update history
+                var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+cts+'", "%Y-%m-%d %H:%i:%s"), 3, ?, ?, ?)';
+                conn.query(sql, [data.alias, seatnum, membername], function(err, results) {
+                  if (err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {err: "0"});
+                  }
+                });
               }
             })
           }

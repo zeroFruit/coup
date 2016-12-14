@@ -332,6 +332,17 @@ html
                 label 시작 시간
                 //-input.form-control#start-hour(type='text' placeholder='ex: 7 (07:00), 15.5 (15:30)')
                 select.form-control#select-hours
+                  option(name='0')    00:00
+                  option(name='0.5')  00:30
+                  option(name='1')    01:00
+                  option(name='1.5')  01:30
+                  option(name='2')    02:00
+                  option(name='2.5')  02:30
+                  option(name='3')   03:00
+                  option(name='3.5') 03:30
+                  option(name='4')   04:00
+                  option(name='4.5') 04:30
+                  option(name='5')   05:00
                   option(name='7')    07:00
                   option(name='7.5')  07:30
                   option(name='8')    08:00
@@ -389,6 +400,13 @@ html
               label
                 | 사용 목적
               input.form-control#studyroom-purpose(type='text' placeholder='사용목적을 입력해주세요.')
+            .col-md-3
+              label 
+                | 옵션
+              select.form-control#select-option
+                option(name='allday') 모두 이용
+                option(name='weekend') 주말만 이용
+                option(name='weekday') 평일만 이용
           hr
           h1.page-subhead-line 예약취소
           .row
@@ -397,6 +415,17 @@ html
                 label 시작 시간
                 //-input.form-control#start-hour(type='text' placeholder='ex: 7 (07:00), 15.5 (15:30)')
                 select.form-control#select-hours-cancel
+                  option(name='0')    00:00
+                  option(name='0.5')  00:30
+                  option(name='1')    01:00
+                  option(name='1.5')  01:30
+                  option(name='2')    02:00
+                  option(name='2.5')  02:30
+                  option(name='3')   03:00
+                  option(name='3.5') 03:30
+                  option(name='4')   04:00
+                  option(name='4.5') 04:30
+                  option(name='5')   05:00
                   option(name='7')    07:00
                   option(name='7.5')  07:30
                   option(name='8')    08:00
@@ -456,6 +485,39 @@ html
                     th 예약 여부
                 //- THIS IS ROOM 1    
                 tbody#reservation-table-body-1
+                  tr(name='0.0')
+                    th 00:00
+                    th(name='avail')
+                  tr(name='0.5')
+                    th 00:30
+                    th(name='avail')
+                  tr(name='1.0')
+                    th 01:00
+                    th(name='avail')
+                  tr(name='1.5')
+                    th 01:30
+                    th(name='avail')
+                  tr(name='2.0')
+                    th 02:00
+                    th(name='avail')
+                  tr(name='2.5')
+                    th 02:30
+                    th(name='avail')
+                  tr(name='3.0')
+                    th 03:00
+                    th(name='avail')
+                  tr(name='3.5')
+                    th 03:30
+                    th(name='avail')
+                  tr(name='4.0')
+                    th 04:00
+                    th(name='avail')
+                  tr(name='4.5')
+                    th 04:30
+                    th(name='avail')
+                  tr(name='5.0')
+                    th 05:00
+                    th(name='avail')
                   tr(name='7.0')
                     th 07:00
                     th(name='avail')
@@ -572,6 +634,39 @@ html
                     th 예약 여부
                 //- THIS IS ROOM 2
                 tbody#reservation-table-body-2
+                  tr(name='0.0')
+                    th 00:00
+                    th(name='avail')
+                  tr(name='0.5')
+                    th 00:30
+                    th(name='avail')
+                  tr(name='1.0')
+                    th 01:00
+                    th(name='avail')
+                  tr(name='1.5')
+                    th 01:30
+                    th(name='avail')
+                  tr(name='2.0')
+                    th 02:00
+                    th(name='avail')
+                  tr(name='2.5')
+                    th 02:30
+                    th(name='avail')
+                  tr(name='3.0')
+                    th 03:00
+                    th(name='avail')
+                  tr(name='3.5')
+                    th 03:30
+                    th(name='avail')
+                  tr(name='4.0')
+                    th 04:00
+                    th(name='avail')
+                  tr(name='4.5')
+                    th 04:30
+                    th(name='avail')
+                  tr(name='5.0')
+                    th 05:00
+                    th(name='avail')
                   tr(name='7.0')
                     th 07:00
                     th(name='avail')
@@ -688,6 +783,39 @@ html
                     th 예약 여부
                 //- THIS IS ROOM 3
                 tbody#reservation-table-body-3
+                  tr(name='0.0')
+                    th 00:00
+                    th(name='avail')
+                  tr(name='0.5')
+                    th 00:30
+                    th(name='avail')
+                  tr(name='1.0')
+                    th 01:00
+                    th(name='avail')
+                  tr(name='1.5')
+                    th 01:30
+                    th(name='avail')
+                  tr(name='2.0')
+                    th 02:00
+                    th(name='avail')
+                  tr(name='2.5')
+                    th 02:30
+                    th(name='avail')
+                  tr(name='3.0')
+                    th 03:00
+                    th(name='avail')
+                  tr(name='3.5')
+                    th 03:30
+                    th(name='avail')
+                  tr(name='4.0')
+                    th 04:00
+                    th(name='avail')
+                  tr(name='4.5')
+                    th 04:30
+                    th(name='avail')
+                  tr(name='5.0')
+                    th 05:00
+                    th(name='avail')
                   tr(name='7.0')
                     th 07:00
                     th(name='avail')
@@ -1626,11 +1754,14 @@ html
           var purpose   = $('#studyroom-purpose').val();
           var reserveDateMin = $('#studyroom-datetimepickerMin').data("date");
           var reserveDateMax = $('#studyroom-datetimepickerMax').data("date");
-          
+          /* this option is for chooseing all, weekend, weekday */
+          var option         = $('#select-option').find('option:selected').attr("name");
+
           if (startHour === '' || duration === '' || reserveDateMax === undefined) {
             alert('입력되지 않은 값이 있습니다..');
             return false;
           }
+          
           
           $.ajax({
             url: '/system/reserve-studyroom',
@@ -1642,19 +1773,24 @@ html
               rde: reserveDateMax,
               rn: roomNum,
               users: users,
-              purpose: purpose
+              purpose: purpose,
+              option: option
             }
           }).done(function(results) {
             console.log(results);
             var json = JSON.parse(results);
+            
             if (json.err == "2") {
               alert('이미 예약된 시간입니다.');
             }
             else if(json.err == "3") {
               alert('24시를 넘어서는 예약할 수 없습니다.');
             }
+            else if(json.err == "4") {
+              alert("운영시간이 아닙니다.");
+            }
             else if(json.err == "0") {
-              alert('예약에 성공했습니다.');
+              alert('예약에 성공했습니다.\n\n  예약 일 수 :'+json.days+' 일');
             }
             /*
               Should clear the select hour form after that..

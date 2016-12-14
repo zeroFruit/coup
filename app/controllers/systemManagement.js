@@ -145,7 +145,7 @@ module.exports.set = function(app, passport) {
             if (minutes < 0) {
               minutes = minutes + 1440;
             }
-            tmp.usedMin = minutes;
+            tmp.usedMin = minutes - tmp.break;
             if (finTsStr == null ) {
               tmp.lts = '-';
             }
@@ -226,7 +226,9 @@ module.exports.set = function(app, passport) {
             FINALLY get the diff mins
           */
           var minutes = Math.floor((diff/1000)/60);
-          member.usedMin = minutes;
+          console.log('this is break');
+          console.log(pm.break);
+          member.usedMin = minutes - pm.break;
 
           /*
             set pts (pause time)
@@ -385,7 +387,7 @@ module.exports.set = function(app, passport) {
   });
 
   /*
-    system/reserve-studyroom
+    system/studyroom-currentstate
   */
   app.post('/system/studyroom-currentstate', function(req, res, next) {
     console.log('this is studyroom current state');
