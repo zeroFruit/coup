@@ -145,6 +145,8 @@ module.exports.set = function(app, passport) {
             if (minutes < 0) {
               minutes = minutes + 1440;
             }
+            console.log('this is break - running member');
+            console.log(tmp.break);
             tmp.usedMin = minutes - tmp.break;
             if (finTsStr == null ) {
               tmp.lts = '-';
@@ -226,7 +228,7 @@ module.exports.set = function(app, passport) {
             FINALLY get the diff mins
           */
           var minutes = Math.floor((diff/1000)/60);
-          console.log('this is break');
+          console.log('this is break - pause member');
           console.log(pm.break);
           member.usedMin = minutes - pm.break;
 
