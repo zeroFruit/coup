@@ -193,21 +193,36 @@ module.exports = {
         return cb(null, {err: "2"});
       }
       else if(data.password.length !== 6) {
+        console.log('password length: ' + data.password.length);
         return cb(null, {err: "3"});
       }
       else {
         var alias = phonenum.substring(3);
-        var sql
-          = "INSERT INTO members (membername, password, phonenum, alias, sex, memo, prepare) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        conn.query(sql, [data.membername, data.password, data.phonenum,  alias, sex, data.memo, data.prepare], function(err, results) {
-          if(err) {
+        var sql = 'SELECT membername FROM members WHERE alias=?';
+        conn.query(sql, [alias], function(err, results) {
+          if (err) {
             console.log(err);
-            cb(new Error('not found'));
-            //res.status(500); //< this should replace with respond.js
+            cb(new Error('query error'));
           }
           else {
-            cb(null, { membername: data.membername, err: "0" });
-            /* to notify to user that query has succeed send them 'membername'. With this info server can verify results */
+            if (results.length != 0) {
+              cb(null, {err: "4"});
+            }
+            else {
+              var sql
+                = "INSERT INTO members (membername, password, phonenum, alias, sex, memo, prepare) VALUES (?, ?, ?, ?, ?, ?, ?)";
+              conn.query(sql, [data.membername, data.password, data.phonenum,  alias, sex, data.memo, data.prepare], function(err, results) {
+                if(err) {
+                  console.log(err);
+                  cb(new Error('not found'));
+                  //res.status(500); //< this should replace with respond.js
+                }
+                else {
+                  cb(null, { membername: data.membername, err: "0" });
+                  /* to notify to user that query has succeed send them 'membername'. With this info server can verify results */
+                }
+              });
+            }
           }
         });
       }
@@ -376,6 +391,15 @@ module.exports = {
           //
           // }
           else {
+            /*
+              Before enter we need to check whether time is over 12:00 PM
+            */
+            var curHour = moment().tz('Asia/Tokyo').hours(); // 0~23
+            var night = 0;
+            if (curHour >= 0 && curHour <=5) {
+              night = 1; // if night enterance then set night as 1
+            }
+
             console.log('this is enter');
             console.log(results);
             cb(null,
@@ -385,7 +409,8 @@ module.exports = {
                 do: "enter",
                 paymentid: results[0].payment,
                 leftTime: results[0].leftTime.toString(),
-                membername: results[0].membername
+                membername: results[0].membername,
+                night: night
               });
           }
         }
@@ -395,6 +420,7 @@ module.exports = {
       takeSeat
     */
     takeSeat: function(data, cb) {
+
       console.log(data);
       /*
         data.paymentid
@@ -402,72 +428,18 @@ module.exports = {
       var paymentid  = data.paymentid;
       var leftTime   = data.leftTime;
       var membername = data.mn;
-
+      var night      = data.n;  // if 1, this is night mode
 
       /*
-        first change seat info
+        after 12:00 PM, change payment policy, except free user
       */
+      if (night === 1 && paymentid !== '14') {
 
-      /* free user */
-      if (paymentid === '14') {
-        var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
-        conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, data.alias], function(err, results) {
-          if (err) {
-            console.log(err);
-            cb(new Error('query error'));
-          }
-          else {
-            /*
-              now update history of this user
-            */
-            var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-            var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
-            conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
-              if (err) {
-                console.log(err);
-                cb(new Error('query error'));
-              }
-              else {
-                cb(null, {success: '1'});
-              }
-            });
-          }
-        });
-      }
-      /* this need to set fints */
-      if (paymentid === '0' || paymentid === '2' || paymentid === '4' || paymentid === '5' || paymentid === '6'
-        || paymentid === '8' || paymentid === '9' || paymentid === '10' || paymentid === '11') {
-          var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE) WHERE alias=?';
-          conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, parseInt(leftTime), data.alias], function(err, results) {
-            if(err) {
-              console.log(err);
-              cb(new Error("query error"));
-            }
-            else {
-              /*
-                now update history of this user
-              */
-              var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-              var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
-              conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
-                if (err) {
-                  console.log(err);
-                  cb(new Error('query error'));
-                }
-                else {
-                  cb(null, {success: '1'});
-                }
-              });
-            }
-          });
-      }
-      /* this don't need to set fints => but need to set limit 00:00 AM */
-      else if (paymentid === '1' || paymentid === '3' || paymentid === '7' || paymentid === '12' || paymentid === '13' ) {
-        var nextday = moment().tz('Asia/Tokyo').add(1, 'd').format('YYYY-MM-DD').toString();
-        nextday = nextday + " 00:00:00"; /* get nextday 00:00:00 AM */
+        var today = moment().tz('Asia/Tokyo').format('YYYY-MM-DD').toString();
+        today = today + " 05:00:00"; /* get today 05:00:00 AM */
 
         var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") WHERE alias=?';
-        conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, nextday, data.alias], function(err, results) {
+        conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, today, data.alias], function(err, results) {
           if(err) {
             console.log(err);
             cb(new Error("query error"));
@@ -490,13 +462,100 @@ module.exports = {
           }
         });
       }
+      else {
+        /*
+          this is before 12:00 PM
+        */
+        /* free user */
+        if (paymentid === '14') {
+          var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP WHERE alias=?';
+          conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, data.alias], function(err, results) {
+            if (err) {
+              console.log(err);
+              cb(new Error('query error'));
+            }
+            else {
+              /*
+                now update history of this user
+              */
+              var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+              var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+              conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
+                if (err) {
+                  console.log(err);
+                  cb(new Error('query error'));
+                }
+                else {
+                  cb(null, {success: '1'});
+                }
+              });
+            }
+          });
+        }
+        /* this need to set fints */
+        if (paymentid === '0' || paymentid === '2' || paymentid === '4' || paymentid === '5' || paymentid === '6'
+          || paymentid === '8' || paymentid === '9' || paymentid === '10' || paymentid === '11') {
+            var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE) WHERE alias=?';
+            conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, parseInt(leftTime), data.alias], function(err, results) {
+              if(err) {
+                console.log(err);
+                cb(new Error("query error"));
+              }
+              else {
+                /*
+                  now update history of this user
+                */
+                var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+                conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
+                  if (err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {success: '1'});
+                  }
+                });
+              }
+            });
+        }
+        /* this don't need to set fints => but need to set limit 00:00 AM */
+        else if (paymentid === '1' || paymentid === '3' || paymentid === '7' || paymentid === '12' || paymentid === '13' ) {
+          var nextday = moment().tz('Asia/Tokyo').add(1, 'd').format('YYYY-MM-DD').toString();
+          nextday = nextday + " 00:00:00"; /* get nextday 00:00:00 AM */
+
+          var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") WHERE alias=?';
+          conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, nextday, data.alias], function(err, results) {
+            if(err) {
+              console.log(err);
+              cb(new Error("query error"));
+            }
+            else {
+              /*
+                now update history of this user
+              */
+              var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+              var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+              conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
+                if (err) {
+                  console.log(err);
+                  cb(new Error('query error'));
+                }
+                else {
+                  cb(null, {success: '1'});
+                }
+              });
+            }
+          });
+        }
+      }
     },
 
     /*
       getSeatInfo
     */
     getSeatInfo: function(cb) {
-      var sql = 'SELECT seat, payment, memo, seat_floor FROM members';
+      var sql = 'SELECT seat, payment, memo, seat_floor, membername FROM members';
       conn.query(sql, function(err, results) {
         if(err) {
           console.log(err);
@@ -507,6 +566,32 @@ module.exports = {
           cb(null, results);
         }
       })
+    },
+
+    /*
+      seatChange
+    */
+    seatChange: function(data, cb) {
+      console.log(data);
+      var oldSeatNum, newSeatNum, oldSeatId, newSeatId, oldFloor, newFloor;
+      oldSeatNum  = data.oldSeatNum;
+      oldSeatId   = data.oldSeatId;
+      oldFloor    = data.oldFloor;
+      newSeatNum  = data.newSeatNum;
+      newSeatId   = data.newSeatId;
+      newFloor    = data.newFloor;
+
+
+      var sql = 'UPDATE members SET seat=?, seatnum=?, seat_floor=? WHERE seat=? AND seatnum=? AND seat_floor=?';
+      conn.query(sql, [newSeatId, newSeatNum, newFloor, oldSeatId, oldSeatNum, oldFloor], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          cb(null, {err: "0", oldSeat: oldSeatNum, newSeat: newSeatNum});
+        }
+      });
     },
     /*
       Leave
@@ -519,7 +604,7 @@ module.exports = {
       //retval.oldts;
       //retval.newts = {};
       /* before get data, check whether form data is valid */
-      var sql = 'SELECT membername, password, enterance, payment, seatnum, break FROM members WHERE alias=?'; /* first check the existence of member*/
+      var sql = 'SELECT membername, password, enterance, payment, seatnum, break, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?'; /* first check the existence of member*/
       conn.query(sql, [data.lcid], function(err, results) {
         var memInfo = results[0];
         if(err) {
@@ -545,6 +630,19 @@ module.exports = {
           */
           var breaks = memInfo.break;
           /*
+            check ts and determine payment policy
+          */
+          var ts       = memInfo['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
+          var tsMoment = moment(ts);
+          var tsHour   = tsMoment.hours();
+          var night    = 0;
+          if (tsHour >= 0 && tsHour <= 5) {
+            night = 1;
+          }
+          console.log('leave night: ' + night);
+
+
+          /*
             when matcing client is exist
           */
           /*
@@ -568,16 +666,16 @@ module.exports = {
                 }
                 else {
                   /*
-                    if the use is prepay user, when he/she tries to exit then we should update the milage and left time
+                    Apply night policy
                   */
-                  if (memInfo.payment === "0") {
+                  if (night === 1) {
                     var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
                     conn.query(sql, [data.lcid], function(err, results) {
                       if (err) {
                         cb(new Error('query error'));
                       }
                       else {
-                        console.log('leaving prepay member');
+                        console.log('leaving night user');
                         /*
                           If trying to reuse, we need to recalculate the fin ts
                         */
@@ -609,26 +707,110 @@ module.exports = {
                             cb(new Error('query error'));
                           }
                           else {
-                            cb(null, {err: "0", alias: data.lcid, do: "leave"});
+                            cb(null, {err: "0", alias: data.lcid, do: "leave", fee: fee});
                           }
                         })
                       }
                     });
                   }
-                  /*
-                    He/She is not prepay payment member
-                  */
+                  /* this is another policy */
                   else {
-                    var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0", break=0 WHERE alias=? AND password=?';
-                    conn.query(sql, [data.lcid, data.lcpwd], function(err, results) {
-                      if(err) {
-                        cb(new Error('query error'));
-                      }
-                      else {
-                        console.log('this is leave');
-                        cb(null, {err: "0", alias: data.lcid, do: "leave"});
-                      }
-                    });
+                    /*
+                      if the use is prepay user, when he/she tries to exit then we should update the milage and left time
+                    */
+                    if (memInfo.payment === "0") {
+                      var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+                      conn.query(sql, [data.lcid], function(err, results) {
+                        if (err) {
+                          cb(new Error('query error'));
+                        }
+                        else {
+                          console.log('leaving prepay member');
+                          /*
+                            If trying to reuse, we need to recalculate the fin ts
+                          */
+                          var resultObj    = results[0];
+                          var oldTsStr     = resultObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
+                          var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                          /*
+                            get Date Object from String
+                          */
+                          var oldTsDate     = new Date(Date.parse(oldTsStr.replace('-','/','g')));
+                          var curTsDate     = new Date(Date.parse(currentTsStr.replace('-','/','g')));
+                          var diff = curTsDate - oldTsDate;
+                          /*
+                            FINALLY get the difference of minutes
+                          */
+                          var minutes = Math.floor((diff/1000)/60) - breaks;
+                          var hour = parseInt(minutes / 60);
+                          var over = minutes % 60;
+                          if (over > 10) {
+                            hour = hour + 1;
+                          }
+                          var fee = hour * 800;
+                          /*
+                            Then with MINUTES update member data
+                          */
+                          var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0", break=0 WHERE alias = ?';
+                          conn.query(sql, [minutes, fee, data.lcid], function(err, results) {
+                            if(err) {
+                              cb(new Error('query error'));
+                            }
+                            else {
+                              cb(null, {err: "0", alias: data.lcid, do: "leave", fee: fee});
+                            }
+                          })
+                        }
+                      });
+                    }
+                    /*
+                      He/She is not prepay payment member
+                    */
+                    else {
+                      var sql = 'SELECT DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+                      conn.query(sql, [data.lcid], function(err, results) {
+                        if (err) {
+                          console.log(err);
+                          cb(new Error('query error'));
+                        }
+                        else {
+                          /*if leave time is later than fints, than reduce milage */
+                          var resultObj    = results[0];
+                          var oldTsStr     = resultObj['DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s")'];
+                          var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                          /*
+                            get Date Object from String
+                          */
+                          var oldTsDate     = new Date(Date.parse(oldTsStr.replace('-','/','g')));
+                          var curTsDate     = new Date(Date.parse(currentTsStr.replace('-','/','g')));
+                          var diff = curTsDate - oldTsDate;
+                          /*
+                            FINALLY get the difference of minutes
+                          */
+                          var fee = 0;
+                          if(diff > 0) {
+                            var minutes = Math.floor((diff/1000)/60) - breaks;
+                            var hour = parseInt(minutes / 60);
+                            var over = minutes % 60;
+                            if (over > 10) {
+                              hour = hour + 1;
+                            }
+                            fee = hour * 800;
+                          }
+
+                          var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, milage=milage-?, fints=NULL, pause="0", break=0 WHERE alias=? AND password=?';
+                          conn.query(sql, [fee, data.lcid, data.lcpwd], function(err, results) {
+                            if(err) {
+                              cb(new Error('query error'));
+                            }
+                            else {
+                              console.log('this is leave');
+                              cb(null, {err: "0", alias: data.lcid, do: "leave", fee: fee});
+                            }
+                          });
+                        }
+                      });
+                    }
                   }
                 }
               });

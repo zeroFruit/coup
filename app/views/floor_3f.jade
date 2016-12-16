@@ -62,12 +62,14 @@ html
       input(type='hidden' name='leftTime')
       input(type='hidden' name='floorid')
       input(type='hidden' name='mn')
+      input(type='hidden' name='n')
     form#floor-change(action='/clients/floor' method='post')
       input(type='hidden' name='alias')
       input(type='hidden' name='floornum')
       input(type='hidden' name='pid')
       input(type='hidden' name='lt')
       input(type='hidden' name='mn')
+      input(type='hidden' name='n')
       
     //- JQUERY SCRIPTS
     script(src='public/javascripts/temp/jquery-1.10.2.js')
@@ -86,12 +88,18 @@ html
       var paymentid       = '!{paymentid}'; 
       var leftTime        = '!{leftTime}';
       var membername      = '!{membername}';
+      var night           = '!{night}';
       
       var jsonSeatInfo  = JSON.parse(seatinfo);
       //alert(seatinfo);
       console.log(seatinfo);
       console.log(jsonSeatInfo);
       $(document).ready(function() {
+        /* check night parameter and change background color*/
+        
+        if (night == 1) {
+          alert("12시가 지나서 입장하셨습니다. \n야간 자유이용권 손님 이외에는 한 시간에 800 코업머니로 계산이 됩니다.");
+        }
         var $cart = $('#selected-seats'),
           $counter = $('#counter'),
           sc = $('#seat-map').seatCharts({
@@ -208,6 +216,8 @@ html
           $('input[name="leftTime"]').val(leftTime);
           $('input[name="floorid"]').val(floorid);
           $('input[name="mn"]').val(membername);
+          $('input[name="n"]').val(night);
+          
           $('#seat-submit').submit();
         });
         
@@ -218,7 +228,8 @@ html
           $('input[name="lt"]').val(leftTime);
           $('input[name="alias"]').val(accessMember);
           $('input[name="mn"]').val(membername);
-          
+          $('input[name="n"]').val(night);
+
           $('#floor-change').submit();          
         });
         $('#4f').click(function() {
@@ -227,15 +238,17 @@ html
           $('input[name="lt"]').val(leftTime);
           $('input[name="alias"]').val(accessMember);
           $('input[name="mn"]').val(membername);
+          $('input[name="n"]').val(night);
+
           $('#floor-change').submit();          
         });
-        $('#b1').click(function() {
-          $('input[name="floornum"]').val("-1");
-          $('input[name="pid"]').val(paymentid);
-          $('input[name="lt"]').val(leftTime);
-          $('input[name="alias"]').val(accessMember);
-          $('#floor-change').submit();          
-        }); 
+        //- $('#b1').click(function() {
+        //-   $('input[name="floornum"]').val("-1");
+        //-   $('input[name="pid"]').val(paymentid);
+        //-   $('input[name="lt"]').val(leftTime);
+        //-   $('input[name="alias"]').val(accessMember);
+        //-   $('#floor-change').submit();          
+        //- }); 
       });
       /* block go back ward */
       history.pushState(null, document.title, location.href);

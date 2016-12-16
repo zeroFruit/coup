@@ -27,7 +27,7 @@ module.exports.set = function(app, passport) {
   app.post('/clients/index',function(req, res, next) {
     console.log('this is clients/index post');
     next();
-  }, jwtauth, requireAuth, function(req, res, next) {
+  }, function(req, res, next) {
     //res.render('clients_index');
     res.status(200).render('clients_index');
   });
@@ -146,7 +146,7 @@ module.exports.set = function(app, passport) {
   },*/ function(req, res, next) {
     //console.log(req.seatinfo); /* print seat info */
     //respond.client_enter_succ(req, res);
-    res.redirect('/clients/floor?alias='+req.member.alias+'&pid='+req.member.paymentid+'&lt='+req.member.leftTime+'&mn='+req.member.membername);
+    res.redirect('/clients/floor?alias='+req.member.alias+'&pid='+req.member.paymentid+'&lt='+req.member.leftTime+'&mn='+req.member.membername+'&n='+req.member.night);
   });
 
   /*
@@ -179,6 +179,27 @@ module.exports.set = function(app, passport) {
     respond.client_seat_status(req, res);
   });
 
+  /*
+    /clients/seatstate-admin
+  */
+  app.post('/clients/seatstate-admin', function(req, res, next) {
+    member.getSeatInfo(req, res, next);
+  }, function(req, res, next) {
+    respond.client_seat_status_admin(req, res);
+  });
+
+  /*
+    /clients/seatchange
+  */
+  app.post('/clients/seatchange', function(req, res, next) {
+    member.seatChange(req, res, next);
+  }, function(req, res, next) {
+    console.log(req.results.err);
+    if (req.results.err == "0") {
+      var json = JSON.stringify(req.results);
+      res.send(json);
+    }
+  });
   /*
     /clients/leave/auth (POST)
 

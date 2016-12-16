@@ -32,19 +32,19 @@ div.seatCharts-row {
 }
 
 div.seatCharts-seat.premium {
-  background-color: #465254
+  background-color: #6f8350
 }
 
 div.seatCharts-seat.premium.available {
-  background-color: #465254
+  background-color: #6f8350
 }
 
 div.seatCharts-seat.premium.focused {
-  background-color: #dfebed
+  background-color: #bbdb88
 }
 
 div.seatCharts-seat.premium.unavailable {
-  background-color: #402711
+  background-color: #284525
 }
 
 div.seatCharts-seat.premium.selected {

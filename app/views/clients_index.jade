@@ -117,7 +117,13 @@ html
       var stop_member_err           = '!{stop_member_err}';
       var prepay_lack_milage_err    = '!{lack_milage_err}';
       
+      var fee                       = '!{fee}';
+      
       window.onload = function() {
+        /* if there's any reduction in coup money than display! */
+        if (fee != "") {
+          alert("["+fee+"] 코업머니가 차감되었습니다.");
+        }
         if (password_err === "1") {
           show_snackbar('password-err-snackbar');return false;
         }

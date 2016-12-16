@@ -154,6 +154,22 @@ module.exports = {
   },
 
   /*
+    seatChange
+  */
+  seatChange: function(req, res, next) {
+    db.member.seatChange(req.body, function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        console.log('this is results ');
+        console.log(results);
+        req.results = results;
+        next();
+      }
+    });
+  },
+  /*
     changeLeaveData
   */
   Leave: function(req, res, next) {

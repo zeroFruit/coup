@@ -24,11 +24,10 @@ module.exports.set = function(app, passport) {
   */
   app.post('/register', function(req, res, next) {
     console.log('this is register');
+    console.log(req.body);
     next();
-  },jwtauth, requireAuth,
+  },
   member.registerMember,
-  rendering.getNumOfMem,
-  rendering.getNumOfAttendMem,
   function(req, res, next) {
     /*
       Should error checking
@@ -44,8 +43,11 @@ module.exports.set = function(app, passport) {
     else if (req.member.err === "3") {
       return respond.password_length_err(req, res);
     }
+    else if(req.member.err === "4") {
+      return respond.already_register(req, res);
+    }
     else {
-      respond.register_succ(req, res);
+      res.send('0');
     }
   });
 }

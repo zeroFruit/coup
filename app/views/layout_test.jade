@@ -26,6 +26,12 @@ html
     link(href='public/stylesheets/temp/table-style.css',     rel='stylesheet')
     //- CUSTOM style
     link(href="public/stylesheets/style.css" rel='stylesheet')
+    //- TABLE SORTER STYLE
+    link(href='public/__jquery.tablesorter/themes/blue/style.css' rel="stylesheet" type="text/css")
+    //- SEAT CHART PLUG-IN
+    link(href='public/stylesheets/temp/jquery.seat-charts.css' rel='stylesheet')
+    //- SEAT CHART CUSTOM STYLE
+    link(href='public/stylesheets/temp/seat-chart-custom.css' rel='stylesheet')
   body
     
     //- #recharge_snackbar
@@ -37,7 +43,7 @@ html
       
     //- MODAL REGISTER FORM
     #register-form.modal
-      form.modal-content.animate(action='/register' method='post')
+      form.modal-content.animate
         .col-4
           label
             | 이름
@@ -50,7 +56,7 @@ html
         .col-4
           label
             | 비밀번호
-            input#company(placeholder='6자리 숫자를 입력해주세요.', type='password', name='password', size='6', maxlength='6', required='required')
+            input#Password(placeholder='6자리 숫자를 입력해주세요.', type='password', name='password', size='6', maxlength='6', required='required')
         .col-4
           label
             | 휴대폰번호
@@ -64,10 +70,7 @@ html
             | 메모
             input#memo(name='memo' type='text')
         .col-submit
-          button.submitbtn#registerSubmit Submit Form
-        //-THERE'S HIDDEN FORM TO SEND TOKENS
-        input(type='hidden' name='accessToken')
-        input(type='hidden' name='refreshToken')
+          button.submitbtn#registerSubmit 등록하기
         //- MODAL REGISTER FORM
     #recharge-form.modal
       form.modal-content.animate
@@ -103,42 +106,62 @@ html
         input(type='hidden' name='price')
     //- DISPLAY ALL MEMBERS LIST
     #all-members-list.modal(style='padding-top:0;padding-bottom:0')
-      .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:80%; margin-top:3%')
-        //- Table starts here
-        table#all-members-table.table.table-hover.table-bordered.table-mc-light-blue
-          thead
-            tr
-              th ID
-              th 이름
-              th 요금제
-              th 잔여시간(일)
-              th 좌석
-              th 성별
-              th 준비시험
-              th 코업머니
-              th 메모
-              th
-          tbody#all-members-table-body
+      .all-members-list-wrapper.modal-content.container(style="width:90%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
+        h1.page-subhead-line 회원 목록입니다.
+        .row
+          .col-md-2.col-md-offset-10
+            .input-group
+              .input-group-addon
+                i.fa.fa-search(aria-hidden="true")
+              input#all-members-filter.form-control(type="text" placeholder='이름으로 검색' onkeyup="all_members_finder()")
+        .row
+          .col-md-12
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%; margin-top:1%; height:75%')
+              //- Table starts here
+              table#all-members-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+                thead
+                  tr
+                    th ID
+                    th 이름
+                    th 요금제
+                    th 잔여시간(일)
+                    th 좌석
+                    th 성별
+                    th 준비시험
+                    th 코업머니
+                    th 메모
+                    th
+                tbody#all-members-table-body
               
     //- DISPLAY ACTIVE MEMBERS LIST
     #active-members-list.modal(style='padding-top:10px;')
-      .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:80%; margin-top:3%')
-        //- Table starts here
-        table#active-members-table.table.table-hover.table-bordered.table-mc-light-blue
-          thead
-            tr
-              th ID
-              th 이름
-              th 요금제
-              th 입실시간
-              th 정지/퇴실시간
-              th 사용시간(분)
-              th 일시정지 여부
-              th 휴식시간(누적)
-              th 일시정지 시간
-              th 퇴실처리하기
-          tbody#active-members-table-body
-        //- DISPLAY ACTIVE MEMBERS LIST
+      .active-members-list-wrapper.modal-content.container(style="width:90%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
+        h1.page-subhead-line 사용 중인 회원 목록입니다.
+        .row
+          .col-md-2.col-md-offset-10
+            .input-group
+              .input-group-addon
+                i.fa.fa-search(aria-hidden="true")
+              input#active-members-filter.form-control(type="text" placeholder='이름으로 검색' onkeyup="active_members_finder()")
+        .row
+          .col-md-12
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%; margin-top:1%; height:75%')
+              //- Table starts here
+              table#active-members-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+                thead
+                  tr
+                    th ID
+                    th 이름
+                    th 요금제
+                    th 입실시간
+                    th 정지/퇴실시간
+                    th 사용시간(분)
+                    th 일시정지 여부
+                    th 휴식시간(누적)
+                    th 일시정지 시간
+                    th 퇴실처리하기
+                tbody#active-members-table-body
+              //- DISPLAY ACTIVE MEMBERS LIST
     #history-modal.modal(style='padding-top:10px;')
       .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:40%; margin-top:3%')
         //- Table starts here
@@ -925,12 +948,8 @@ html
     #main
       //- TOP NAV BAR
       ul#top_nav
-        li#top_nav_list
-          a(onclick='openNav()') 메뉴
         li#top_nav_list 
           a.a-cursor-pointer(onclick="document.getElementById('register-form').style.display='block'", style='width:auto;') 등록
-        li#top_nav_list
-          a#system_manager(style='cursor: pointer') 관리자 설정
         li#top_nav_list
           a#clients_page(style='cursor: pointer') 사용자 페이지
         
@@ -1005,7 +1024,7 @@ html
                     h1.page-head-line 퇴실 필요 회원들 
                 .row
                   .col-md-12
-                    .scroll-table(style='margin-right:40px; margin-left:40px')
+                    .scroll-table(style='margin-right:40px; margin-left:40px; height: 70%')
                       .table-responsive-vertical.shadow-z-1
                         //- Table starts here
                         table#table.table.table-hover.table-bordered.table-mc-light-blue
@@ -1016,11 +1035,52 @@ html
                               th 잔여시간 (분)
                               th 
                           tbody#alert-member-table-body
-
-    //- This is for rendering client page
-    form#to-client-page(action='/clients/index' method='post')
-      input(type='hidden' name='accessToken')
-      input(type='hidden' name='refreshToken')
+      //- This is for rendering client page
+      form#to-client-page(action='/clients/index' method='post')
+        input(type='hidden' name='accessToken')
+        input(type='hidden' name='refreshToken')
+      #wrapper
+        #page-wrapper
+          #page-inner
+            .row
+              .col-md-12
+                h1.page-head-line(style='text-align:center') 좌석 현황
+                h1.page-subhead-line(style='text-align:center;') 좌석에 마우스를 올려 놓으면 회원 이름을 확인 할 수 있습니다.
+            .row
+              .row
+                .col-md-3.col-md-offset-1
+                  .room-container
+                    .booking-details
+                      h1.page-subhead-line(style='text-align:center; font-size: 30px') 3층 좌석
+                      hr
+                      #seat-map-3f
+                      hr
+                      #legend-3f
+                .col-md-3.col-md-offset-4
+                  .room-container
+                    .booking-details
+                      h1.page-subhead-line(style='text-align:center; font-size: 30px') 4층 좌석
+                      hr
+                      #seat-map-4f
+                      hr
+                      #legend-4f
+              hr
+              .row
+                .col-md-3.col-md-offset-1
+                  .main-box.mb-dull(style='margin-right:20px; margin-left:20px;')
+                    a#seat-refresh.a-cursor-pointer
+                      h5 새로고침
+                .col-md-2
+                  input.form-control#oldseat(type='text' placeholder='바꿀 자리')
+                .col-md-2
+                  input.form-control#newseat(type='text' placeholder='새 자리')
+                .col-md-3
+                  .main-box.mb-dull(style='margin-right:20px; margin-left:20px;')
+                    a#seat-change.a-cursor-pointer
+                      h5 좌석 이동
+              
+              
+    
     //- --------------------------------------------------------------------------------------------------------
     //- SNACKBAR                
     //- --------------------------------------------------------------------------------------------------------
@@ -1036,6 +1096,8 @@ html
       | 휴대폰 번호를 정확히 입력해주세요.
     #password-length-err-snackbar
       | 비밀번호가 정확하지 않습니다.
+    #already-reigster-err-snackbar
+      | 이미 등록된 회원입니다.
     
     script.
       //- Set the width of the side navigation to 250px and the left margin of the page content to 250px 
@@ -1063,9 +1125,345 @@ html
     script(type='text/javascript', src='/bower_components/moment/min/moment.min.js')
     script(type='text/javascript', src='/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js')
     link(rel='stylesheet', href='/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css')
+    //- TABLE SORTER
+    //-script(type='text/javascript', src='public/javascripts/temp/jquery-latest.js')
+    script(type='text/javascript', src='public/__jquery.tablesorter/jquery.tablesorter.min.js')
+    //- TEMPLATE LAYOUT SCRIPTS
+    script(type='text/javascript', src='public/javascripts/temp/custom.js')
+    script(type='text/javascript', src='public/javascripts/temp/jquery.seat-charts.min.js')
     //- CUSTOM SCRIPTS
     script.
       $(document).ready(function() {
+        /****************************************************************************************
+        SEAT STATUS
+        ****************************************************************************************/
+        var firstSeatLabel_3f   = 1;
+        var firstSeatLabel_4f   = 39;
+        
+        var sc3f = $('#seat-map-3f').seatCharts({
+          map: [
+            'nnnnnn__n',
+            'nnnnnn__n',
+            '________n',
+            'nnnnnn__n',
+            'nnnnnn__n',
+            '________n',
+            'nnnn_____',
+            'nnnn_____',
+            'WWWWWEEWW',
+          ],
+          seats: {
+            n: {
+              price   : 100,
+              classes : 'normal-seats', //your custom CSS class
+              category: '좌석'
+            },
+            E: {
+              classes: 'enterance'
+            },
+            W: {
+              classes: 'wall'
+            }
+          },
+          naming : {
+            top : false,
+            left: false,
+            getLabel : function (character, row, column) {
+              if ((row == 9 && column == 6) || (row == 9 && column == 7)) {
+                return 'E';
+              }
+              if ((row==9&&column==1)||(row==9&&column==2)||(row==9&&column==2)||(row==9&&column==3)||(row==9&&column==4)||(row==9&&column==5)||(row==9&&column==8)||(row==9&&column==9)) {
+                return '';
+              }
+              return firstSeatLabel_3f++;
+            },
+          },
+          legend : {
+            node : $('#legend-3f'),
+              items : [
+              [ 'n', 'available',   '남아있는 자리' ],
+              [ 'E', 'unavailable', '입구']
+              ]					
+          },
+          
+          click: function () {
+            if (this.status() == 'available') {
+              /*
+                script about two seats simultanously  can not be reserved
+              */
+              sc3f.find('n.selected').status('available');
+          
+              return 'selected';
+            } else if (this.status() == 'selected') {
+              //seat has been vacated
+              return 'available';
+            } else if (this.status() == 'unavailable') {
+              //seat has been already booked
+              return 'unavailable';
+            } else {
+              return this.style();
+            }
+          }
+        });
+      
+        var sc4f = $('#seat-map-4f').seatCharts({
+          map: [
+            '_nn_nn____',
+            '_nn_nn____',
+            '________nn',
+            '________nn',
+            '__________',
+            '________nn',
+            '_nn__nn_nn',
+            '_nn__nnWWW',
+            'PPPP___W__',
+            '_______W__',
+            'P_PP__PW__',
+            'P_PP__PW__',
+            'P_PP__PW__',
+            'P_PP__PW__',
+            '_______E__',
+            '_______E__'
+          ],
+          seats: {
+            n: {
+              classes : 'normal-seats', //your custom CSS class
+              category: '좌석'
+            },
+            P: {
+              classes: 'premium',
+              category: '관리형반'
+            },
+            E: {
+              classes: 'enterance'
+            },
+            W: {
+              classes: 'wall'
+            }
+          },
+          naming : {
+            top : false,
+            left: false,
+            getLabel : function (character, row, column) {
+              if ((row == 15 && column == 8) || (row == 16 && column == 8)) {
+                return 'E';
+              }
+              if ((row==14&&column==8)||(row==13&&column==8)||(row==12&&column==8)||(row==11&&column==8)||(row==10&&column==8)||(row==9&&column==8)||(row==8&&column==10)||(row==8&&column==9)||(row==8&&column==8)) {
+                return '';
+              }
+              return firstSeatLabel_4f++;
+            },
+          },
+          legend : {
+            node : $('#legend-4f'),
+              items : [
+              [ 'n', 'available',   '남아있는 자리' ],
+              [ 'P', 'available',   '관리형반 자리' ],
+              [ 'E', 'unavailable', '입구']
+              ]					
+          },
+          
+          click: function () {
+            if (this.status() == 'available') {
+              /*
+                script about two seats simultanously  can not be reserved
+              */
+              sc4f.find('n.selected').status('available');
+              sc4f.find('P.selected').status('available');
+              return 'selected';
+            } else if (this.status() == 'selected') {
+              //seat has been vacated
+              return 'available';
+            } else if (this.status() == 'unavailable') {
+              //seat has been already booked
+              return 'unavailable';
+            } else {
+              return this.style();
+            }
+          }
+        });
+        /*
+          Seat Status
+        */
+        $('a#seat-refresh').click(function(event) {
+          /* 
+            reset their status as available
+          */
+          sc3f.find('n.unavailable').each(function() {
+            this.status('available')
+          });
+          sc4f.find('n.unavailable').each(function() {
+            this.status('available')
+          });
+          sc4f.find('P.unavailable').each(function() {
+            this.status('available')
+          });
+          
+          $.ajax({
+            url: 'clients/seatstate-admin',
+            method: 'post'
+          }).done(function(results) {
+            var jsonSeatInfo = JSON.parse(results);
+            console.log(jsonSeatInfo);
+            
+            var unavail_seats_3f      = [];
+            var unavail_seats_3f_obj  = {};
+            var unavail_seats_4f      = [];
+            var unavail_seats_4f_obj  = {};
+
+            for (var i = 0; i < jsonSeatInfo.length; i++) {
+              var seatobj = jsonSeatInfo[i];
+              /*
+                We have to check whether seatobj element seat floor is same with current page floorid:3
+              */
+              if (seatobj.seat_floor === "3" /* "3" */) {
+                unavail_seats_3f.push(seatobj.seat);     
+                unavail_seats_3f_obj[seatobj.seat] = seatobj;       
+              }
+              
+              else if (seatobj.seat_floor === "4" /* "3" */) {
+                unavail_seats_4f.push(seatobj.seat); 
+                unavail_seats_4f_obj[seatobj.seat] = seatobj;            
+              }
+            }
+            sc3f.status(unavail_seats_3f, 'unavailable');
+            sc4f.status(unavail_seats_4f, 'unavailable');
+            
+            /* 
+              then add each seat tag a title attribute
+            */
+            sc3f.find('n.unavailable').each(function() {
+              var seatId = this.node().attr('id');
+              var member = unavail_seats_3f_obj[seatId];
+              var name = member.membername;
+              this.node().attr('title', name); // add attr title with member name
+            });
+            sc4f.find('n.unavailable').each(function() {
+              var seatId = this.node().attr('id');
+              var member = unavail_seats_4f_obj[seatId];
+              var name = member.membername;
+              this.node().attr('title', name); // add attr title with member name
+            });
+            sc4f.find('P.unavailable').each(function() {
+              var seatId = this.node().attr('id');
+              var member = unavail_seats_4f_obj[seatId];
+              var name = member.membername;
+              this.node().attr('title', name); // add attr title with member name
+            });
+          });
+        });
+        /*
+          Seat Change Button Clicked
+        */
+        $('#seat-change').click(function(event) {
+          var oldseat, newseat, ios, ins, sid_o, sid_n, floor_o, floor_n;
+          var seatChk_o = false;
+          var seatChk_n = false;
+          oldseat = $('#oldseat').val(); ios = parseInt(oldseat);
+          newseat = $('#newseat').val(); ins = parseInt(newseat);
+          
+          if (oldseat === "" || newseat === "") {
+            alert('좌석 번호를 입력해주세요.');
+            return false;
+          }
+          
+          sc3f.find('n.unavailable').each(function() {
+            var seatNum = this.node().text();
+            var seatId  = this.node().attr('id');
+            if (ios == seatNum) {
+              seatChk_o = true;
+              sid_o     = seatId;
+              floor_o   = "3";
+            }
+            
+          });
+          sc3f.find('n.available').each(function() {
+            var seatNum = this.node().text();
+            var seatId  = this.node().attr('id');
+            if (ins == seatNum) {
+              seatChk_n = true;
+              sid_n     = seatId;
+              floor_n   = "3";
+            }
+          });
+          
+          sc4f.find('n.unavailable').each(function() {
+            var seatNum = this.node().text();
+            var seatId  = this.node().attr('id');
+            console.log(seatNum);
+            if (ios == seatNum) {
+              seatChk_o = true;
+              sid_o     = seatId;
+              floor_o   = "4";
+            }
+          });
+          sc4f.find('n.available').each(function() {
+            var seatNum = this.node().text();
+            var seatId  = this.node().attr('id');
+            if (ins == seatNum) {
+              seatChk_n = true;
+              sid_n     = seatId;
+              floor_n   = "4";
+            }
+          });
+          
+          sc4f.find('P.unavailable').each(function() {
+            var seatNum = this.node().text();
+            var seatId  = this.node().attr('id');
+            console.log(seatNum);
+            if (ios == seatNum) {
+              seatChk_o = true;
+              sid_o     = seatId;
+              floor_o   = "4";
+            }
+          });
+          sc4f.find('P.available').each(function() {
+            var seatNum = this.node().text();
+            var seatId  = this.node().attr('id');
+            if (ins == seatNum) {
+              seatChk_n = true;
+              sid_n     = seatId;
+              floor_n   = "4";
+            }
+          });
+          if(!seatChk_o || !seatChk_n) {
+            alert('정확한 좌석번호를 입력해주세요.');
+            return false;
+          }
+          
+          $.ajax({
+            url: '/clients/seatchange',
+            method: 'post',
+            data: {
+              oldSeatId : sid_o,
+              oldSeatNum: ios,
+              oldFloor  : floor_o,
+              newSeatId : sid_n,
+              newSeatNum: ins,
+              newFloor  : floor_n
+            }
+          }).done(function(results) {
+            var json = JSON.parse(results);
+            if (json.err === "0") {
+              alert('좌석을 이동하였습니다. \n\n'+ json.oldSeat + " 번 좌석 -> " + json.newSeat + " 번 좌석\n");
+            }
+            else {
+              alert('좌석이동에 실패하였습니다.')
+            }
+          });
+          
+          
+        });
+        /*
+          enterance
+        */
+        sc3f.get(['9_1', '9_2', '9_3', '9_4', '9_5', '9_6', '9_7', '9_8','9_9']).status('unavailable');
+        sc4f.get(['15_8', '16_8', '14_8', '13_8', '12_8','11_8','10_8','9_8','8_8','8_9','8_10']).status('unavailable');
+
+        /****************************************************************************************
+        END OF SEAT STATUS
+        ****************************************************************************************/
+        
         var accessToken = '!{tokenPack.accessToken}';
         var refreshToken = '!{tokenPack.refreshToken}';
         
@@ -1074,6 +1472,7 @@ html
         var recharge_succ           = '!{recharge_succ}';
         var phonenum_length_err     = '!{phonenum_length_err}';
         var password_length_err     = '!{password_length_err}';
+        var already_register_err    = '!{already_register_err}';
         //-
         //-  *  this script is for saving token to localStorage.
         //-     And attach the token to subsequent calls.
@@ -1086,17 +1485,58 @@ html
         window.localStorage.setItem('refreshToken', refreshToken);          
 
         //- form submit action
-        $('#register-form').submit(function(event) {
-          console.log('acc token', accessToken, 'ref token', refreshToken);
-          
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken');   
-          $("#register-form > form > input[name='accessToken']").val(valAccess);
-          $("#register-form > form > input[name='refreshToken']").val(valRefresh);
-          
+        $('#registerSubmit').click(function(event) {
+          event.preventDefault();
           /* send sex check box data */
+          var membername = $('#name').val();
+          var password   = $('#Password').val();
+          var phonenum   = $('#phone').val();
+          var prepare    = $('#prepare').val();
+          var memo       = $('#memo').val();
           var sex = $('#sex').is(':checked');
-          $('#sex_hidden').val(sex);
+          alert(membername+":"+password+":"+phonenum+":"+sex);
+          $.ajax({
+            url: '/register',
+            method: 'post',
+            data: {
+              membername: membername,
+              password: password,
+              phonenum: phonenum,
+              prepare: prepare,
+              memo: memo,
+              sex: sex
+            }
+          }).done(function(results) {
+            console.log(results);
+            if (results == "0") {
+              alert('등록에 성공했습니다.');
+            }
+            else if(results == "1") {
+              alert("휴대폰 번호를 정확히 입력해주세요.");
+            }
+            else if(results == "2") {
+              alert("휴대폰 번호를 정확히 입력해주세요.");
+            }
+            else if(results == "3") {
+              alert("이미 등록된 회원입니다. ");
+            }
+            else if(results == "4") {
+              alert("이미 등록된 회원입니다.");
+            }
+            // reset input
+            $('#name').val("");
+            $('#Password').val("");
+            $('#phone').val("");
+            $('#prepare').val("");
+            $('#memo').val("");
+            $('#sex').attr("checked", false);
+            $('.switchery')
+              .css("box-shadow", "rgb(223, 223, 223) 0px 0px 0px 0px inset")
+              .css("border-color", "rgb(223, 223, 223)")
+              .css("background-color", "rgb(255, 255, 255)");
+            $('.switchery > small').css("left", "0px");
+          });
+          
         });
         
         //-
@@ -1250,17 +1690,19 @@ html
           setTimeout(function() {sb.className = sb.className.replace("show", ""); }, 3000);
         }
 
-        if(register_succ_snackbar === "true") {show_snackbar('snackbar');}
-        if(phonenum_length_err === "1") {show_snackbar('phonenum-length-err-snackbar');}
-        if(password_length_err === "1") {show_snackbar('password-length-err-snackbar');}
-        if(recharge_succ === "1") {show_snackbar('snackbar');}
-        if(recharge_succ === "0") {show_snackbar('still-use-other-payment-snackbar');}
+        if(register_succ_snackbar === "true") {show_snackbar('snackbar'); return false;}
+        if(phonenum_length_err === "1") {show_snackbar('phonenum-length-err-snackbar'); return false;}
+        if(password_length_err === "1") {show_snackbar('password-length-err-snackbar'); return false;}
+        if(recharge_succ === "1") {show_snackbar('snackbar'); return false;}
+        if(recharge_succ === "0") {show_snackbar('still-use-other-payment-snackbar'); return false;}
+        if(already_register_err === "1"){show_snackbar('already-reigster-err-snackbar'); return false;}
         
         //- END OF SNACKBAR
         
         /*
           All member list button clicked
         */
+        var len;
         $('a#all-members').click(function(event) {
           /* get the token */
           
@@ -1269,10 +1711,9 @@ html
             method: 'post',
           }).done(function(results) {
             var json = JSON.parse(results);
-            console.log(json);
             var memberList = json.memberList;
             var pnameList  = json.pnameList;
-            console.log(pnameList);
+
             for (var i = 0; i < pnameList.length; i++) {
               var o = memberList[i];
               var sex;
@@ -1365,10 +1806,17 @@ html
                 });
               });
             }
+            /*
+              All members table sorter
+            */
+            $('#all-members-table').tablesorter();  
             
             $('#all-members-list').css("display", "block");
           });          
         });
+        
+        
+        
         /*
           Active member list button clicked 
         */
@@ -1425,9 +1873,8 @@ html
                   }
                 });
               });
-              
-              
             }
+            $('#active-members-table').tablesorter();  
             
             $('#active-members-list').css("display", "block");
           });          
@@ -2302,12 +2749,63 @@ html
         //- Periodically request to server to check whether there is users who almost spend their time
         //-
         setInterval(periodicRequest, 15* 60 * 1000);
-        
         /*
           Periodically check paused members
         */
         setInterval(pauseTableChk, 10 * 60 * 1000);
-      }); 
+      });
+      /*
+        all-members-table finder with name
+      */ 
+      function all_members_finder() {
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("all-members-filter");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("all-members-table");
+        tr = table.getElementsByTagName("tr");
+        
+        /*
+          Loop through all table rows, and hide those who don't match the search query
+        */
+        for (var i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[1]; // filter with name
+          if (td) {
+            if(td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            }
+            else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+      
+      /*
+        active-members-table finder with name
+      */ 
+      function active_members_finder() {
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("active-members-filter");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("active-members-table");
+        tr = table.getElementsByTagName("tr");
+        
+        /*
+          Loop through all table rows, and hide those who don't match the search query
+        */
+        for (var i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[1]; // filter with name
+          if (td) {
+            if(td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            }
+            else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+      
       function pauseTableChk() {
         console.log('pauseTC');
         $.ajax({
@@ -2345,39 +2843,5 @@ html
                 $(this).parent().parent('tr').remove();
               });
             }
-          //- }
-          //- else {
-          //-   /*
-          //-     If there's elements, we should check redundent element first
-          //-   */
-          //-   var oldelt = [];
-          //-   $('#alert-member-table-body').children().children('td[data-title="ID"]').each(function () {
-          //-     oldelt.push($(this).text());
-          //-   });
-          //-   console.log('this is oldelt');
-          //-   console.log(oldelt);
-          //-   for (var i = 0; i < json.length; i++ ) {
-          //-     var checkRedun = 0;
-          //-     for (var j = 0; j < oldelt.length; j++) {
-          //-       if (json[i].alias === oldelt[j]) checkRedun = 1;
-          //-     } 
-          //-     /* we finished comparing all the old elements with new one
-          //-       and if new is real new, then checkRedun = 1
-          //-     */
-          //-     if(checkRedun === 0) {
-          //-       $('#alert-member-table-body').append(
-          //-         '<tr>'+
-          //-         ' <td data-title="ID">'+ json[i].alias +'</td>' +
-          //-         ' <td data-title="seatNum">'+ json[i].seatnum +'</td>' +
-          //-         ' <td data-title="timeLeft">'+ json[i].left +'</td>' +
-          //-         ' <td date-title="delete"><a class="delete-row">[삭제하기]</a></td>' +
-          //-         '</tr>'
-          //-       );
-          //-       $('.delete-row').click(function() {
-          //-         $(this).parent().parent('tr').remove();
-          //-       });  
-          //-     } /* end of appending */
-          //-   } /* end of json loop */
-          //- }
         });
       }

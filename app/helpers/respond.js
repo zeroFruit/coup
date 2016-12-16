@@ -268,7 +268,7 @@ module.exports = {
   client_leave_succ: function (req, res) {
     console.log(req.member);
     console.log('this is response');
-    res.render('clients_index', {client_leave_succ: "1"});
+    res.render('clients_index', {client_leave_succ: "1", fee: req.member.fee});
   },
 
   /*
@@ -289,7 +289,8 @@ module.exports = {
       seatinfo: json,
       paymentid: req.query.pid,
       leftTime: req.query.lt,
-      membername: req.query.mn
+      membername: req.query.mn,
+      night: req.query.n
     });
   },
 
@@ -305,7 +306,14 @@ module.exports = {
   },
 
   /*
-    3F, 4F, B1 page rendering
+    client_seat_stats_admin
+  */
+  client_seat_status_admin: function(req, res) {
+    var json = JSON.stringify(req.seatinfo);
+    res.send(json);
+  },
+  /*
+    3F, 4F page rendering
   */
   view_3f: function(req, res) {
     console.log('this is 3f');
@@ -321,7 +329,8 @@ module.exports = {
       seatinfo: json,
       paymentid: req.body.pid,
       leftTime: req.body.lt,
-      membername: req.body.mn
+      membername: req.body.mn,
+      night: req.body.n
     });
   },
   view_4f: function(req, res) {
@@ -338,25 +347,26 @@ module.exports = {
       seatinfo: json,
       paymentid: req.body.pid,
       leftTime: req.body.lt,
-      membername: req.body.mn
+      membername: req.body.mn,
+      night: req.body.n
     });
   },
-  view_b1: function(req, res) {
-    console.log('this is b1');
-    console.log(req.seatinfo);
-    console.log(req.body);
-    /*
-      Now req.seatinfo include seat_floor which is floorid
-    */
-    var json = JSON.stringify(req.seatinfo); /* before send object, must stringify! */
-    res.render('floor_b1',
-    {
-      alias: req.body.alias,
-      seatinfo: json,
-      paymentid: req.body.pid,
-      leftTime: req.body.lt
-    });
-  },
+  // view_b1: function(req, res) {
+  //   console.log('this is b1');
+  //   console.log(req.seatinfo);
+  //   console.log(req.body);
+  //   /*
+  //     Now req.seatinfo include seat_floor which is floorid
+  //   */
+  //   var json = JSON.stringify(req.seatinfo); /* before send object, must stringify! */
+  //   res.render('floor_b1',
+  //   {
+  //     alias: req.body.alias,
+  //     seatinfo: json,
+  //     paymentid: req.body.pid,
+  //     leftTime: req.body.lt
+  //   });
+  // },
   /*
     clients_page
   */
@@ -373,19 +383,7 @@ module.exports = {
   */
   phonenum_length_err: function(req, res) {
     console.log('this is phonenum length err');
-    res.render('layout_test',
-    {
-      phonenum_length_err: "1",
-      tokenPack: {
-        accessToken: req.body.accessToken,
-        refreshToken: req.body.refreshToken
-      },
-      renderSrc: {
-        numOfMem:       req.source.numOfMem,
-        numOfActiveMem: req.source.numOfActiveMem
-      }
-    }
-    )
+    res.send("1");
   },
 
   /*
@@ -393,41 +391,17 @@ module.exports = {
   */
   password_length_err: function(req, res) {
     console.log('this is password length err');
-    res.render('layout_test',
-    {
-      password_length_err: "1",
-      tokenPack: {
-        accessToken: req.body.accessToken,
-        refreshToken: req.body.refreshToken
-      },
-      renderSrc: {
-        numOfMem:       req.source.numOfMem,
-        numOfActiveMem: req.source.numOfActiveMem
-      }
-    }
-    )
+    res.send("2");
   },
-
 
   /*
-    register success
+    already_register
   */
-  register_succ: function(req ,res) {
-    console.log('source');
-    console.log(req.source);
-    res.render('layout_test',
-    {
-      registerSnack: 'true', /* this signal invoke snackbar */
-      tokenPack: {
-        accessToken: req.body.accessToken,
-        refreshToken: req.body.refreshToken
-      },
-      renderSrc: {
-        numOfMem:       req.source.numOfMem,
-        numOfActiveMem: req.source.numOfActiveMem
-      }
-    });
+  already_register: function(req, res) {
+    console.log('this is already register err');
+    res.send("3");
   },
+
   /*
     still_use_other_payment
   */

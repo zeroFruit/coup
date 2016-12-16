@@ -92,6 +92,8 @@ body {
   cursor: pointer;
 }
 
+
+
 /* On smaller screens, where height is less than 450px, change the sytle of the sidenav */
 @media screen and (max-height: 450px) {
   .sidenav    {padding-top: 15px;}
