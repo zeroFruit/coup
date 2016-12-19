@@ -402,6 +402,15 @@ module.exports = {
 
             console.log('this is enter');
             console.log(results);
+
+            if(results[0].payment == '0') { // if prepay user trying to enter, than change milage to left time
+              var milage = results[0].milage;
+              var leftHour = Math.floor(milage / 800);
+              results[0].leftTime = leftHour * 60;
+
+            }
+            console.log('this is leftTime');
+            console.log(results[0].leftTime);
             cb(null,
               {
                 err: "0",
@@ -719,7 +728,7 @@ module.exports = {
                       if the use is prepay user, when he/she tries to exit then we should update the milage and left time
                     */
                     if (memInfo.payment === "0") {
-                      var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+                      var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s"), milage FROM members WHERE alias=?';
                       conn.query(sql, [data.lcid], function(err, results) {
                         if (err) {
                           cb(new Error('query error'));
@@ -748,11 +757,18 @@ module.exports = {
                             hour = hour + 1;
                           }
                           var fee = hour * 800;
+
+                          /*
+                            update left time with milage
+                          */
+                          var milage = resultObj.milage;
+                          var leftHour = Math.floor(milage / 800);
+                          var leftTime = leftHour * 60;
                           /*
                             Then with MINUTES update member data
                           */
-                          var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0", break=0 WHERE alias = ?';
-                          conn.query(sql, [minutes, fee, data.lcid], function(err, results) {
+                          var sql = 'UPDATE members SET leftTime = ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0", break=0 WHERE alias = ?';
+                          conn.query(sql, [leftTime, fee, data.lcid], function(err, results) {
                             if(err) {
                               cb(new Error('query error'));
                             }
@@ -774,7 +790,9 @@ module.exports = {
                           cb(new Error('query error'));
                         }
                         else {
-                          /*if leave time is later than fints, than reduce milage */
+                          /*
+                            if leave time is later than fints, than reduce milage
+                          */
                           var resultObj    = results[0];
                           var oldTsStr     = resultObj['DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s")'];
                           var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
@@ -1244,7 +1262,7 @@ module.exports = {
         }
         else {
           console.log(results);
-          if (results[0].payment !== data.pid || results[0].leftTime.toString() !== data.lt) { /* leftTime is integer */
+          if (results[0].payment !== data.pid) { /* leftTime is integer */
             return cb(null, {err: "1"});
           }
           cb(null, {err: "0"}); /* it's okay */
