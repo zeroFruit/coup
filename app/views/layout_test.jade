@@ -32,6 +32,8 @@ html
     link(href='public/stylesheets/temp/jquery.seat-charts.css' rel='stylesheet')
     //- SEAT CHART CUSTOM STYLE
     link(href='public/stylesheets/temp/seat-chart-custom.css' rel='stylesheet')
+    //- SALES, ACCOUNT PAGE STYLE
+    link(href='public/stylesheets/temp/sales.css' rel='stylesheet')
   body
     
     //- #recharge_snackbar
@@ -2134,118 +2136,121 @@ html
           $('tbody#reservation-table-body-3').children('tr').each(function() {
             $(this).find('th[name="avail"]').css('background', 'white').attr('title', '');
           });
-          /* 
-            open the select hour form 
-          */
-          $('#select-hours-container').css('display', 'block');
           
           var reserveDateMin = $('#studyroom-datetimepickerMin').data("date");
           if (reserveDateMin === undefined) {
             alert('날짜를 선택해주세요.');
-            return false;
           }
-          
-          $.ajax({
-            url: '/system/studyroom-currentstate',
-            method: 'post',
-            data: {reserveDate: reserveDateMin}
-          }).done(function(results) {
-            var json = JSON.parse(results);
-            console.log(json);
-            var room1Reservation = json.room1;
-            var room2Reservation = json.room2;
-            var room3Reservation = json.room3;
-            /*
-              SHOULD RENDER THE JSON DATA
+          else {
+            /* 
+              open the select hour form 
             */
-            /*
-              Now we should separate depends on the room number
-            */
-            /* render room 1 column */
-            $('tbody#reservation-table-body-1').children('tr').each(function() {
-              var name = $(this).attr('name');
-              for (var i = 0; i < room1Reservation.length; i++) {
-                var jsonelt = room1Reservation[i];
-                var it = jsonelt.duration * 2; /* because table is separated with 30 min */
-
-                if (jsonelt.users == null) {
-                  jsonelt.users = "-";
-                }
-                if (jsonelt.purpose == null) {
-                  jsonelt.purpose = "-";
-                }
-                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-
-                if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                  /* also for duration, mark with 'reserved' value */
-                  var nextTd = $(this).next();
-                  for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                    nextTd = nextTd.next();
-                  }
-                }
-              }
-            });
-            /* render room 2 column */
-            $('tbody#reservation-table-body-2').children('tr').each(function() {
-              var name = $(this).attr('name');
-              for (var i = 0; i < room2Reservation.length; i++) {
-                var jsonelt = room2Reservation[i];
-                var it = jsonelt.duration * 2; /* because table is separated with 30 min */
-                
-                if (jsonelt.users == null) {
-                  jsonelt.users = "-";
-                }
-                if (jsonelt.purpose == null) {
-                  jsonelt.purpose = "-";
-                }
-                
-                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-                
-                if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                  /* also for duration, mark with 'reserved' value */
-                  var nextTd = $(this).next();
-                  for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                    nextTd = nextTd.next();
-                  }
-                }
-              }
-            });
-            /* render room 3 column */
-            $('tbody#reservation-table-body-3').children('tr').each(function() {
-              var name = $(this).attr('name');
-              for (var i = 0; i < room3Reservation.length; i++) {
-                var jsonelt = room3Reservation[i];
-                var it = jsonelt.duration * 2; /* because table is separated with 30 min */
-                
-                if (jsonelt.users == null) {
-                  jsonelt.users = "-";
-                }
-                if (jsonelt.purpose == null) {
-                  jsonelt.purpose = "-";
-                }
-                
-                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-                
-                if (parseFloat(name) === jsonelt.start) {
-                  $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                  /* also for duration, mark with 'reserved' value */
-                  var nextTd = $(this).next();
-                  for (var i = 1; i < it; i++) {
-                    nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                    nextTd = nextTd.next();
-                  }
-                }
-              }
-            });
+            $('#select-hours-container').css('display', 'block');
+            alert('helloooo');
+            alert(reserveDateMin);
             
-          });
+            $.ajax({
+              url: '/system/studyroom-currentstate',
+              method: 'post',
+              data: {reserveDate: reserveDateMin}
+            }).done(function(results) {
+              var json = JSON.parse(results);
+              console.log(json);
+              alert('hello');
+              var room1Reservation = json.room1;
+              var room2Reservation = json.room2;
+              var room3Reservation = json.room3;
+              /*
+                SHOULD RENDER THE JSON DATA
+              */
+              /*
+                Now we should separate depends on the room number
+              */
+              /* render room 1 column */
+              $('tbody#reservation-table-body-1').children('tr').each(function() {
+                var name = $(this).attr('name');
+                for (var i = 0; i < room1Reservation.length; i++) {
+                  var jsonelt = room1Reservation[i];
+                  var it = jsonelt.duration * 2; /* because table is separated with 30 min */
+  
+                  if (jsonelt.users == null) {
+                    jsonelt.users = "-";
+                  }
+                  if (jsonelt.purpose == null) {
+                    jsonelt.purpose = "-";
+                  }
+                  var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                  var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+  
+                  if (parseFloat(name) === jsonelt.start) {
+                    $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                    /* also for duration, mark with 'reserved' value */
+                    var nextTd = $(this).next();
+                    for (var i = 1; i < it; i++) {
+                      nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                      nextTd = nextTd.next();
+                    }
+                  }
+                }
+              });
+              /* render room 2 column */
+              $('tbody#reservation-table-body-2').children('tr').each(function() {
+                var name = $(this).attr('name');
+                for (var i = 0; i < room2Reservation.length; i++) {
+                  var jsonelt = room2Reservation[i];
+                  var it = jsonelt.duration * 2; /* because table is separated with 30 min */
+                  
+                  if (jsonelt.users == null) {
+                    jsonelt.users = "-";
+                  }
+                  if (jsonelt.purpose == null) {
+                    jsonelt.purpose = "-";
+                  }
+                  
+                  var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                  var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                  
+                  if (parseFloat(name) === jsonelt.start) {
+                    $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                    /* also for duration, mark with 'reserved' value */
+                    var nextTd = $(this).next();
+                    for (var i = 1; i < it; i++) {
+                      nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                      nextTd = nextTd.next();
+                    }
+                  }
+                }
+              });
+              /* render room 3 column */
+              $('tbody#reservation-table-body-3').children('tr').each(function() {
+                var name = $(this).attr('name');
+                for (var i = 0; i < room3Reservation.length; i++) {
+                  var jsonelt = room3Reservation[i];
+                  var it = jsonelt.duration * 2; /* because table is separated with 30 min */
+                  
+                  if (jsonelt.users == null) {
+                    jsonelt.users = "-";
+                  }
+                  if (jsonelt.purpose == null) {
+                    jsonelt.purpose = "-";
+                  }
+                  
+                  var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                  var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                  
+                  if (parseFloat(name) === jsonelt.start) {
+                    $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                    /* also for duration, mark with 'reserved' value */
+                    var nextTd = $(this).next();
+                    for (var i = 1; i < it; i++) {
+                      nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
+                      nextTd = nextTd.next();
+                    }
+                  }
+                }
+              });
+            }); // end of callback
+          }
         });
         /* show select hour container */
         $('#reservation-date').on('dp.change', function(e) {
