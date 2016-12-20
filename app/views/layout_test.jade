@@ -104,10 +104,59 @@ html
         input(type='hidden' name='paymentId')
         input(type='hidden' name='type')
         input(type='hidden' name='price')
+    #sell-product-modal.modal(style='padding-top:0;padding-bottom:0;z-index:2;')
+      .sell-product-modal-wrapper.modal-content.container.animate(style="width:70%; height:98%; padding:20px; padding-top:30px; margin-top:10px;")
+        h1.page-subhead-line(style="font-size:18px; text-align:center") 상품 판매 화면입니다.
+        .row
+          .col-md-7.col-md-offset-1(style="padding-right:0px")
+            .row
+              .col-md-5
+                .input-group
+                  .input-group-addon
+                    i.fa.fa-search(aria-hidden="true")
+                  input#products-filter.form-control(type="text" placeholder='상품이름으로 검색' onkeyup="product_finder()")
+            .row
+              .col-md-10
+                .row
+                  .col-md-10
+                    .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:32%')
+                      //- Table starts here
+                      table#product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+                        thead
+                          tr
+                            th 장바구니 상품
+                            th 그룹
+                            th 가격
+                            th 설명
+                            th
+                            th(style="display='none'")
+                        tbody#product-table-body
+                .row
+                  .col-md-2.col-md-offset-4
+                    .main-box.mb-dull(style='padding:5px;margin-top:30px;')
+                      a#add-product.a-cursor-pointer
+                        h6 추가
+                .row
+                  .col-md-10
+                    .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:32%')
+                      //- Table starts here
+                      table#product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+                        thead
+                          tr
+                            th 상품명
+                            th 그룹
+                            th 가격
+                            th 설명
+                            th
+                            th(style="display='none'")
+                        tbody#product-table-body
+          .col-md-4(style='padding-left:5px;')
+            .sub-wrapper(style='border: 3px solid gray;height:60%')
+          
     //- DISPLAY ALL MEMBERS LIST
     #all-members-list.modal(style='padding-top:0;padding-bottom:0')
-      .all-members-list-wrapper.modal-content.container(style="width:90%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
-        h1.page-subhead-line 회원 목록입니다.
+      .all-members-list-wrapper.modal-content.container(style="width:95%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
+        h1.page-subhead-line(style="font-size:20px; text-align:center") 회원 목록입니다.
         .row
           .col-md-2.col-md-offset-10
             .input-group
@@ -136,7 +185,7 @@ html
     //- DISPLAY ACTIVE MEMBERS LIST
     #active-members-list.modal(style='padding-top:10px;')
       .active-members-list-wrapper.modal-content.container(style="width:90%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
-        h1.page-subhead-line 사용 중인 회원 목록입니다.
+        h1.page-subhead-line(style="font-size:20px; text-align:center") 사용 중인 회원 목록입니다.
         .row
           .col-md-2.col-md-offset-10
             .input-group
@@ -307,7 +356,7 @@ html
         input(type='hidden' name='refreshToken')
     //- Charge milage
     #charge-milage-modal.modal(style='padding-top:0px')
-      form.modal-content.animate(style='width:40%')
+      form.modal-content.animate(style='width:60%')
         .col-2
           label
             | ID
@@ -952,6 +1001,8 @@ html
           a.a-cursor-pointer(onclick="document.getElementById('register-form').style.display='block'", style='width:auto;') 등록
         li#top_nav_list
           a#clients_page(style='cursor: pointer') 사용자 페이지
+        li#top_nav_list
+          a#accountPage(style='cursor: pointer') 회계 페이지
         
         
       //block content
@@ -1733,8 +1784,10 @@ html
                 ' <td date-title="milage">' + o.milage +'</td>' + 
                 ' <td date-title="memo">' + o.memo +'</td>' + 
                 ' <td date-title="modify">' +
-                '   <i class="fa fa-pencil-square-o modify-member fa-2x" aria-hidden="true" style="cursor:pointer"></i>' +
-                '   <i class="fa fa-trash-o delete-member fa-2x" aria-hidden="true" style="cursor:pointer"></i>' +
+                '   <i class="fa fa-pencil-square-o modify-member fa-2x" aria-hidden="true" style="cursor:pointer" title="회원정보변경"></i> &nbsp;' +
+                '   <i class="fa fa-trash-o delete-member fa-2x" aria-hidden="true" style="cursor:pointer" title="회원삭제"></i> &nbsp;' +
+                //'   <i class="fa fa-list-alt list-member-usage fa-2x" aria-hidden="true" style="cursor:pointer" title="이용내역"></i> &nbsp;' +
+                //'   <i class="fa fa-money sell-product fa-2x" aria-hidden="true" style="cursor:pointer" title="상품판매"></i> &nbsp;' +
                 ' </td>' +
                 '</tr>'
               );
@@ -1795,16 +1848,26 @@ html
                 all member DELETE click event handler
               */
               $('tr[name="member-'+i+'"] td i.delete-member').on('click', function(event) {
-                var $parent = $(this).parent().parent('tr');
-                var id = $parent.find('td:eq(0)').text();
-                
-                $.ajax({
-                  url: '/system/delete-member-info',
-                  method: 'post',
-                  data: {id: id}
-                }).done(function(result) {
-                  alert('삭제되었습니다.');
-                });
+                var r = confirm("삭제하시겠습니까?");
+                if (r == true) {
+                  var $parent = $(this).parent().parent('tr');
+                  var id = $parent.find('td:eq(0)').text();
+                  
+                  $.ajax({
+                    url: '/system/delete-member-info',
+                    method: 'post',
+                    data: {id: id}
+                  }).done(function(result) {
+                    alert('삭제되었습니다.');
+                  });
+                }
+              });
+              
+              /*
+                all member DELETE click event handler
+              */
+              $('tr[name="member-'+i+'"] td i.sell-product').on('click', function(event) {
+                $('#sell-product-modal').css("display", "block");
               });
             }
             /*

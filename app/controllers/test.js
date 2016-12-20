@@ -25,7 +25,7 @@ module.exports.set = function(app, passport) {
     /test (GET)
   */
   app.get('/test',/* jwtauth, requireAuth,*/ function(req, res, next) {
-    res.render('memberlist_test');
+    res.render('account_manage');
   });
 
 
