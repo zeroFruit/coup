@@ -69,9 +69,9 @@ html
     //- USAGE LIST
     #member-usage-list-modal.modal(style='padding-top:0;padding-bottom:0;z-index:2;')
       .sell-product-modal-wrapper.modal-content.container.animate(style="width:70%; height:98%; padding:20px; padding-top:30px; margin-top:10px;")
-        h1.page-subhead-line(style="font-size:18px; text-align:center") 사용자 사용내역입니다.
+        h1.page-subhead-line(style="font-size:18px; text-align:center") 사용자 사용내역
         .row
-          .col-md-12
+          .col-md-7
             .form-inline
               .form-group
                 label.inline-label 조회 날짜
@@ -84,14 +84,15 @@ html
                   input.form-control(type='text' style='font-size:11px;')
                   span.input-group-addon
                     span.fa.fa-calendar(aria-hidden='true')
-                label.inline-label 이름
-                label.inline-label#member-usage-list-name
-                label.inline-label 아이디
-                label.inline-label#member-usage-list-id
+          .col-md-4.col-md-offset-1
+            label.inline-label 이름
+            label.inline-label#member-usage-list-name
+            label.inline-label 아이디
+            label.inline-label#member-usage-list-id
         hr
         .row
           .col-md-12
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:32%')
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:25%')
               //- Table starts here
               table#member-usage-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
                 thead
@@ -108,7 +109,43 @@ html
                     th
                     th(style='display:"none"')
                 tbody#member-usage-table-body
-    //- SELL PRODUCT MODAL
+        h1.page-subhead-line(style="font-size:18px; text-align:center") 사용자 출입내역
+        .row
+          .col-md-7
+            .form-inline
+              .form-group
+                label.inline-label 조회 날짜
+                .input-group.date#member-enterleave-datetimepicker-start
+                  input.form-control(type='text' style='font-size:11px;')
+                  span.input-group-addon
+                    span.fa.fa-calendar(aria-hidden='true')
+                label.inline-label ~
+                .input-group.date#member-enterleave-datetimepicker-end
+                  input.form-control(type='text' style='font-size:11px;')
+                  span.input-group-addon
+                    span.fa.fa-calendar(aria-hidden='true')
+        hr
+        .row
+          .col-md-12
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:25%')
+              //- Table starts here
+              table#member-usage-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
+                thead
+                  tr
+                    th 판매 내역
+                    th 옵션
+                    th 수량
+                    th 할인
+                    th 미납
+                    th 금액
+                    th 판매 일자
+                    th 납부 방법
+                    th 납부 일자
+                    th
+                    th(style='display:"none"')
+                tbody#member-usage-table-body
+        
+    //- SELL PRODUCT MODAL /////////////////////////////////////////////////////////////////////////////////////
     #sell-product-modal.modal(style='padding-top:0;padding-bottom:0;z-index:2;')
       .sell-product-modal-wrapper.modal-content.container.animate(style="width:70%; height:98%; padding:20px; padding-top:30px; margin-top:10px;")
         h1.page-subhead-line(style="font-size:18px; text-align:center") 상품 판매 화면입니다.
@@ -121,7 +158,7 @@ html
                     i.fa.fa-search(aria-hidden="true")
                   input#products-filter.form-control(type="text" placeholder='상품이름으로 검색' onkeyup="product_finder()")
                 hr
-                .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:32%')
+                .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:38%')
                   //- Table starts here
                   table#product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
                     thead
@@ -133,10 +170,7 @@ html
                         th
                         th(style="display='none'")
                     tbody#product-table-body
-                .main-box.mb-dull(style='padding:5px;margin-top:30px;margin-left:30%;width:40%')
-                  a#add-product.a-cursor-pointer
-                    h6 추가
-                .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:32%')
+                .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:38%')
                   //- Table starts here
                   table#product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
                     thead
@@ -425,8 +459,6 @@ html
           a#clients_page(style='cursor: pointer') 사용자 페이지
         li#top_nav_list
           a#accountPage(style='cursor: pointer') 회계 페이지
-        
-        
       //block content
       //- /. NAV SIDE
       #wrapper
@@ -690,8 +722,14 @@ html
           var payback             = document.getElementById('payback-modal');
           var holdoff             = document.getElementById('holdoff-modal');
           var history             = document.getElementById('history-modal');
-          
+
+          var usage_list          = document.getElementById('member-usage-list-modal');
           var sell_product        = document.getElementById('sell-product-modal');
+          
+          if (event.target == usage_list) {
+            usage_list.style.display = "none";
+            return false;
+          }
           
           if(event.target == sell_product) {
             sell_product.style.display = "none";
@@ -823,23 +861,35 @@ html
         /* *******************************************************8
           SNACKBAR 
         ***************************************************************/
-        function show_snackbar(id) {
-          //- Get the snackbar
-          var sb = document.getElementById(id);
-          //- Add the class
-          sb.className = "show";
-          //- After 3 seconds, remove the show class from snackbar
-          setTimeout(function() {sb.className = sb.className.replace("show", ""); }, 3000);
-        }
-
-        if(register_succ_snackbar === "true") {show_snackbar('snackbar'); return false;}
-        if(phonenum_length_err === "1") {show_snackbar('phonenum-length-err-snackbar'); return false;}
-        if(password_length_err === "1") {show_snackbar('password-length-err-snackbar'); return false;}
-        if(recharge_succ === "1") {show_snackbar('snackbar'); return false;}
-        if(recharge_succ === "0") {show_snackbar('still-use-other-payment-snackbar'); return false;}
-        if(already_register_err === "1"){show_snackbar('already-reigster-err-snackbar'); return false;}
+        //- function show_snackbar(id) {
+        //-   //- Get the snackbar
+        //-   var sb = document.getElementById(id);
+        //-   //- Add the class
+        //-   sb.className = "show";
+        //-   //- After 3 seconds, remove the show class from snackbar
+        //-   setTimeout(function() {sb.className = sb.className.replace("show", ""); }, 3000);
+        //- }
+        //- 
+        //- if(register_succ_snackbar === "true") {show_snackbar('snackbar'); return false;}
+        //- if(phonenum_length_err === "1") {show_snackbar('phonenum-length-err-snackbar'); return false;}
+        //- if(password_length_err === "1") {show_snackbar('password-length-err-snackbar'); return false;}
+        //- if(recharge_succ === "1") {show_snackbar('snackbar'); return false;}
+        //- if(recharge_succ === "0") {show_snackbar('still-use-other-payment-snackbar'); return false;}
+        //- if(already_register_err === "1"){show_snackbar('already-reigster-err-snackbar'); return false;}
         
         //- END OF SNACKBAR
+        /*
+          if account page button clicked
+        */
+        $('a#accountPage').click(function(event) {
+          $.ajax({
+            url:'test/account',
+            method: 'post'
+          }).done(function(results) {
+            $('body').html(results);
+          });
+        });
+        
         
         /*
           All member list button clicked
@@ -976,6 +1026,38 @@ html
           });          
         });
         
+        /*
+          member's sales window datetimepicker
+        */
+        $('#sales-payday-datetimepicker').datetimepicker({
+          useCurrent: true,
+          widgetPositioning: {vertical: 'top'},
+        });
+        $('#sales-payday-datetimepicker').data("DateTimePicker").format('YYYY-MM-DD');
+        
+        /*
+          member's usage list datetimepicker
+        */
+        $('#member-usage-datetimepicker-start').datetimepicker({
+          useCurrent: true
+        });
+        $('#member-usage-datetimepicker-start').data("DateTimePicker").format('YYYY-MM-DD');
+        $('#member-usage-datetimepicker-end').datetimepicker({
+          useCurrent: true
+        });
+        $('#member-usage-datetimepicker-end').data("DateTimePicker").format('YYYY-MM-DD');
+        
+        /*
+          member's enter/leave list
+        */
+        $('#member-enterleave-datetimepicker-start').datetimepicker({
+          useCurrent: true
+        });
+        $('#member-enterleave-datetimepicker-start').data("DateTimePicker").format('YYYY-MM-DD');
+        $('#member-enterleave-datetimepicker-end').datetimepicker({
+          useCurrent: true
+        });
+        $('#member-enterleave-datetimepicker-end').data("DateTimePicker").format('YYYY-MM-DD');
         
         
         /*
@@ -1042,28 +1124,6 @@ html
         });
         
         
-        /*
-          member's sales window datetimepicker
-        */
-        $('#sales-payday-datetimepicker').datetimepicker({
-          useCurrent: true,
-          widgetPositioning: {vertical: 'top'},
-        });
-        $('#sales-payday-datetimepicker').data("DateTimePicker").format('YYYY-MM-DD');
-        
-        /*
-          member's usage list datetimepicker
-        */
-        $('#member-usage-datetimepicker-start').datetimepicker({
-          useCurrent: true,
-          widgetPositioning: {vertical: 'top'}
-        });
-        $('#member-usage-datetimepicker-start').data("DateTimePicker").format('YYYY-MM-DD');
-        $('#member-usage-datetimepicker-end').datetimepicker({
-          useCurrent: true,
-          widgetPositioning: {vertical: 'top'}
-        });
-        $('#member-usage-datetimepicker-end').data("DateTimePicker").format('YYYY-MM-DD');
         
         /*
           Payback

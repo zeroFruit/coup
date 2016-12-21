@@ -41,6 +41,8 @@ app.use('/clients/pause/public',      express.static(path.join(__dirname, 'publi
 app.use('/clients/floor/public',      express.static(path.join(__dirname, 'public')));
 app.use('/clients/seatstate/public',  express.static(path.join(__dirname, 'public')));
 app.use('/bower_components', express.static(path.join(__dirname, 'bower_components')));
+app.use('/test/public',      express.static(path.join(__dirname, 'public'))); // test should be changed as path name
+
 
 
 /*

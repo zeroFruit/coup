@@ -214,18 +214,29 @@ html
                 tbody#active-members-table-body
               //- DISPLAY ACTIVE MEMBERS LIST
     #history-modal.modal(style='padding-top:10px;')
-      .table-responsive-vertical.shadow-z-1.scroll-table.modal-content(style='width:40%; margin-top:3%')
-        //- Table starts here
-        table#history-table.table.table-hover.table-bordered
-          thead
-            tr
-              th 시간
-              th ID
-              th 이름
-              th 좌석번호
-              th 상태
-          tbody#history-table-body
-        //- DISPLAY ACTIVE MEMBERS LIST
+      .modal-content.animate#history-wrapper.container(style="width:40%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
+        h1.page-subhead-line(style="font-size:15px; text-align:center") 최근 회원분들의 사용기록입니다.
+        .table-responsive-vertical.shadow-z-1.scroll-table
+          .row
+            .col-md-4.col-md-offset-8
+              .input-group
+                .input-group-addon
+                  i.fa.fa-search(aria-hidden="true")
+                input#history-filter.form-control(type="text" placeholder='이름으로 검색' onkeyup="history_finder()")
+          hr
+          .row
+            .col-md-12
+              //- Table starts here
+              table#history-table.table.table-hover.table-bordered(style='font-size:13px;')
+                thead
+                  tr
+                    th 시간
+                    th ID
+                    th 이름
+                    th 좌석번호
+                    th 상태
+                tbody#history-table-body
+              //- DISPLAY ACTIVE MEMBERS LIST
     //- DISPLAY ACCOUNT
     #account-list.modal(style='padding-top:0px;overflow-y:scroll')
       .modal-content.animate#account-wrapper(style='width:80%; padding-top:20px; margin-top:3%;')
@@ -379,9 +390,9 @@ html
         
     //- STUDY ROOM RESERVATION
     #studyroom-reservation-modal.modal(style='padding-top:0px')
-      .modal-content.animate#reservation-wrapper(style='width:50%; height:100%; padding-top:20px; margin-top:10px;overflow-y:scroll')
-        #account-head.container(style='width:100%')
-          h1.page-subhead-line 스터디룸 예약 날짜를 선택해주세요.
+      .modal-content.animate#reservation-wrapper(style='width:60%; height:100%; padding-top:20px; margin-top:10px;overflow-y:scroll')
+        .container(style='width:100%')
+          h1.page-subhead-line(style='font-size:18px;') 스터디룸 예약 날짜를 선택해주세요.
           .col-md-4
             .form-group
               #studyroom-datetimepickerMin.input-group.date
@@ -399,7 +410,6 @@ html
               a#reserve-date-select.a-cursor-pointer
                 h6 선택
         #select-hours-container.container(style="width:100%; display:none")
-          h1.page-subhead-line 예약하기
           .row
             .col-md-3
               .form-group
@@ -481,8 +491,26 @@ html
                 option(name='allday') 모두 이용
                 option(name='weekend') 주말만 이용
                 option(name='weekday') 평일만 이용
-          hr
-          h1.page-subhead-line 예약취소
+        hr
+        .container(style='width:100%')
+          h1.page-subhead-line(style='font-size:18px;') 스터디룸 취소 날짜를 선택해주세요.
+          .col-md-4
+            .form-group
+              #studyroom-datetimepickerMin-cancel.input-group.date
+                input.form-control(type='text' name='mindate-cancel' placeholder='시작 날짜')
+                span.input-group-addon
+                  span.fa.fa-calendar(area-hidden='true')
+          .col-md-4
+            .form-group
+              #studyroom-datetimepickerMax-cancel.input-group.date
+                input.form-control(type='text' name='maxdate-cancel' placeholder='마지막 날짜')
+                span.input-group-addon
+                  span.fa.fa-calendar(area-hidden='true')
+          .col-md-4
+            .main-box.mb-dull(style='padding:5px')
+              a#cancel-date-select.a-cursor-pointer
+                h6 선택
+        #cancel-hours-container.container(style="width:100%; display:none")
           .row
             .col-md-3
               .form-group
@@ -545,457 +573,69 @@ html
                 a#reserve-hour-select-cancel.a-cursor-pointer
                   h6 예약취소
         .container(style='width:100%')
-          .col-md-12
-            h1.page-subhead-line 예약 현황 
+          .row
+            .col-md-12
+              h1.page-subhead-line(style='font-size:18px; text-align: center') 예약 현황 
+          .row
+            .col-md-2.col-md-offset-5
+              .main-box.mb-dull(style='padding:5px')
+                a#refresh-studyroom-status.a-cursor-pointer(style='text-align:center')
+                  h7 새로고침
         .container(style='width:100%')
-          .col-md-4
-            h5 1번 스터디룸
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%')
-              //- Table starts here
-              table#account-table.table.table-hover.table-bordered.table-mc-light-blue
-                thead
-                  tr
-                    th 시간
-                    th 예약 여부
-                //- THIS IS ROOM 1    
-                tbody#reservation-table-body-1
-                  tr(name='0.0')
-                    th 00:00
-                    th(name='avail')
-                  tr(name='0.5')
-                    th 00:30
-                    th(name='avail')
-                  tr(name='1.0')
-                    th 01:00
-                    th(name='avail')
-                  tr(name='1.5')
-                    th 01:30
-                    th(name='avail')
-                  tr(name='2.0')
-                    th 02:00
-                    th(name='avail')
-                  tr(name='2.5')
-                    th 02:30
-                    th(name='avail')
-                  tr(name='3.0')
-                    th 03:00
-                    th(name='avail')
-                  tr(name='3.5')
-                    th 03:30
-                    th(name='avail')
-                  tr(name='4.0')
-                    th 04:00
-                    th(name='avail')
-                  tr(name='4.5')
-                    th 04:30
-                    th(name='avail')
-                  tr(name='5.0')
-                    th 05:00
-                    th(name='avail')
-                  tr(name='7.0')
-                    th 07:00
-                    th(name='avail')
-                  tr(name='7.5')
-                    th 07:30
-                    th(name='avail')
-                  tr(name='8.0')
-                    th 08:00
-                    th(name='avail')
-                  tr(name='8.5')
-                    th 08:30
-                    th(name='avail')
-                  tr(name='9.0')
-                    th 09:00
-                    th(name='avail')
-                  tr(name='9.5')
-                    th 09:30
-                    th(name='avail')
-                  tr(name='10.0')
-                    th 10:00
-                    th(name='avail')
-                  tr(name='10.5')
-                    th 10:30
-                    th(name='avail')
-                  tr(name='11.0')
-                    th 11:00
-                    th(name='avail')
-                  tr(name='11.5')
-                    th 11:30
-                    th(name='avail')
-                  tr(name='12.0')
-                    th 12:00
-                    th(name='avail')
-                  tr(name='12.5')
-                    th 12:30
-                    th(name='avail')
-                  tr(name='13.0')
-                    th 13:00
-                    th(name='avail')
-                  tr(name='13.5')
-                    th 13:30
-                    th(name='avail')
-                  tr(name='14.0')
-                    th 14:00
-                    th(name='avail')
-                  tr(name='14.5')
-                    th 14:30
-                    th(name='avail')
-                  tr(name='15.0')
-                    th 15:00
-                    th(name='avail')
-                  tr(name='15.5')
-                    th 15:30
-                    th(name='avail')
-                  tr(name='16.0')
-                    th 16:00
-                    th(name='avail')
-                  tr(name='16.5')
-                    th 16:30
-                    th(name='avail')
-                  tr(name='17.0')
-                    th 17:00
-                    th(name='avail')
-                  tr(name='17.5')
-                    th 17:30
-                    th(name='avail')
-                  tr(name='18.0')
-                    th 18:00
-                    th(name='avail')
-                  tr(name='18.5')
-                    th 18:30
-                    th(name='avail')
-                  tr(name='19.0')
-                    th 19:00
-                    th(name='avail')
-                  tr(name='19.5')
-                    th 19:30
-                    th(name='avail')
-                  tr(name='20.0')
-                    th 20:00
-                    th(name='avail')
-                  tr(name='20.5')
-                    th 20:30
-                    th(name='avail')
-                  tr(name='21.0')
-                    th 21:00
-                    th(name='avail')
-                  tr(name='21.5')
-                    th 21:30
-                    th(name='avail')
-                  tr(name='22.0')
-                    th 22:00
-                    th(name='avail')
-                  tr(name='22.5')
-                    th 22:30
-                    th(name='avail')
-                  tr(name='23.0')
-                    th 23:00
-                    th(name='avail')
-                  tr(name='23.5')
-                    th 23:30
-                    th(name='avail')
-                  tr(name='24.0')
-                    th 24:00
-                    th(name='avail')
-          .col-md-4
-            h5 2번 스터디룸
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%')
-              //- Table starts here
-              table#account-table.table.table-hover.table-bordered.table-mc-light-blue
-                thead
-                  tr
-                    th 시간
-                    th 예약 여부
-                //- THIS IS ROOM 2
-                tbody#reservation-table-body-2
-                  tr(name='0.0')
-                    th 00:00
-                    th(name='avail')
-                  tr(name='0.5')
-                    th 00:30
-                    th(name='avail')
-                  tr(name='1.0')
-                    th 01:00
-                    th(name='avail')
-                  tr(name='1.5')
-                    th 01:30
-                    th(name='avail')
-                  tr(name='2.0')
-                    th 02:00
-                    th(name='avail')
-                  tr(name='2.5')
-                    th 02:30
-                    th(name='avail')
-                  tr(name='3.0')
-                    th 03:00
-                    th(name='avail')
-                  tr(name='3.5')
-                    th 03:30
-                    th(name='avail')
-                  tr(name='4.0')
-                    th 04:00
-                    th(name='avail')
-                  tr(name='4.5')
-                    th 04:30
-                    th(name='avail')
-                  tr(name='5.0')
-                    th 05:00
-                    th(name='avail')
-                  tr(name='7.0')
-                    th 07:00
-                    th(name='avail')
-                  tr(name='7.5')
-                    th 07:30
-                    th(name='avail')
-                  tr(name='8.0')
-                    th 08:00
-                    th(name='avail')
-                  tr(name='8.5')
-                    th 08:30
-                    th(name='avail')
-                  tr(name='9.0')
-                    th 09:00
-                    th(name='avail')
-                  tr(name='9.5')
-                    th 09:30
-                    th(name='avail')
-                  tr(name='10.0')
-                    th 10:00
-                    th(name='avail')
-                  tr(name='10.5')
-                    th 10:30
-                    th(name='avail')
-                  tr(name='11.0')
-                    th 11:00
-                    th(name='avail')
-                  tr(name='11.5')
-                    th 11:30
-                    th(name='avail')
-                  tr(name='12.0')
-                    th 12:00
-                    th(name='avail')
-                  tr(name='12.5')
-                    th 12:30
-                    th(name='avail')
-                  tr(name='13.0')
-                    th 13:00
-                    th(name='avail')
-                  tr(name='13.5')
-                    th 13:30
-                    th(name='avail')
-                  tr(name='14.0')
-                    th 14:00
-                    th(name='avail')
-                  tr(name='14.5')
-                    th 14:30
-                    th(name='avail')
-                  tr(name='15.0')
-                    th 15:00
-                    th(name='avail')
-                  tr(name='15.5')
-                    th 15:30
-                    th(name='avail')
-                  tr(name='16.0')
-                    th 16:00
-                    th(name='avail')
-                  tr(name='16.5')
-                    th 16:30
-                    th(name='avail')
-                  tr(name='17.0')
-                    th 17:00
-                    th(name='avail')
-                  tr(name='17.5')
-                    th 17:30
-                    th(name='avail')
-                  tr(name='18.0')
-                    th 18:00
-                    th(name='avail')
-                  tr(name='18.5')
-                    th 18:30
-                    th(name='avail')
-                  tr(name='19.0')
-                    th 19:00
-                    th(name='avail')
-                  tr(name='19.5')
-                    th 19:30
-                    th(name='avail')
-                  tr(name='20.0')
-                    th 20:00
-                    th(name='avail')
-                  tr(name='20.5')
-                    th 20:30
-                    th(name='avail')
-                  tr(name='21.0')
-                    th 21:00
-                    th(name='avail')
-                  tr(name='21.5')
-                    th 21:30
-                    th(name='avail')
-                  tr(name='22.0')
-                    th 22:00
-                    th(name='avail')
-                  tr(name='22.5')
-                    th 22:30
-                    th(name='avail')
-                  tr(name='23.0')
-                    th 23:00
-                    th(name='avail')
-                  tr(name='23.5')
-                    th 23:30
-                    th(name='avail')
-                  tr(name='24.0')
-                    th 24:00
-                    th(name='avail')
-          .col-md-4
-            h5 3번 스터디룸
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%')
-              //- Table starts here
-              table#account-table.table.table-hover.table-bordered.table-mc-light-blue
-                thead
-                  tr
-                    th 시간
-                    th 예약 여부
-                //- THIS IS ROOM 3
-                tbody#reservation-table-body-3
-                  tr(name='0.0')
-                    th 00:00
-                    th(name='avail')
-                  tr(name='0.5')
-                    th 00:30
-                    th(name='avail')
-                  tr(name='1.0')
-                    th 01:00
-                    th(name='avail')
-                  tr(name='1.5')
-                    th 01:30
-                    th(name='avail')
-                  tr(name='2.0')
-                    th 02:00
-                    th(name='avail')
-                  tr(name='2.5')
-                    th 02:30
-                    th(name='avail')
-                  tr(name='3.0')
-                    th 03:00
-                    th(name='avail')
-                  tr(name='3.5')
-                    th 03:30
-                    th(name='avail')
-                  tr(name='4.0')
-                    th 04:00
-                    th(name='avail')
-                  tr(name='4.5')
-                    th 04:30
-                    th(name='avail')
-                  tr(name='5.0')
-                    th 05:00
-                    th(name='avail')
-                  tr(name='7.0')
-                    th 07:00
-                    th(name='avail')
-                  tr(name='7.5')
-                    th 07:30
-                    th(name='avail')
-                  tr(name='8.0')
-                    th 08:00
-                    th(name='avail')
-                  tr(name='8.5')
-                    th 08:30
-                    th(name='avail')
-                  tr(name='9.0')
-                    th 09:00
-                    th(name='avail')
-                  tr(name='9.5')
-                    th 09:30
-                    th(name='avail')
-                  tr(name='10.0')
-                    th 10:00
-                    th(name='avail')
-                  tr(name='10.5')
-                    th 10:30
-                    th(name='avail')
-                  tr(name='11.0')
-                    th 11:00
-                    th(name='avail')
-                  tr(name='11.5')
-                    th 11:30
-                    th(name='avail')
-                  tr(name='12.0')
-                    th 12:00
-                    th(name='avail')
-                  tr(name='12.5')
-                    th 12:30
-                    th(name='avail')
-                  tr(name='13.0')
-                    th 13:00
-                    th(name='avail')
-                  tr(name='13.5')
-                    th 13:30
-                    th(name='avail')
-                  tr(name='14.0')
-                    th 14:00
-                    th(name='avail')
-                  tr(name='14.5')
-                    th 14:30
-                    th(name='avail')
-                  tr(name='15.0')
-                    th 15:00
-                    th(name='avail')
-                  tr(name='15.5')
-                    th 15:30
-                    th(name='avail')
-                  tr(name='16.0')
-                    th 16:00
-                    th(name='avail')
-                  tr(name='16.5')
-                    th 16:30
-                    th(name='avail')
-                  tr(name='17.0')
-                    th 17:00
-                    th(name='avail')
-                  tr(name='17.5')
-                    th 17:30
-                    th(name='avail')
-                  tr(name='18.0')
-                    th 18:00
-                    th(name='avail')
-                  tr(name='18.5')
-                    th 18:30
-                    th(name='avail')
-                  tr(name='19.0')
-                    th 19:00
-                    th(name='avail')
-                  tr(name='19.5')
-                    th 19:30
-                    th(name='avail')
-                  tr(name='20.0')
-                    th 20:00
-                    th(name='avail')
-                  tr(name='20.5')
-                    th 20:30
-                    th(name='avail')
-                  tr(name='21.0')
-                    th 21:00
-                    th(name='avail')
-                  tr(name='21.5')
-                    th 21:30
-                    th(name='avail')
-                  tr(name='22.0')
-                    th 22:00
-                    th(name='avail')
-                  tr(name='22.5')
-                    th 22:30
-                    th(name='avail')
-                  tr(name='23.0')
-                    th 23:00
-                    th(name='avail')
-                  tr(name='23.5')
-                    th 23:30
-                    th(name='avail')
-                  tr(name='24.0')
-                    th 24:00
-                    th(name='avail')
-                    
+          .row
+            .col-md-12
+              h5 1번 스터디룸
+              .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%')
+                //- Table starts here
+                table#study1-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='overflow-x:scroll')
+                  thead
+                    tr
+                      th 예약날짜
+                      th 시작시간
+                      th 사용시간
+                      th 스터디룸
+                      th 사용자
+                      th 목적
+                      th 옵션
+                  //- THIS IS ROOM 1    
+                  tbody#reservation-table-body-1
+          br
+          .row
+            .col-md-12
+              h5 2번 스터디룸
+              .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%;width:100%;overflow-x:scroll')
+                //- Table starts here
+                table#study2-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+                  thead
+                    tr
+                      th 예약날짜
+                      th 시작시간
+                      th 사용시간
+                      th 스터디룸
+                      th 사용자
+                      th 목적
+                      th 옵션
+                  //- THIS IS ROOM 2
+                  tbody#reservation-table-body-2
+          br
+          .row
+            .col-md-12
+              h5 3번 스터디룸
+              .table-responsive-vertical.shadow-z-1.scroll-table(style='height:45%')
+                //- Table starts here
+                table#study3-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+                  thead
+                    tr
+                      th 예약날짜
+                      th 시작시간
+                      th 사용시간
+                      th 스터디룸
+                      th 사용자
+                      th 목적
+                      th 옵션
+                  //- THIS IS ROOM 3
+                  tbody#reservation-table-body-3
+                  
     #main
       //- TOP NAV BAR
       ul#top_nav
@@ -1132,9 +772,8 @@ html
                   .main-box.mb-dull(style='margin-right:20px; margin-left:20px;')
                     a#seat-change.a-cursor-pointer
                       h5 좌석 이동
-              
-              
-    
+      #wrapper(style='margin-top:12%;height:150px')
+        h1.page-subhead-line(style='text-align:center;') 사용 중에 버그가 있거나 건의 사항이 있으면 <br><br>메일 주소 wnrkim@naver.com<br><br>  카카오톡 아이디 wnrkim <br><br>으로 연락주시기 바랍니다.
     //- --------------------------------------------------------------------------------------------------------
     //- SNACKBAR                
     //- --------------------------------------------------------------------------------------------------------
@@ -1548,7 +1187,6 @@ html
           var prepare    = $('#prepare').val();
           var memo       = $('#memo').val();
           var sex = $('#sex').is(':checked');
-          alert(membername+":"+password+":"+phonenum+":"+sex);
           $.ajax({
             url: '/register',
             method: 'post',
@@ -2117,46 +1755,194 @@ html
         });
         
         /*
-          Study Room Reservation
+          Open Studyroom Window
         */        
         $('#reserve-studyroom').click(function(event) {
+          /*
+            tablesort
+          */
+          $('#study1-table').tablesorter();
+          $('#study2-table').tablesorter();
+          $('#study3-table').tablesorter();
+          /*
+            block
+          */
           $('#studyroom-reservation-modal').css("display", "block");
         });
+        /*
+          REFRESH studyroom status
+        */
+        $('#refresh-studyroom-status').click(function(event) {
+          /* 
+            open the select hour form 
+          */
+          /* before block container, erase old tr */
+          var tbody1 = document.getElementById('reservation-table-body-1');
+          while(tbody1.firstChild) {
+            tbody1.removeChild(tbody1.firstChild);
+          }
+          var tbody2 = document.getElementById('reservation-table-body-2');
+          while(tbody2.firstChild) {
+            tbody2.removeChild(tbody2.firstChild);
+          }
+          var tbody3 = document.getElementById('reservation-table-body-3');
+          while(tbody3.firstChild) {
+            tbody3.removeChild(tbody3.firstChild);
+          }
+
+          $.ajax({
+            url: '/system/studyroom-currentstate',
+            method: 'post'
+          }).done(function(results) {
+            var json = JSON.parse(results);
+            var room1Reservation = json.room1;
+            var room2Reservation = json.room2;
+            var room3Reservation = json.room3;
+            /*
+              SHOULD RENDER THE JSON DATA
+            */
+            /*
+              Now we should separate depends on the room number
+            */
+            /* render room 1 column */
+            for (var i = 0; i < room1Reservation.length; i++) {
+              var jsonelt = room1Reservation[i];
+
+              if (jsonelt.users == "") {
+                jsonelt.users = "-";
+              }
+              if (jsonelt.purpose == "") {
+                jsonelt.purpose = "-";
+              }
+              var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+              var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+              var option = jsonelt.ro;
+              if (option == 0) {
+                option = "평일, 주말";
+              }
+              else if (option == 1) {
+                option = "주말";
+              }
+              else if (option == 2) {
+                option = "평일";
+              }
+              $('#reservation-table-body-1').append(
+                '<tr name="sr1-'+i+'">'+
+                ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                ' <td data-title="option">'+ option +'</td>'
+              );
+            }
+            /* render room 2 column */
+            for (var i = 0; i < room2Reservation.length; i++) {
+              var jsonelt = room2Reservation[i];
+
+              if (jsonelt.users == "") {
+                jsonelt.users = "-";
+              }
+              if (jsonelt.purpose == "") {
+                jsonelt.purpose = "-";
+              }
+              var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+              var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+              var option = jsonelt.ro;
+              if (option == 0) {
+                option = "평일, 주말";
+              }
+              else if (option == 1) {
+                option = "주말";
+              }
+              else if (option == 2) {
+                option = "평일";
+              }
+              $('#reservation-table-body-2').append(
+                '<tr name="sr2-'+i+'">'+
+                ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                ' <td data-title="option">'+ option +'</td>'
+              );
+            }
+            /* render room 3 column */
+            for (var i = 0; i < room3Reservation.length; i++) {
+              var jsonelt = room3Reservation[i];
+
+              if (jsonelt.users == "") {
+                jsonelt.users = "-";
+              }
+              if (jsonelt.purpose == "") {
+                jsonelt.purpose = "-";
+              }
+              var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+              var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+              var option = jsonelt.ro;
+              if (option == 0) {
+                option = "평일, 주말";
+              }
+              else if (option == 1) {
+                option = "주말";
+              }
+              else if (option == 2) {
+                option = "평일";
+              }
+              $('#reservation-table-body-3').append(
+                '<tr name="sr3-'+i+'">'+
+                ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                ' <td data-title="option">'+ option +'</td>'
+              );
+            }
+            
+            
+          }); // end of callback
+        });
+        /*
+          Study Room Reservation
+        */
         /* send the selected date value to server and get the reservation state */
         $('#reserve-date-select').click(function(event) {
-          /*
-            should clear the table before fetch new data
-          */
-          $('tbody#reservation-table-body-1').children('tr').each(function() {
-            $(this).find('th[name="avail"]').css('background', 'white').attr('title', '');
-          });
-          $('tbody#reservation-table-body-2').children('tr').each(function() {
-            $(this).find('th[name="avail"]').css('background', 'white').attr('title', '');
-          });
-          $('tbody#reservation-table-body-3').children('tr').each(function() {
-            $(this).find('th[name="avail"]').css('background', 'white').attr('title', '');
-          });
-          
           var reserveDateMin = $('#studyroom-datetimepickerMin').data("date");
-          if (reserveDateMin === undefined) {
+          var reserveDateMax = $('#studyroom-datetimepickerMax').data("date");
+          
+          if (reserveDateMin === undefined || reserveDateMax === undefined) {
             alert('날짜를 선택해주세요.');
           }
           else {
             /* 
               open the select hour form 
             */
+            /* before block container, erase old tr */
+            var tbody1 = document.getElementById('reservation-table-body-1');
+            while(tbody1.firstChild) {
+              tbody1.removeChild(tbody1.firstChild);
+            }
+            var tbody2 = document.getElementById('reservation-table-body-2');
+            while(tbody2.firstChild) {
+              tbody2.removeChild(tbody2.firstChild);
+            }
+            var tbody3 = document.getElementById('reservation-table-body-3');
+            while(tbody3.firstChild) {
+              tbody3.removeChild(tbody3.firstChild);
+            }
+            
             $('#select-hours-container').css('display', 'block');
-            alert('helloooo');
-            alert(reserveDateMin);
             
             $.ajax({
               url: '/system/studyroom-currentstate',
-              method: 'post',
-              data: {reserveDate: reserveDateMin}
+              method: 'post'
             }).done(function(results) {
               var json = JSON.parse(results);
-              console.log(json);
-              alert('hello');
               var room1Reservation = json.room1;
               var room2Reservation = json.room2;
               var room3Reservation = json.room3;
@@ -2167,91 +1953,259 @@ html
                 Now we should separate depends on the room number
               */
               /* render room 1 column */
-              $('tbody#reservation-table-body-1').children('tr').each(function() {
-                var name = $(this).attr('name');
-                for (var i = 0; i < room1Reservation.length; i++) {
-                  var jsonelt = room1Reservation[i];
-                  var it = jsonelt.duration * 2; /* because table is separated with 30 min */
-  
-                  if (jsonelt.users == null) {
-                    jsonelt.users = "-";
-                  }
-                  if (jsonelt.purpose == null) {
-                    jsonelt.purpose = "-";
-                  }
-                  var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-                  var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-  
-                  if (parseFloat(name) === jsonelt.start) {
-                    $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                    /* also for duration, mark with 'reserved' value */
-                    var nextTd = $(this).next();
-                    for (var i = 1; i < it; i++) {
-                      nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                      nextTd = nextTd.next();
-                    }
-                  }
+              for (var i = 0; i < room1Reservation.length; i++) {
+                var jsonelt = room1Reservation[i];
+
+                if (jsonelt.users == "") {
+                  jsonelt.users = "-";
                 }
-              });
+                if (jsonelt.purpose == "") {
+                  jsonelt.purpose = "-";
+                }
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                var option = jsonelt.ro;
+                if (option == 0) {
+                  option = "평일, 주말";
+                }
+                else if (option == 1) {
+                  option = "주말";
+                }
+                else if (option == 2) {
+                  option = "평일";
+                }
+                $('#reservation-table-body-1').append(
+                  '<tr name="sr1-'+i+'">'+
+                  ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                  ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                  ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                  ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                  ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                  ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                  ' <td data-title="option">'+ option +'</td>'
+                );
+              }
               /* render room 2 column */
-              $('tbody#reservation-table-body-2').children('tr').each(function() {
-                var name = $(this).attr('name');
-                for (var i = 0; i < room2Reservation.length; i++) {
-                  var jsonelt = room2Reservation[i];
-                  var it = jsonelt.duration * 2; /* because table is separated with 30 min */
-                  
-                  if (jsonelt.users == null) {
-                    jsonelt.users = "-";
-                  }
-                  if (jsonelt.purpose == null) {
-                    jsonelt.purpose = "-";
-                  }
-                  
-                  var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-                  var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-                  
-                  if (parseFloat(name) === jsonelt.start) {
-                    $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                    /* also for duration, mark with 'reserved' value */
-                    var nextTd = $(this).next();
-                    for (var i = 1; i < it; i++) {
-                      nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                      nextTd = nextTd.next();
-                    }
-                  }
+              for (var i = 0; i < room2Reservation.length; i++) {
+                var jsonelt = room2Reservation[i];
+
+                if (jsonelt.users == "") {
+                  jsonelt.users = "-";
                 }
-              });
+                if (jsonelt.purpose == "") {
+                  jsonelt.purpose = "-";
+                }
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                var option = jsonelt.ro;
+                if (option == 0) {
+                  option = "평일, 주말";
+                }
+                else if (option == 1) {
+                  option = "주말";
+                }
+                else if (option == 2) {
+                  option = "평일";
+                }
+                $('#reservation-table-body-2').append(
+                  '<tr name="sr2-'+i+'">'+
+                  ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                  ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                  ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                  ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                  ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                  ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                  ' <td data-title="option">'+ option +'</td>'
+                );
+              }
               /* render room 3 column */
-              $('tbody#reservation-table-body-3').children('tr').each(function() {
-                var name = $(this).attr('name');
-                for (var i = 0; i < room3Reservation.length; i++) {
-                  var jsonelt = room3Reservation[i];
-                  var it = jsonelt.duration * 2; /* because table is separated with 30 min */
-                  
-                  if (jsonelt.users == null) {
-                    jsonelt.users = "-";
-                  }
-                  if (jsonelt.purpose == null) {
-                    jsonelt.purpose = "-";
-                  }
-                  
-                  var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-                  var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-                  
-                  if (parseFloat(name) === jsonelt.start) {
-                    $(this).find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                    /* also for duration, mark with 'reserved' value */
-                    var nextTd = $(this).next();
-                    for (var i = 1; i < it; i++) {
-                      nextTd.find('th[name="avail"]').css('background', 'gray').attr('title', '\n 예약기간: \n  '+rs+' ~ '+re+'\n\n 사용자: \n  '+jsonelt.users+'\n\n 목적: \n  '+jsonelt.purpose);
-                      nextTd = nextTd.next();
-                    }
-                  }
+              for (var i = 0; i < room3Reservation.length; i++) {
+                var jsonelt = room3Reservation[i];
+
+                if (jsonelt.users == "") {
+                  jsonelt.users = "-";
                 }
-              });
+                if (jsonelt.purpose == "") {
+                  jsonelt.purpose = "-";
+                }
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                var option = jsonelt.ro;
+                if (option == 0) {
+                  option = "평일, 주말";
+                }
+                else if (option == 1) {
+                  option = "주말";
+                }
+                else if (option == 2) {
+                  option = "평일";
+                }
+                $('#reservation-table-body-3').append(
+                  '<tr name="sr3-'+i+'">'+
+                  ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                  ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                  ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                  ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                  ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                  ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                  ' <td data-title="option">'+ option +'</td>'
+                );
+              }
             }); // end of callback
           }
         });
+        
+        /*
+          Study Room Cancel
+        */        
+        /* send the selected date value to server and get the reservation state */
+        $('#cancel-date-select').click(function(event) {
+          var cancelDateMin = $('#studyroom-datetimepickerMin-cancel').data("date");
+          var cancelDateMax = $('#studyroom-datetimepickerMax-cancel').data("date");
+          
+          if (cancelDateMin === undefined || cancelDateMax === undefined) {
+            alert('날짜를 선택해주세요.');
+          }
+          else {
+            
+            /* 
+              open the select hour form 
+            */
+            /* before block container, erase old tr */
+            var tbody1 = document.getElementById('reservation-table-body-1');
+            while(tbody1.firstChild) {
+              tbody1.removeChild(tbody1.firstChild);
+            }
+            var tbody2 = document.getElementById('reservation-table-body-2');
+            while(tbody2.firstChild) {
+              tbody2.removeChild(tbody2.firstChild);
+            }
+            var tbody3 = document.getElementById('reservation-table-body-3');
+            while(tbody3.firstChild) {
+              tbody3.removeChild(tbody3.firstChild);
+            }
+            /* 
+              open the select hour form 
+            */
+            $('#cancel-hours-container').css('display', 'block');
+            
+            $.ajax({
+              url: '/system/studyroom-currentstate',
+              method: 'post'
+            }).done(function(results) {
+              var json = JSON.parse(results);
+              var room1Reservation = json.room1;
+              var room2Reservation = json.room2;
+              var room3Reservation = json.room3;
+              /*
+                SHOULD RENDER THE JSON DATA
+              */
+              /*
+                Now we should separate depends on the room number
+              */
+              /* render room 1 column */
+              for (var i = 0; i < room1Reservation.length; i++) {
+                var jsonelt = room1Reservation[i];
+
+                if (jsonelt.users == "") {
+                  jsonelt.users = "-";
+                }
+                if (jsonelt.purpose == "") {
+                  jsonelt.purpose = "-";
+                }
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                var option = jsonelt.ro;
+                if (option == 0) {
+                  option = "평일, 주말";
+                }
+                else if (option == 1) {
+                  option = "주말";
+                }
+                else if (option == 2) {
+                  option = "평일";
+                }
+                $('#reservation-table-body-1').append(
+                  '<tr name="sr1-'+i+'">'+
+                  ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                  ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                  ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                  ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                  ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                  ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                  ' <td data-title="option">'+ option +'</td>'
+                );
+              }
+              /* render room 2 column */
+              for (var i = 0; i < room2Reservation.length; i++) {
+                var jsonelt = room2Reservation[i];
+
+                if (jsonelt.users == "") {
+                  jsonelt.users = "-";
+                }
+                if (jsonelt.purpose == "") {
+                  jsonelt.purpose = "-";
+                }
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                var option = jsonelt.ro;
+                if (option == 0) {
+                  option = "평일, 주말";
+                }
+                else if (option == 1) {
+                  option = "주말";
+                }
+                else if (option == 2) {
+                  option = "평일";
+                }
+                $('#reservation-table-body-2').append(
+                  '<tr name="sr2-'+i+'">'+
+                  ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                  ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                  ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                  ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                  ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                  ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                  ' <td data-title="option">'+ option +'</td>'
+                );
+              }
+              /* render room 3 column */
+              for (var i = 0; i < room3Reservation.length; i++) {
+                var jsonelt = room3Reservation[i];
+
+                if (jsonelt.users == "") {
+                  jsonelt.users = "-";
+                }
+                if (jsonelt.purpose == "") {
+                  jsonelt.purpose = "-";
+                }
+                var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+                var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+                var option = jsonelt.ro;
+                if (option == 0) {
+                  option = "평일, 주말";
+                }
+                else if (option == 1) {
+                  option = "주말";
+                }
+                else if (option == 2) {
+                  option = "평일";
+                }
+                $('#reservation-table-body-3').append(
+                  '<tr name="sr3-'+i+'">'+
+                  ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+                  ' <td data-title="st">'+ jsonelt.start +'</td>' +
+                  ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+                  ' <td data-title="room">'+ jsonelt.room +'</td>' +
+                  ' <td data-title="user">'+ jsonelt.users +'</td>' +
+                  ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+                  ' <td data-title="option">'+ option +'</td>'
+                );
+              }
+            }); // end of callback
+          }
+        });
+        
         /* show select hour container */
         $('#reservation-date').on('dp.change', function(e) {
           /*
@@ -2315,6 +2269,8 @@ html
             $('#duration').val('');
             $('#studyroom-users').val('');
             $('#studyroom-purpose').val('');
+            $('#select-hours-container').css('display', 'none');
+            
           });
         });
         
@@ -2322,8 +2278,8 @@ html
         $('#reserve-hour-select-cancel').click(function() {
           var startHour = $('#select-hours-cancel').find('option:selected').attr("name");
           var roomNum   = $('#select-room-cancel').find('option:selected').attr("name");
-          var reserveDateMin = $('#studyroom-datetimepickerMin').data("date");
-          var reserveDateMax = $('#studyroom-datetimepickerMax').data("date");
+          var reserveDateMin = $('#studyroom-datetimepickerMin-cancel').data("date");
+          var reserveDateMax = $('#studyroom-datetimepickerMax-cancel').data("date");
           
           if (startHour === '' || duration === '' || reserveDateMax === undefined) {
             alert('입력되지 않은 값이 있습니다..');
@@ -2348,6 +2304,7 @@ html
               */
               $('#select-hours-cancel').prop('selectedIndex', 0);
               $('#select-room-cancel').prop('selectedIndex', 0);
+              $('#cancel-hours-container').css('display', 'none');
             }
             else if (results == "1") {
               alert("취소실패! 취소 날짜와 시작시간을 한 번 더 확인해주세요.");
@@ -2423,6 +2380,18 @@ html
         });
         $("#studyroom-datetimepickerMax").on("dp.change", function (e) {
           $('#studyroom-datetimepickerMin').data("DateTimePicker").maxDate(e.date);
+        });
+        
+        $('#studyroom-datetimepickerMin-cancel').datetimepicker({format: 'YYYY-MM-DD'});
+        $('#studyroom-datetimepickerMax-cancel').datetimepicker({
+          useCurrent: false, //Important! See issue #1075
+          format: 'YYYY-MM-DD'
+        });
+        $("#studyroom-datetimepickerMin-cancel").on("dp.change", function (e) {
+          $('#studyroom-datetimepickerMax-cancel').data("DateTimePicker").minDate(e.date);
+        });
+        $("#studyroom-datetimepickerMax-cancel").on("dp.change", function (e) {
+          $('#studyroom-datetimepickerMin-cancel').data("DateTimePicker").maxDate(e.date);
         });
         
         /*
@@ -2864,6 +2833,29 @@ html
         */
         for (var i = 0; i < tr.length; i++) {
           td = tr[i].getElementsByTagName("td")[1]; // filter with name
+          if (td) {
+            if(td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            }
+            else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+      
+      /*
+        history finder
+      */
+      function history_finder() {
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("history-filter");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("history-table");
+        tr = table.getElementsByTagName("tr");
+        
+        for (var i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[2]; // filter with name
           if (td) {
             if(td.innerHTML.toUpperCase().indexOf(filter) > -1) {
               tr[i].style.display = "";

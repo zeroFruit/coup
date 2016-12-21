@@ -30,29 +30,33 @@ html
     link(href='public/__jquery.tablesorter/themes/blue/style.css' rel="stylesheet" type="text/css")
   body
     #product-list.modal(style='padding-top:0px; padding-bottom:3px')
-      .modal-content.animate(style='width:50%; height:98%; padding-top:20px; margin-top:10px;overflow-y:scroll')
+      .modal-content.animate(style='width:80%; height:78%; padding-top:20px; margin-top:100px;overflow-y:scroll')
         .container(style='width:100%')
           h1.page-subhead-line(style='font-size:20px; text-align:center') 상품 판매 설정
           .row
-            .col-md-2.col-md-offset-2
+            .col-md-2.col-md-offset-4
               .main-box.mb-dull(style='padding:5px')
                 a#new-group.a-cursor-pointer
                   h6 새 그룹 등록
             .col-md-2
               .main-box.mb-dull(style='padding:5px')
-                a#fix-group.a-cursor-pointer
-                  h6 새 그룹 수정
-            .col-md-2
-              .main-box.mb-dull(style='padding:5px')
-                a#del-group.a-cursor-pointer
-                  h6 새 그룹 삭제
-            .col-md-2
-              .main-box.mb-dull(style='padding:5px')
                 a#new-product.a-cursor-pointer
                   h6 새 상품 등록
           .row
-            .col-md-10.col-md-offset-1
-              .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;margin-bottom:20px;')
+            .col-md-4.col-md-offset-1
+              h4 상품 그룹
+              .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;margin-bottom:20px;height:65%')
+                //- Table starts here
+                table#product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+                  thead
+                    tr
+                      th 상품그룹
+                      th
+                      th(style="display='none'")
+                  tbody#product-table-body
+            .col-md-6
+              h4 판매 상품 목록
+              .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;margin-bottom:20px;height:65%')
                 //- Table starts here
                 table#product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
                   thead
@@ -65,12 +69,25 @@ html
                       th(style="display='none'")
                   tbody#product-table-body
     #add-new-product.modal(style='padding-top:0px; padding-bottom:3px')
-      .modal-content.animate(style='width:50%; height:98%; padding-top:20px; margin-top:10px;overflow-y:scroll')
+      .modal-content.animate(style='width:50%; height:98%; padding-top:20px; margin-top:10px; overflow-y:scroll; z-index:2')
+      
+    //- INSIDE NEW PRODUCT MODAL  
+      //- ADD NEW GROUP
+    #add-new-group-modal.modal(style='padding-top:0px; padding-bottom:3px')
+      .modal-content.animate(style='width:30%; height:50%; padding-top:50px; margin-top:10px;overflow-y:scroll; z-index:2')
+        .panel.panel-default.sale-panel
+          .panel-heading 그룹명
+          .panel-body
+            input.form-control(type='text' style='font-size:11px;')
+      //- ADD NEW PRODUCT
+    #add-new-product-modal.modal(style='padding-top:0px; padding-bottom:3px')
+      .modal-content.animate(style='width:30%; height:70%; padding-top:50px; margin-top:10px;overflow-y:scroll; z-index:2')
+        
     #main
       //- TOP NAV BAR
       ul#top_nav
         li#top_nav_list 
-          a.a-cursor-pointer(style='cursor: pointer') 관리자 페이지
+          a.a-cursor-pointer#managePage(style='cursor: pointer') 관리자 페이지
         li#top_nav_list
           a#product-list(style='cursor: pointer') 상품 등록
       #wrapper
@@ -98,6 +115,17 @@ html
     script.
       $(document).ready(function() {
         /*
+          nav buttons
+        */
+        $('#managePage').click(function(event) {
+          $.ajax({
+            url: '/test/manage',
+            method: 'post'
+          }).done(function(results) {
+            $('body').html(results);
+          });
+        });
+        /*
           When the user clicks anywhere outside of the modal, close it
         */
         window.onclick = function(event) {
@@ -115,6 +143,15 @@ html
           $('#product-table').tablesorter();
           
           $('#product-list').css("display", "block");
-          
         });
+        
+          /* inside ADD NEW GROUP window */
+          $('a#new-group').click(function(event) {
+            $('#add-new-group-modal').css("display", "block");
+          });
+          /* inside ADD NEW PRODUCT window */
+          $('a#new-product').click(function(event) {
+            $('#add-new-product-modal').css("display", "block");
+          });
+        
       });

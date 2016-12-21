@@ -52,12 +52,7 @@ module.exports = {
   */
   studyRoomCurrentState: function(req, res, next) {
     /* before query to db validate the date format*/
-    var isValid = moment(req.body.reserveDate).isValid();
-
-    if (isValid === false) {
-      req.err = "1";
-      return next();
-    }
+    
     db.system.studyRoomCurrentState(req.body, function(err, results) {
       if (err) {
         return next(err);

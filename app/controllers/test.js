@@ -28,6 +28,14 @@ module.exports.set = function(app, passport) {
     res.render('test');
   });
 
+  app.post('/test/account', function(req, res, next) {
+    res.render('account_manage');
+  });
+
+  app.post('/test/manage', function(req, res, next) {
+    res.render('test');
+  });
+
 
   app.post('/test', function(req, res, next) {
     member.updateMemberInfo(req, res, next);

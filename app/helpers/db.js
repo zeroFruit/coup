@@ -504,6 +504,8 @@ module.exports = {
         /* this need to set fints */
         if (paymentid === '0' || paymentid === '2' || paymentid === '4' || paymentid === '5' || paymentid === '6'
           || paymentid === '8' || paymentid === '9' || paymentid === '10' || paymentid === '11') {
+            console.log('leftTIME');
+            console.log(leftTime);
             var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE) WHERE alias=?';
             conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, parseInt(leftTime), data.alias], function(err, results) {
               if(err) {
@@ -646,7 +648,7 @@ module.exports = {
           var tsHour   = tsMoment.hours();
           var night    = 0;
           if (tsHour >= 0 && tsHour <= 5) {
-            night = 1;
+            night = 1; // night is only set 1, when users enter 0 <= hour <= 5
           }
           console.log('leave night: ' + night);
 
@@ -1794,17 +1796,18 @@ module.exports = {
       /*
         data.reserveDate
       */
-      var dateStart = data.reserveDate + " 00:00:00";
-      var dateEnd   = data.reserveDate + " 23:59:59";
 
-      var sql = 'SELECT room, users, purpose, duration, start, DATE_FORMAT(tsStart, "%Y-%m-%d"), DATE_FORMAT(tsEnd, "%Y-%m-%d") FROM studyroom WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
-      conn.query(sql, [dateStart, dateEnd], function(err, results) {
+      var sql = 'SELECT room, users, purpose, duration, start, DATE_FORMAT(tsStart, "%Y-%m-%d"), DATE_FORMAT(tsEnd, "%Y-%m-%d"), ro ';
+      sql += 'FROM studyroom n ';
+      sql += 'WHERE tsEnd >= CURDATE() AND id = (SELECT MAX(id) FROM studyroom n2 WHERE n2.users = n.users AND n2.tsStart = n.tsStart AND n2.tsEnd = n.tsEnd AND n2.room = n.room AND n2.start = n.start AND n2.duration = n.duration)';
+      conn.query(sql, function(err, results) {
         if (err) {
           console.log(err);
           cb(new Error('query error'));
         }
         else {
           console.log('this is view studyroom reservation list');
+          console.log(results);
           cb(null, results);
         }
       });
@@ -1820,8 +1823,8 @@ module.exports = {
       var purpose     = data.purpose;
 
       var duration    = data.du;
-      var rdsStr      = data.rds.toString() + " 00:00:01"; var rdsDate = new Date(Date.parse(rdsStr.replace('-','/','g')));
-      var rdeStr      = data.rde.toString() + " 00:00:01"; var rdeDate = new Date(Date.parse(rdeStr.replace('-','/','g')));
+      var rdsStr      = data.rds.toString() + " 00:00:00"; var rdsDate = new Date(Date.parse(rdsStr.replace('-','/','g')));
+      var rdeStr      = data.rde.toString() + " 00:00:00"; var rdeDate = new Date(Date.parse(rdeStr.replace('-','/','g')));
 
       var dateStart   = data.rds + " 00:00:00";
       var dateEnd     = data.rde + " 23:59:59";
@@ -1864,10 +1867,10 @@ module.exports = {
 
           for (var i = 0; i < results.length; i++) {
             var booked = results[i]; /* float, integer */
-            if (booked.start < fstartHour && (booked.start + booked.duration) > fstartHour ) {
+            if (booked.start <= fstartHour && (booked.start + booked.duration) >= fstartHour ) {
               return cb(null, {err : "2"});
             }
-            else if (booked.start < fendHour && (booked.start + booked.duration) > fendHour ) {
+            else if (booked.start <= fendHour && (booked.start + booked.duration) >= fendHour ) {
               return cb(null, {err :"2"});
             }
             else if (fstartHour < booked.start && fendHour > (booked.start + booked.duration) ) {
@@ -1885,15 +1888,27 @@ module.exports = {
           */
           var insertData = "";
           var days = 0;
+          var optnum = 0;
+          if (option == 'allday') {
+            optnum = 0;
+          }
+          else if(option == 'weekend') {
+            optnum = 1;
+          }
+          else if(option == 'weekday') {
+            optnum = 2;
+          }
+          optnum = parseInt(optnum);
 
           if (option == 'allday') {
+
             // if clients want allday
             for (var i = 0; i < daydiff; i++) {
               var newDate = new Date(rdsDate.getTime() + i * 86400000);
               var date = moment(newDate);
               date = date.format('YYYY-MM-DD').toString();
-              date += " 00:00:01";
-              insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
+              date += " 00:00:00";
+              insertData += '('+optnum+', STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
 
               days++;
             }
@@ -1901,8 +1916,8 @@ module.exports = {
             var newDate = new Date(rdsDate.getTime() + daydiff * 86400000);
             var date = moment(newDate);
             date = date.format('YYYY-MM-DD').toString();
-            date += " 00:00:01";
-            insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
+            date += " 00:00:00";
+            insertData += '('+optnum+', STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
             days++;
           }
           else if (option == 'weekend') {
@@ -1912,8 +1927,8 @@ module.exports = {
               var date = moment(newDate);
               if (date.isoWeekday() === 6 || date.isoWeekday() === 7) {
                 date = date.format('YYYY-MM-DD').toString();
-                date += " 00:00:01";
-                insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
+                date += " 00:00:00";
+                insertData += '('+optnum+', STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
 
                 days++;
               }
@@ -1923,8 +1938,8 @@ module.exports = {
             var date = moment(newDate);
             if (date.isoWeekday() === 6 || date.isoWeekday() === 7) {
               date = date.format('YYYY-MM-DD').toString();
-              date += " 00:00:01";
-              insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
+              date += " 00:00:00";
+              insertData += '('+optnum+', STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
 
               days++;
             }
@@ -1940,8 +1955,8 @@ module.exports = {
               var date = moment(newDate);
               if (date.isoWeekday() !== 6 && date.isoWeekday() !== 7) {
                 date = date.format('YYYY-MM-DD').toString();
-                date += " 00:00:01";
-                insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
+                date += " 00:00:00";
+                insertData += '('+optnum+', STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+',"'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s")), ';
 
                 days++;
               }
@@ -1951,8 +1966,8 @@ module.exports = {
             var date = moment(newDate);
             if (date.isoWeekday() !== 6 && date.isoWeekday() !== 7) {
               date = date.format('YYYY-MM-DD').toString();
-              date += " 00:00:01";
-              insertData += '(STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
+              date += " 00:00:00";
+              insertData += '('+optnum+', STR_TO_DATE("'+date+'", "%Y-%m-%d %H:%i:%s"), '+fstartHour+', '+fduration+', '+roomNum+', "'+users+'", "'+purpose+'", STR_TO_DATE("'+rdsStr+'", "%Y-%m-%d %H:%i:%s"), STR_TO_DATE("'+rdeStr+'", "%Y-%m-%d %H:%i:%s"));';
 
               days++;
             }
@@ -1965,7 +1980,9 @@ module.exports = {
           console.log('insertData');
           console.log(insertData+"\r\n");
           /* Now reservation time is valid */
-          var sql = 'INSERT INTO studyroom (ts, start, duration, room, users, purpose, tsStart, tsEnd) VALUES ' + insertData;
+          var sql = 'INSERT INTO studyroom (ro, ts, start, duration, room, users, purpose, tsStart, tsEnd) VALUES ' + insertData;
+          console.log('sql');
+          console.log(sql);
           conn.query(sql, function(err, results) {
             if (err) {
               console.log(err);
@@ -2042,7 +2059,7 @@ module.exports = {
                           var tmpDate = new Date(tmp.getTime() - 86400000);
                           var tmpMoment = moment(tmpDate);
                           tmp = tmpMoment.format('YYYY-MM-DD').toString();
-                          tmp += " 00:00:01";
+                          tmp += " 00:00:00";
 
                           /* now reduced one day string */
                           prevNewRdeStr = tmp;
@@ -2056,7 +2073,7 @@ module.exports = {
                           var tmpDate =  new Date(tmp.getTime() + 86400000);
                           var tmpMoment = moment(tmpDate);
                           tmp = tmpMoment.format('YYYY-MM-DD').toString();
-                          tmp += " 00:00:01";
+                          tmp += " 00:00:00";
 
                           /* now added one day string */
                           nextNewRdsStr = tmp;
@@ -2083,7 +2100,10 @@ module.exports = {
                         nextQS += next[next.length-1];
                       }
 
-
+                      console.log('prevNewRdsStr:prevNewRdeStr');
+                      console.log(prevNewRdsStr+":"+prevNewRdeStr);
+                      console.log('nextNewRdsStr:nextNewRdeStr');
+                      console.log(nextNewRdsStr+":"+nextNewRdeStr);
 
                       var sql = 'UPDATE studyroom SET tsStart = DATE(STR_TO_DATE("'+prevNewRdsStr+'", "%Y-%m-%d %H:%i:%s")), tsEnd = DATE(STR_TO_DATE("'+prevNewRdeStr+'", "%Y-%m-%d %H:%i:%s")) WHERE id IN ('+prevQS+')';
                       conn.query(sql, function(err, results) {
