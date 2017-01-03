@@ -17,7 +17,7 @@ function chgAdminInfo() {
     alert('값을 정확히 입력해주세요.');
   }
   else {
-    var c = confirm('정말로 변경하시겠습니까?');
+    var c = confirm('변경하시겠습니까?');
     if (c) {
       $.ajax({
         url: '/system/chgadmininfo',

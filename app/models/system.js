@@ -27,6 +27,7 @@ module.exports = {
       }
       else {
         req.results = results;
+        next();
       }
     });
   },
