@@ -41,18 +41,18 @@ module.exports = {
       }
       else {
         req.useMilage = results;
-        // /* after using milage record to account table */
-        // db2.system.useMilageRecord(req.body, function(err, results) {
-        //   if (err) {
-        //     console.log(err);
-        //     return next(err);
-        //   }
-        //   else {
-        //     req.results = results;
-        //     next();
-        //   }
-        // });
-        next();
+        /* after using milage record to account table */
+        db2.system.useMilageRecord(req.body, function(err, results) {
+          if (err) {
+            console.log(err);
+            return next(err);
+          }
+          else {
+            req.results = results;
+            next();
+          }
+        });
+        //next();
       }
     });
   },
@@ -68,7 +68,18 @@ module.exports = {
       }
       else {
         req.err = results.err;
-        next();
+        /* after charging milage record to account table */
+        db2.system.chargeMilageRecord(req.body, function(err, results) {
+          if (err) {
+            console.log(err);
+            return next(err);
+          }
+          else {
+            req.results = results;
+            next();
+          }
+        });
+        //next();
       }
     })
   },

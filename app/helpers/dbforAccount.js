@@ -317,6 +317,49 @@ module.exports = {
         }
       });
     }
+  },
+
+  system: {
+    useMilageRecord: function(data, cb) {
+      var alias   = data.membername;
+      var milage  = data.milage;
+      var content = data.content;
+      var memo    = data.memo;
+      var membername = "use-milage:"+alias;
+
+      var sql = 'INSERT INTO account (content, membername, alias, sales_option, useCoup, memo) VALUES (?, ?, ?, ?, ?, ?)';
+      conn.query(sql, [content, membername, alias, "코업머니", milage, memo], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error(err));
+        }
+        else {
+          cb(null, {err: "0"});
+        }
+      });
+    },
+    chargeMilageRecord: function(data, cb) {
+      var alias, milage, content, discount, price, option, memo;
+      alias     = data.membername;
+      milage    = data.milage;
+      content   = data.content;
+      discount  = data.discount;
+      price     = data.price;
+      option    = data.option;
+      memo      = data.memo;
+      var membername = "charge-milage:"+alias;
+
+      var sql = 'INSERT INTO account (content, price, service, membername, alias, sales_option, addCoup, memo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+      conn.query(sql, [content, price, discount, membername, alias, option, milage, memo], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error(err));
+        }
+        else {
+          cb(null, {err: "0"});
+        }
+      });
+    }
   }
 
 }

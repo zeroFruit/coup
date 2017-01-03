@@ -15,6 +15,9 @@ $(document).ready(function() {
     charge milage
   */
   $('#charge-milage').click(function() {
+    $('#discount-charge-milage').val('0');
+    $('#price-charge-milage').val('0');
+
     $('#charge-milage-modal').css("display", "block");
   });
   /* when submit the form*/
@@ -30,66 +33,92 @@ function useMilageSubmit() {
   var content    = $('#content-use-milage').val();
   var memo       = $('#memo-use-milage').val();
 
+  if (Number.isInteger(parseInt(milage))==false) {
+    alert('값을 정확히 입력해주세요.');
+  }
+  else {
+    $.ajax({
+      url: '/system/use-milage',
+      method: 'post',
+      data: {
+        membername    : membername,
+        milage        : milage,
+        content       : content,
+        memo          : memo
+      }
+    }).done( function (results) {
+      var json = JSON.parse(results);
+      // show snackbar or some alert to admin
+      if (json.err === "1") {
+        // failed
+        alert('코업머니가 부족합니다.');
+      }
+      else if(json.err === "0") {
+        //success
+        alert('코업머니를 사용하였습니다.');
+      }
 
-  $.ajax({
-    url: '/system/use-milage',
-    method: 'post',
-    data: {
-      membername    : membername,
-      milage        : milage,
-      content       : content,
-      memo          : memo
-    }
-  }).done( function (results) {
-    var json = JSON.parse(results);
-    console.log(json);
-    // show snackbar or some alert to admin
-    if (json.err === "1") {
-      // failed
-      show_snackbar('lack-of-milage-err-snackbar');
-    }
-    else if(json.err === "0") {
-      //success
-      show_snackbar('success-at-using-milage-snackbar');
-    }
+      clearUseMilageWin();
+    });
+  }
+}
 
-    $('#use-milage-name').val("");
-    $('#amount-use-milage').val("");
-    $('#content-use-milage').val("");
-    $('#memo-use-milage').val("");
-  });
+function clearUseMilageWin() {
+  $('#use-milage-name').val("");
+  $('#amount-use-milage').val("");
+  $('#content-use-milage').val("");
+  $('#memo-use-milage').val("");
 }
 
 function chargeMilageSubmit() {
-  var membername = $('#charge-milage-name').val();
-  var milage     = $('#amount-charge-milage').val();
-  var content    = $('#content-charge-milage').val();
+  var membername  = $('#charge-milage-name').val();
+  var milage      = $('#amount-charge-milage').val();
+  var content     = $('#content-charge-milage').val();
+  var discount    = $('#discount-charge-milage').val();
+  var price       = $('#price-charge-milage').val();
+  var option      = $('#cash-charge-option option:selected').text();
+  var memo        = $('#memo-charge-milage').val();
 
-  $.ajax({
-    url: '/system/charge-milage',
-    method: 'post',
-    data: {
-      accessToken   : valAccess,
-      refreshToken  : valRefresh,
-      membername    : membername,
-      milage        : milage,
-      content       : content
-    }
-  }).done(function(result) {
-    if (result == "success") {
-      alert('충전되었습니다.');
-      $('#charge-milage-name').val("");
-      $('#amount-charge-milage').val("");
-      $('#content-charge-milage').val("");
-    }
-    else if (result == "err1") {
-      alert('ID가 잘못되었습니다.');
-    }
-    else if (result == "err2") {
-      alert('마일리지를 잘못 입력하였습니다.');
-    }
-    else if (result == "err3") {
-      alert('존재하지 않는 회원입니다.');
-    }
-  });
+  if (Number.isInteger(parseInt(milage))==false || Number.isInteger(parseInt(discount))==false || Number.isInteger(parseInt(price))==false) {
+    alert('값을 정확히 입력해주세요.');
+  }
+  else {
+    $.ajax({
+      url: '/system/charge-milage',
+      method: 'post',
+      data: {
+        membername    : membername,
+        milage        : milage,
+        content       : content,
+        discount      : discount,
+        price         : price,
+        option        : option,
+        memo          : memo
+      }
+    }).done(function(result) {
+      if (result == "success") {
+        alert('충전되었습니다.');
+        clearChargeMilageWin();
+      }
+      else if (result == "err1") {
+        alert('ID가 잘못되었습니다.');
+      }
+      else if (result == "err2") {
+        alert('마일리지를 잘못 입력하였습니다.');
+      }
+      else if (result == "err3") {
+        alert('존재하지 않는 회원입니다.');
+      }
+    });
+  }
+}
+
+function clearChargeMilageWin() {
+  $('#charge-milage-name').val('');
+  $('#amount-charge-milage').val('');
+  $('#content-charge-milage').val('');
+  $('#discount-charge-milage').val('');
+  $('#price-charge-milage').val('');
+  $('#cash-charge-option option:eq(0)').prop('selected', true);
+  $('#memo-charge-milage').val('');
 }
