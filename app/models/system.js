@@ -198,6 +198,17 @@ module.exports = {
       }
       else {
         req.err = results.err;
+        /*
+        db2.system.recordPayBack(req.body, function(err, results) {
+          if (err) {
+            return next();
+          }
+          else {
+            req.results = results;
+            next();
+          }
+        });
+        */
         next();
       }
     });

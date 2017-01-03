@@ -2405,11 +2405,12 @@ html
           */
           //- if ($('#alert-member-table-body').children().children('td[data-title="ID"]').length === 0) { 
             for (var i = 0; i < json.length; i++) {
+              var t = min2MH(parseInt(json[i].left));
               $('#alert-member-table-body').append(
                 '<tr>'+
                 ' <td data-title="ID">'+ json[i].alias +'</td>' +
                 ' <td data-title="seatNum">'+ json[i].seatnum +'</td>' +
-                ' <td data-title="timeLeft">'+ json[i].left +"("+json[i].fee+' 원)</td>' +
+                ' <td data-title="timeLeft">'+ t +"("+json[i].fee+' 원)</td>' +
                 ' <td date-title="delete"><a class="delete-row">[삭제하기]</a></td>' +
                 '</tr>'
               );
@@ -2418,6 +2419,19 @@ html
               });
             }
         });
+      }
+      function min2MH(minutes) {
+        var h, m;
+        if (minutes >= 0) {
+          h = minutes / 60; h = h.toString();
+          m = minutes % 60; m = m.toString();
+        }
+        else {
+          minutes *= -1;
+          h = minutes / 60; h = h.toString();
+          m = minutes % 60; m = m.toString();
+        }
+        return (h + " 시간 " + m + " 분");
       }
     script(type='text/javascript', src='public/javascripts/closeWin.js')  
     script(type='text/javascript', src='public/javascripts/login.js')

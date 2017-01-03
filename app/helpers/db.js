@@ -726,8 +726,8 @@ module.exports = {
                         /*
                           Then with MINUTES update member data
                         */
-                        var sql = 'UPDATE members SET leftTime = leftTime - ?, milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0", break=0 WHERE alias = ?';
-                        conn.query(sql, [minutes, fee, data.lcid], function(err, results) {
+                        var sql = 'UPDATE members SET milage = milage - ?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0", break=0 WHERE alias = ?';
+                        conn.query(sql, [fee, data.lcid], function(err, results) {
                           if(err) {
                             cb(new Error('query error'));
                           }
@@ -1232,9 +1232,16 @@ module.exports = {
                         var diff    = pauseStartDate[i] - tsDate;
 
                         var minutes = Math.floor((diff/1000)/60);
+                        var hour = minutes / 60;
+                        var over  = minutes % 60;
+                        var fee = 0;
+                        if (over > 10) {
+                          hour++;
+                        }
+                        fee = hour * 800;
                         /* this member status is changed as left */
-                        var sql = 'UPDATE members SET leftTime=leftTime-?, milage=milage-?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=?';
-                        conn.query(sql, [minutes, (minutes*13), alias], function(err, results) {
+                        var sql = 'UPDATE members SET milage=milage-?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=?';
+                        conn.query(sql, [fee, alias], function(err, results) {
                           if (err) {
                             return cb(new Error('query error'));
                           }
