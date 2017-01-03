@@ -425,15 +425,8 @@ module.exports = {
     auth
   */
   auth: function(req, res) {
-    console.log('\n\n req.token');
-    console.log(req.token);
-    console.log('\n\n');
     res.status(200).render('layout_test',
     {
-      tokenPack: {
-        accessToken:  req.token.accessToken,
-        refreshToken: req.token.refreshToken
-      },
       renderSrc: {
         numOfMem:       req.source.numOfMem,
         numOfActiveMem: req.source.numOfActiveMem

@@ -35,14 +35,6 @@ html
     //- SALES, ACCOUNT PAGE STYLE
     link(href='public/stylesheets/temp/sales.css' rel='stylesheet')
   body
-    
-    //- #recharge_snackbar
-    //-   | 성공적으로 등록되었습니다.
-    //- SIDE NAVIGATION
-    //- #mySidenav.sidenav
-    //-   a.closebtn(href="javascript:void(0)" onclick="closeNav()") &times;
-    //-   a#stock-manager.side-nav-menu 장부 관리
-      
     //- MODAL REGISTER FORM
     #register-form.modal
       form.modal-content.animate
@@ -364,9 +356,6 @@ html
             input#content-use-milage(placeholder='내용.' name='content', type='text', required='required')
         .col-submit
           button.submitbtn#use-milage-submit 사용하기
-        //-THERE'S HIDDEN FORM TO SEND TOKENS
-        input(type='hidden' name='accessToken')
-        input(type='hidden' name='refreshToken')
     //- Charge milage
     #charge-milage-modal.modal(style='padding-top:0px')
       form.modal-content.animate(style='width:60%')
@@ -384,9 +373,6 @@ html
             input#content-charge-milage(placeholder='내용.' name='content', type='text', required='required')
         .col-submit
           button.submitbtn#charge-milage-submit 충전하기
-        //-THERE'S HIDDEN FORM TO SEND TOKENS
-        input(type='hidden' name='accessToken')
-        input(type='hidden' name='refreshToken')
         
     //- STUDY ROOM RESERVATION
     #studyroom-reservation-modal.modal(style='padding-top:0px')
@@ -635,7 +621,27 @@ html
                       th 옵션
                   //- THIS IS ROOM 3
                   tbody#reservation-table-body-3
-                  
+    #chg-info-modal.modal(style='padding-top:0;padding-bottom:0;z-index:2;')
+      .modal-content.container.animate(style="width:30%; height:38%; padding:20px; padding-top:30px; margin-top:150px;")
+        h1.page-subhead-line(style="font-size:18px; text-align:center") 사용자 정보변경
+        .row
+          .col-md-6.col-md-offset-3
+            .input-group
+              span.input-group-addon 아이디
+              input.form-control#chg-username(type='text' placeholder='새 아이디')
+        br
+        .row
+          .col-md-6.col-md-offset-3
+            .input-group
+              span.input-group-addon 비밀번호
+              input.form-control#chg-password(type='password' placeholder='새 비밀번호')
+        br
+        br
+        .row
+          .col-md-4.col-md-offset-4
+            .main-box.mb-dull(style='padding:5px')
+              a#chg-userinfo-submit.a-cursor-pointer
+                h6 정보 변경
     #main
       //- TOP NAV BAR
       ul#top_nav
@@ -645,7 +651,8 @@ html
           a#clients_page(style='cursor: pointer') 사용자 페이지
         li#top_nav_list
           a#accountPage(style='cursor: pointer') 회계 페이지
-        
+        li#top_nav_list
+          a#changeInfo(style='cursor: pointer') 관리자 정보 변경
         
       //block content
       //- /. NAV SIDE
@@ -681,10 +688,10 @@ html
                         h5 스터디룸 예약
                 .row
                   .col-md-6
-                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
-                      a#account-management.a-cursor-pointer
-                        i.fa.fa-book.fa-5x
-                        h5 장부 관리
+                    //- .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
+                    //-   a#account-management.a-cursor-pointer
+                    //-     i.fa.fa-book.fa-5x
+                    //-     h5 장부 관리
                   .col-md-6
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#use-milage.a-cursor-pointer
@@ -731,8 +738,6 @@ html
                           tbody#alert-member-table-body
       //- This is for rendering client page
       form#to-client-page(action='/clients/index' method='post')
-        input(type='hidden' name='accessToken')
-        input(type='hidden' name='refreshToken')
       #wrapper
         #page-wrapper
           #page-inner
@@ -825,341 +830,17 @@ html
     script(type='text/javascript', src='public/javascripts/temp/custom.js')
     script(type='text/javascript', src='public/javascripts/temp/jquery.seat-charts.min.js')
     //- CUSTOM SCRIPTS
+    script(type='text/javascript', src='public/javascripts/previewSeats.js') 
     script.
       $(document).ready(function() {
-        /****************************************************************************************
-        SEAT STATUS
-        ****************************************************************************************/
-        var firstSeatLabel_3f   = 1;
-        var firstSeatLabel_4f   = 39;
-        
-        var sc3f = $('#seat-map-3f').seatCharts({
-          map: [
-            'nnnnnn__n',
-            'nnnnnn__n',
-            '________n',
-            'nnnnnn__n',
-            'nnnnnn__n',
-            '________n',
-            'nnnn_____',
-            'nnnn_____',
-            'WWWWWEEWW',
-          ],
-          seats: {
-            n: {
-              price   : 100,
-              classes : 'normal-seats', //your custom CSS class
-              category: '좌석'
-            },
-            E: {
-              classes: 'enterance'
-            },
-            W: {
-              classes: 'wall'
-            }
-          },
-          naming : {
-            top : false,
-            left: false,
-            getLabel : function (character, row, column) {
-              if ((row == 9 && column == 6) || (row == 9 && column == 7)) {
-                return 'E';
-              }
-              if ((row==9&&column==1)||(row==9&&column==2)||(row==9&&column==2)||(row==9&&column==3)||(row==9&&column==4)||(row==9&&column==5)||(row==9&&column==8)||(row==9&&column==9)) {
-                return '';
-              }
-              return firstSeatLabel_3f++;
-            },
-          },
-          legend : {
-            node : $('#legend-3f'),
-              items : [
-              [ 'n', 'available',   '남아있는 자리' ],
-              [ 'E', 'unavailable', '입구']
-              ]					
-          },
-          
-          click: function () {
-            if (this.status() == 'available') {
-              /*
-                script about two seats simultanously  can not be reserved
-              */
-              sc3f.find('n.selected').status('available');
-          
-              return 'selected';
-            } else if (this.status() == 'selected') {
-              //seat has been vacated
-              return 'available';
-            } else if (this.status() == 'unavailable') {
-              //seat has been already booked
-              return 'unavailable';
-            } else {
-              return this.style();
-            }
-          }
-        });
-      
-        var sc4f = $('#seat-map-4f').seatCharts({
-          map: [
-            '_nn_nn____',
-            '_nn_nn____',
-            '________nn',
-            '________nn',
-            '__________',
-            '________nn',
-            '_nn__nn_nn',
-            '_nn__nnWWW',
-            'PPPP___W__',
-            '_______W__',
-            'P_PP__PW__',
-            'P_PP__PW__',
-            'P_PP__PW__',
-            'P_PP__PW__',
-            '_______E__',
-            '_______E__'
-          ],
-          seats: {
-            n: {
-              classes : 'normal-seats', //your custom CSS class
-              category: '좌석'
-            },
-            P: {
-              classes: 'premium',
-              category: '관리형반'
-            },
-            E: {
-              classes: 'enterance'
-            },
-            W: {
-              classes: 'wall'
-            }
-          },
-          naming : {
-            top : false,
-            left: false,
-            getLabel : function (character, row, column) {
-              if ((row == 15 && column == 8) || (row == 16 && column == 8)) {
-                return 'E';
-              }
-              if ((row==14&&column==8)||(row==13&&column==8)||(row==12&&column==8)||(row==11&&column==8)||(row==10&&column==8)||(row==9&&column==8)||(row==8&&column==10)||(row==8&&column==9)||(row==8&&column==8)) {
-                return '';
-              }
-              return firstSeatLabel_4f++;
-            },
-          },
-          legend : {
-            node : $('#legend-4f'),
-              items : [
-              [ 'n', 'available',   '남아있는 자리' ],
-              [ 'P', 'available',   '관리형반 자리' ],
-              [ 'E', 'unavailable', '입구']
-              ]					
-          },
-          
-          click: function () {
-            if (this.status() == 'available') {
-              /*
-                script about two seats simultanously  can not be reserved
-              */
-              sc4f.find('n.selected').status('available');
-              sc4f.find('P.selected').status('available');
-              return 'selected';
-            } else if (this.status() == 'selected') {
-              //seat has been vacated
-              return 'available';
-            } else if (this.status() == 'unavailable') {
-              //seat has been already booked
-              return 'unavailable';
-            } else {
-              return this.style();
-            }
-          }
-        });
         /*
-          Seat Status
+          table sorter
         */
-        $('a#seat-refresh').click(function(event) {
-          /* 
-            reset their status as available
-          */
-          sc3f.find('n.unavailable').each(function() {
-            this.status('available')
-          });
-          sc4f.find('n.unavailable').each(function() {
-            this.status('available')
-          });
-          sc4f.find('P.unavailable').each(function() {
-            this.status('available')
-          });
-          
-          $.ajax({
-            url: 'clients/seatstate-admin',
-            method: 'post'
-          }).done(function(results) {
-            var jsonSeatInfo = JSON.parse(results);
-            console.log(jsonSeatInfo);
-            
-            var unavail_seats_3f      = [];
-            var unavail_seats_3f_obj  = {};
-            var unavail_seats_4f      = [];
-            var unavail_seats_4f_obj  = {};
-
-            for (var i = 0; i < jsonSeatInfo.length; i++) {
-              var seatobj = jsonSeatInfo[i];
-              /*
-                We have to check whether seatobj element seat floor is same with current page floorid:3
-              */
-              if (seatobj.seat_floor === "3" /* "3" */) {
-                unavail_seats_3f.push(seatobj.seat);     
-                unavail_seats_3f_obj[seatobj.seat] = seatobj;       
-              }
-              
-              else if (seatobj.seat_floor === "4" /* "3" */) {
-                unavail_seats_4f.push(seatobj.seat); 
-                unavail_seats_4f_obj[seatobj.seat] = seatobj;            
-              }
-            }
-            sc3f.status(unavail_seats_3f, 'unavailable');
-            sc4f.status(unavail_seats_4f, 'unavailable');
-            
-            /* 
-              then add each seat tag a title attribute
-            */
-            sc3f.find('n.unavailable').each(function() {
-              var seatId = this.node().attr('id');
-              var member = unavail_seats_3f_obj[seatId];
-              var name = member.membername;
-              this.node().attr('title', name); // add attr title with member name
-            });
-            sc4f.find('n.unavailable').each(function() {
-              var seatId = this.node().attr('id');
-              var member = unavail_seats_4f_obj[seatId];
-              var name = member.membername;
-              this.node().attr('title', name); // add attr title with member name
-            });
-            sc4f.find('P.unavailable').each(function() {
-              var seatId = this.node().attr('id');
-              var member = unavail_seats_4f_obj[seatId];
-              var name = member.membername;
-              this.node().attr('title', name); // add attr title with member name
-            });
-          });
-        });
-        /*
-          Seat Change Button Clicked
-        */
-        $('#seat-change').click(function(event) {
-          var oldseat, newseat, ios, ins, sid_o, sid_n, floor_o, floor_n;
-          var seatChk_o = false;
-          var seatChk_n = false;
-          oldseat = $('#oldseat').val(); ios = parseInt(oldseat);
-          newseat = $('#newseat').val(); ins = parseInt(newseat);
-          
-          if (oldseat === "" || newseat === "") {
-            alert('좌석 번호를 입력해주세요.');
-            return false;
-          }
-          
-          sc3f.find('n.unavailable').each(function() {
-            var seatNum = this.node().text();
-            var seatId  = this.node().attr('id');
-            if (ios == seatNum) {
-              seatChk_o = true;
-              sid_o     = seatId;
-              floor_o   = "3";
-            }
-            
-          });
-          sc3f.find('n.available').each(function() {
-            var seatNum = this.node().text();
-            var seatId  = this.node().attr('id');
-            if (ins == seatNum) {
-              seatChk_n = true;
-              sid_n     = seatId;
-              floor_n   = "3";
-            }
-          });
-          
-          sc4f.find('n.unavailable').each(function() {
-            var seatNum = this.node().text();
-            var seatId  = this.node().attr('id');
-            console.log(seatNum);
-            if (ios == seatNum) {
-              seatChk_o = true;
-              sid_o     = seatId;
-              floor_o   = "4";
-            }
-          });
-          sc4f.find('n.available').each(function() {
-            var seatNum = this.node().text();
-            var seatId  = this.node().attr('id');
-            if (ins == seatNum) {
-              seatChk_n = true;
-              sid_n     = seatId;
-              floor_n   = "4";
-            }
-          });
-          
-          sc4f.find('P.unavailable').each(function() {
-            var seatNum = this.node().text();
-            var seatId  = this.node().attr('id');
-            console.log(seatNum);
-            if (ios == seatNum) {
-              seatChk_o = true;
-              sid_o     = seatId;
-              floor_o   = "4";
-            }
-          });
-          sc4f.find('P.available').each(function() {
-            var seatNum = this.node().text();
-            var seatId  = this.node().attr('id');
-            if (ins == seatNum) {
-              seatChk_n = true;
-              sid_n     = seatId;
-              floor_n   = "4";
-            }
-          });
-          if(!seatChk_o || !seatChk_n) {
-            alert('정확한 좌석번호를 입력해주세요.');
-            return false;
-          }
-          
-          $.ajax({
-            url: '/clients/seatchange',
-            method: 'post',
-            data: {
-              oldSeatId : sid_o,
-              oldSeatNum: ios,
-              oldFloor  : floor_o,
-              newSeatId : sid_n,
-              newSeatNum: ins,
-              newFloor  : floor_n
-            }
-          }).done(function(results) {
-            var json = JSON.parse(results);
-            if (json.err === "0") {
-              alert('좌석을 이동하였습니다. \n\n'+ json.oldSeat + " 번 좌석 -> " + json.newSeat + " 번 좌석\n");
-            }
-            else {
-              alert('좌석이동에 실패하였습니다.')
-            }
-          });
-          
-          
-        });
-        /*
-          enterance
-        */
-        sc3f.get(['9_1', '9_2', '9_3', '9_4', '9_5', '9_6', '9_7', '9_8','9_9']).status('unavailable');
-        sc4f.get(['15_8', '16_8', '14_8', '13_8', '12_8','11_8','10_8','9_8','8_8','8_9','8_10']).status('unavailable');
-
-        /****************************************************************************************
-        END OF SEAT STATUS
-        ****************************************************************************************/
-        
-        var accessToken = '!{tokenPack.accessToken}';
-        var refreshToken = '!{tokenPack.refreshToken}';
-        
+        $('#all-members-table').tablesorter();  
+        $('#active-members-table').tablesorter();  
+        $('#study1-table').tablesorter();
+        $('#study2-table').tablesorter();
+        $('#study3-table').tablesorter();
         //- Snackbar Signal
         var register_succ_snackbar  = '!{registerSnack}';
         var recharge_succ           = '!{recharge_succ}';
@@ -1173,10 +854,6 @@ html
         //-  *  [This is not implemented] 
         //-     If there's no tokens from server, jump this part
         //-
-        //- maybe need more validation
-        window.localStorage.setItem('accessToken', accessToken);
-        window.localStorage.setItem('refreshToken', refreshToken);          
-
         //- form submit action
         $('#registerSubmit').click(function(event) {
           event.preventDefault();
@@ -1231,144 +908,7 @@ html
           
         });
         
-        //-
-        //- When the user clicks anywhere outside of the modal, close it
-        //-
         
-        window.onclick = function(event) {
-          var register            = document.getElementById('register-form');    
-          var recharge            = document.getElementById('recharge-form');
-          var active_members_list = document.getElementById('active-members-list');
-          var all_members_list    = document.getElementById('all-members-list');
-          var account_list        = document.getElementById('account-list');
-          var use_milage          = document.getElementById('use-milage-modal');    
-          var charge_milage       = document.getElementById('charge-milage-modal');
-          var reserve_studyroom   = document.getElementById('studyroom-reservation-modal');
-          var payback             = document.getElementById('payback-modal');
-          var holdoff             = document.getElementById('holdoff-modal');
-          var history             = document.getElementById('history-modal');
-        
-          if (event.target == holdoff) {
-            holdoff.style.display = "none";
-            var holdoffId = document.getElementById("holdoff-name").value = "";
-            var wrapper   = document.getElementById("holdoff-hidden-container");
-            var container = document.getElementById("holdoff-result"); 
-            
-            wrapper.style.display = "none";
-            while(container.firstChild) {
-              container.removeChild(container.firstChild);
-            }
-            
-            return false;
-          }
-          
-          if (event.target == payback) {
-            payback.style.display = "none";
-            var paybackId = document.getElementById("payback-name").value = "";
-            var container = document.getElementById("payback-result");
-            var submitform= document.getElementById("payback-submitform");
-            
-            container.style.display = "none";
-            while (container.firstChild) {
-              container.removeChild(container.firstChild);
-            }
-            submitform.style.display = "none";
-            
-            return false;
-          }
-          
-          if (event.target == recharge) {
-            recharge.style.display = "none";
-            var paymentList = document.getElementById("choose-payment");
-            var memberList  = document.getElementById("choose-member");
-            var cash        = document.getElementById("choose-cash");
-            
-            while(paymentList.firstChild) {
-              paymentList.removeChild(paymentList.firstChild);
-            }
-            memberList.value = "";
-            cash.value = "";
-            
-            return false;
-          }
-          
-          if (event.target == register) {
-              register.style.display = "none";
-              
-              return false;
-          }
-          
-          if(event.target == active_members_list) {
-            active_members_list.style.display = "none";
-            var tbody = document.getElementById("active-members-table-body");
-            /* and also should erase their children */
-            while(tbody.firstChild) {
-              tbody.removeChild(tbody.firstChild);
-            }
-            
-            return false;
-          }
-          
-          if (event.target == all_members_list) {
-            all_members_list.style.display = "none";
-            var tbody = document.getElementById("all-members-table-body");
-            
-            while (tbody.firstChild) {
-              tbody.removeChild(tbody.firstChild);
-            }
-            
-            return false;
-          }
-          
-          if (event.target == account_list) {
-            account_list.style.display = "none";
-            /*
-              AND also erase old value
-            */
-            var tbody = document.getElementById("account-table-body");
-            while (tbody.firstChild) {
-              tbody.removeChild(tbody.firstChild);
-            }
-            
-            return false;
-          }
-          
-          if (event.target == use_milage) {
-            use_milage.style.display = "none";
-            document.getElementById("use-milage-name").value = "";
-            document.getElementById("amount-use-milage").value = "";
-            
-            return false;
-          }
-          
-          if (event.target == charge_milage) {
-            charge_milage.style.display = "none";
-            document.getElementById("charge-milage-name").value = "";
-            document.getElementById("amount-charge-milage").value = "";
-            
-            return false;
-          }
-          
-          if (event.target == reserve_studyroom) {
-            var select_hours_container = document.getElementById('select-hours-container');
-            reserve_studyroom.style.display = "none";
-            /*
-              also hide select hour form
-            */
-            select_hours_container.style.display = 'none';
-            
-            return false;
-          }
-          
-          if(event.target == history) {
-            history.style.display = "none";
-            var history_table = document.getElementById('history-table-body');
-            while(history_table.firstChild) {
-              history_table.removeChild(history_table.firstChild);
-            }
-            return false;
-          }
-        }// end of function
 
         /* *******************************************************8
           SNACKBAR 
@@ -1513,7 +1053,7 @@ html
             /*
               All members table sorter
             */
-            $('#all-members-table').tablesorter();  
+            $('#all-members-table').trigger('update');  
             
             $('#all-members-list').css("display", "block");
           });          
@@ -1578,7 +1118,7 @@ html
                 });
               });
             }
-            $('#active-members-table').tablesorter();  
+            $('#active-members-table').trigger('update');  
             
             $('#active-members-list').css("display", "block");
           });          
@@ -1901,9 +1441,9 @@ html
             /*
               tablesort
             */
-            $('#study1-table').tablesorter();
-            $('#study2-table').tablesorter();
-            $('#study3-table').tablesorter();
+            $('#study1-table').trigger('update');
+            $('#study2-table').trigger('update');
+            $('#study3-table').trigger('update');
             
           }); // end of callback
         });
@@ -2055,9 +1595,9 @@ html
               /*
                 tablesort
               */
-              $('#study1-table').tablesorter();
-              $('#study2-table').tablesorter();
-              $('#study3-table').tablesorter();
+              $('#study1-table').trigger('update');
+              $('#study2-table').trigger('update');
+              $('#study3-table').trigger('update');
             }); // end of callback
           }
         });
@@ -2213,9 +1753,9 @@ html
               /*
                 tablesort
               */
-              $('#study1-table').tablesorter();
-              $('#study2-table').tablesorter();
-              $('#study3-table').tablesorter();
+              $('#study1-table').trigger('update');
+              $('#study2-table').trigger('update');
+              $('#study3-table').trigger('update');
             }); // end of callback
           }
         });
@@ -2555,8 +2095,6 @@ html
         /* when submit the form*/
         $('#use-milage-submit').click(function(event) {
           event.preventDefault();
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken');
           var membername = $('#use-milage-name').val();
           var milage     = $('#amount-use-milage').val();
           var content    = $('#content-use-milage').val();
@@ -2565,8 +2103,6 @@ html
             url: '/system/use-milage',
             method: 'post',
             data: {
-              accessToken   : valAccess,
-              refreshToken  : valRefresh,
               membername    : membername,
               milage        : milage,
               content       : content
@@ -2599,8 +2135,6 @@ html
         /* when submit the form*/
         $('#charge-milage-submit').click(function(event) {
           event.preventDefault();
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken');
           var membername = $('#charge-milage-name').val();
           var milage     = $('#amount-charge-milage').val();
           var content    = $('#content-charge-milage').val();
@@ -2609,8 +2143,6 @@ html
             url: '/system/charge-milage',
             method: 'post',
             data: {
-              accessToken   : valAccess,
-              refreshToken  : valRefresh,
               membername    : membername,
               milage        : milage,
               content       : content
@@ -2635,22 +2167,6 @@ html
         });
         
         
-        /*
-          home link always send tokens with ajax call
-        */
-        $('a#home').click(function(event) {
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken'); 
-
-          $.ajax({
-            url: '/home',
-            method: 'post',
-            data: {
-              accessToken: valAccess,
-              refreshToken: valRefresh
-            }
-          });
-        });
         //- recharge milage button clicked, inflate the recharge form
         
         /* 
@@ -2776,24 +2292,7 @@ html
         });
         
         //- When User clicked System Manger button
-        $('#system_manager').click(function(event) {
-          $.ajax({
-            url: '/home',
-            method: 'post',
-            data: {
-              accessToken: valAccess,
-              refreshToken: valRefresh
-            }
-          });          
-        });
-        
-        //- When User clicked System Manger button
         $('a#clients_page').click(function(event) {
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken');
-          
-          $("#to-client-page > input[name='accessToken']").val(valAccess);
-          $("#to-client-page > input[name='refreshToken']").val(valRefresh);
           $("form#to-client-page").submit();
         });
         
@@ -2920,3 +2419,5 @@ html
             }
         });
       }
+    script(type='text/javascript', src='public/javascripts/closeWin.js')  
+    script(type='text/javascript', src='public/javascripts/login.js')

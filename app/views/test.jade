@@ -71,7 +71,7 @@ html
       .sell-product-modal-wrapper.modal-content.container.animate(style="width:70%; height:98%; padding:20px; padding-top:30px; margin-top:10px;")
         h1.page-subhead-line(style="font-size:18px; text-align:center") 사용자 사용내역
         .row
-          .col-md-7
+          .col-md-6
             .form-inline
               .form-group
                 label.inline-label 조회 날짜
@@ -84,21 +84,23 @@ html
                   input.form-control(type='text' style='font-size:11px;')
                   span.input-group-addon
                     span.fa.fa-calendar(aria-hidden='true')
+                .main-box.mb-dull(style='padding:5px; display:inline-block; margin-left:15px;')
+                  a#refresh-userusagelist.a-cursor-pointer
+                    h6 새로고침
           .col-md-4.col-md-offset-1
-            label.inline-label 이름
+            label.inline-label 이름: 
             label.inline-label#member-usage-list-name
-            label.inline-label 아이디
+            label.inline-label 아이디: 
             label.inline-label#member-usage-list-id
         hr
         .row
           .col-md-12
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:25%')
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:70%')
               //- Table starts here
               table#member-usage-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
                 thead
                   tr
                     th 판매 내역
-                    th 옵션
                     th 수량
                     th 할인
                     th 미납
@@ -106,43 +108,9 @@ html
                     th 판매 일자
                     th 납부 방법
                     th 납부 일자
+                    th 적립코업머니
+                    th 사용코업머니
                     th
-                    th(style='display:"none"')
-                tbody#member-usage-table-body
-        h1.page-subhead-line(style="font-size:18px; text-align:center") 사용자 출입내역
-        .row
-          .col-md-7
-            .form-inline
-              .form-group
-                label.inline-label 조회 날짜
-                .input-group.date#member-enterleave-datetimepicker-start
-                  input.form-control(type='text' style='font-size:11px;')
-                  span.input-group-addon
-                    span.fa.fa-calendar(aria-hidden='true')
-                label.inline-label ~
-                .input-group.date#member-enterleave-datetimepicker-end
-                  input.form-control(type='text' style='font-size:11px;')
-                  span.input-group-addon
-                    span.fa.fa-calendar(aria-hidden='true')
-        hr
-        .row
-          .col-md-12
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:25%')
-              //- Table starts here
-              table#member-usage-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
-                thead
-                  tr
-                    th 판매 내역
-                    th 옵션
-                    th 수량
-                    th 할인
-                    th 미납
-                    th 금액
-                    th 판매 일자
-                    th 납부 방법
-                    th 납부 일자
-                    th
-                    th(style='display:"none"')
                 tbody#member-usage-table-body
         
     //- SELL PRODUCT MODAL /////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +126,7 @@ html
                     i.fa.fa-search(aria-hidden="true")
                   input#products-filter.form-control(type="text" placeholder='상품이름으로 검색' onkeyup="product_finder()")
                 hr
-                .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:38%')
+                .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:35%')
                   //- Table starts here
                   table#product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
                     thead
@@ -168,67 +136,198 @@ html
                         th 가격
                         th 설명
                         th
-                        th(style="display='none'")
                     tbody#product-table-body
-                .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:38%')
+                .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%;height:35%')
                   //- Table starts here
-                  table#product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
+                  table#selected-product-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter(style='width:100%')
                     thead
                       tr
                         th 장바구니 상품
-                        th 옵션
                         th 수량
                         th 가격
                         th 할인
                         th 미납
                         th
-                        th(style="display='none'")
-                    tbody#product-table-body
+                    tbody#selected-product-table-body
+                br
+                .row
+                  .col-md-4.col-md-offset-4
+                    .main-box.mb-dull(style='padding:5px')
+                      a#determine-shoppinglist.a-cursor-pointer
+                        h6 선택완료
               .col-md-6
                 .sub-wrapper(style='border: 1px solid black;height:85%')
                   h1.page-subhead-line(style='text-align: center; font-size:18px') 결제정보
-                  .sales-content(style='font-size:11px;')
-                    .panel.panel-default.sale-panel.inline-panel
-                      .panel-heading 이름
-                      .panel-body#sales-name
-                    .panel.panel-default.sale-panel.inline-panel
-                      .panel-heading 코업머니
-                      .panel-body#sales-coupmoney
+                  .sales-content(style='font-size:9px;')
+                    .row
+                      .col-md-5.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 이름
+                          input.form-control#sales-name(type='text' readonly)
+                          input.form-control#sales-alias(type='hidden')
+                      .col-md-5
+                        .input-group
+                          span.input-group-addon 코업머니
+                          input.form-control#sales-coupmoney(type='text' readonly)
+                    br
                     hr
-                    .panel.panel-default.sale-panel.inline-panel
-                      .panel-heading 합계 금액
-                      .panel-body#sales-total
-                    .panel.panel-default.sale-panel.inline-panel
-                      .panel-heading 할인 금액
-                      .panel-body#sales-discount
-                    .panel.panel-default.sale-panel.inline-panel
-                      .panel-heading 미납 금액
-                      .panel-body#sales-discount  
-                    .panel.panel-default.sale-panel.inline-panel
-                      .panel-heading 결제 금액
-                      .panel-body#sales-final      
+                    br
+                    .row
+                      .col-md-10.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 합계 금액
+                          input.form-control#sales-total(type='text' readonly)
+                    br
+                    .row
+                      .col-md-10.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 할인 금액
+                          input.form-control#sales-discount(type='text' readonly)
+                    br
+                    .row
+                      .col-md-10.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 미납 금액
+                          input.form-control#sales-notpaid(type='text' readonly)
+                    br
+                    .row
+                      .col-md-10.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 사용 코업머니
+                          input.form-control#sales-usecoup(type='text')
+                    br
+                    .row
+                      .col-md-10.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 적립 코업머니
+                          input.form-control#sales-addcoup(type='text')
+                    br
+                    br
+                    .row
+                      .col-md-10.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 최종 결제 금액
+                          input.form-control#sales-final(type='text' readonly)
+                    br
                     hr
-                    .panel.panel-default.sale-panel.inline-panel
-                      .panel-heading 결제 방법
-                      .panel-body
-                        select.form-control#sales-option(style='font-size:11px;')
-                          option(name='0')  현금
-                          option(name='1')  카드
-                          option(name='2')  무통장
-                          option(name='3')  기타
-                    .panel.panel-default.sale-panel
-                      .panel-heading 납부 날짜
-                      .panel-body
-                        .input-group.date#sales-payday-datetimepicker
-                          input.form-control(type='text' style='font-size:11px;')
-                          span.input-group-addon
-                            span.fa.fa-calendar(aria-hidden='true')
-                    .panel.panel-default.sale-panel
-                      .panel-heading 메모
-                      .panel-body
-                        input.form-control#sales-memo(type='text' style='font-size:11px;' placeholder='입력해주세요.')
-                          
-                    
+                    br
+                    .row
+                      .col-md-5.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 결제 방법
+                          select.form-control#sales-option
+                            option(name='0')  현금
+                            option(name='1')  카드
+                            option(name='2')  무통장
+                            option(name='3')  기타
+                      .col-md-5
+                        .input-group
+                          span.input-group-addon 납부 날짜
+                          .input-group.date#sales-payday-datetimepicker
+                            input.form-control(type='text' style='font-size:11px;')
+                            span.input-group-addon
+                              span.fa.fa-calendar(aria-hidden='true')
+                    br
+                    .row
+                      .col-md-10.col-md-offset-1
+                        .input-group
+                          span.input-group-addon 메모
+                          input.form-control#sales-memo(type='text' placeholder='입력해주세요.')
+                    .row(style='margin-top:7%')
+                      .col-md-4.col-md-offset-4
+                        .main-box.mb-dull(style='padding:5px')
+                          a#register-selling.a-cursor-pointer
+                            h6 판매
+    //- Use milage modal
+    #use-milage-modal.modal(style='padding-top:0px')
+      form.modal-content.animate(style='width:40%;height:78%;padding:20px;padding-top:30px;margin-top:10px')
+        h1.page-subhead-line(style="font-size:18px;text-align:center") 코업머니 사용
+        .sales-content(style='font-size:9px;')
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon ID
+                input.form-control#use-milage-name(type='text' name='membername', required='required')
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 사용코업머니
+                input.form-control#amount-use-milage(type='text' name='milage', required='required' placeholder='사용할 코업머니를 입력하세요.')
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 내용
+                input.form-control#content-use-milage(type='text' name='content', value="마일리지 사용 및 충전" readonly)
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 메모
+                input.form-control#memo-use-milage(type='text' name='memo')
+          br
+          .row(style='margin-top:7%')
+            .col-md-4.col-md-offset-4
+              .main-box.mb-dull(style='padding:5px')
+                a#use-milage-submit.a-cursor-pointer
+                  h6 사용
+    //- Charge milage
+    #charge-milage-modal.modal(style='padding-top:0px')
+      form.modal-content.animate(style='width:40%;height:78%;padding:20px;padding-top:30px;margin-top:10px')
+        h1.page-subhead-line(style="font-size:18px;text-align:center") 코업머니 충전
+        .sales-content(style='font-size:9px;')
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon ID
+                input.form-control#charge-milage-name(type='text' name='membername', required='required')
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 충전코업머니
+                input.form-control#amount-charge-milage(type='text' name='milage', required='required' placeholder='충전할 코업머니를 입력하세요.')
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 내용
+                input.form-control#content-charge-milage(type='text' name='content', value="마일리지 사용 및 충전" readonly)
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 할인금액
+                input.form-control#discount-charge-milage(type='text' name='discount', required='required')
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 결제금액
+                input.form-control#price-charge-milage(type='text' name='price', required='required')
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                span.input-group-addon 결제 방법
+                select.form-control#cash-charge-option
+                  option(name='0')  현금
+                  option(name='1')  카드
+                  option(name='2')  무통장
+                  option(name='3')  기타
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 메모
+                input.form-control#memo-charge-milage(type='text' name='memo')
+          br
+          .row(style='margin-top:7%')
+            .col-md-4.col-md-offset-4
+              .main-box.mb-dull(style='padding:5px')
+                a#charge-milage-submit.a-cursor-pointer
+                  h6 충전
     //- DISPLAY ALL MEMBERS LIST
     #all-members-list.modal(style='padding-top:0;padding-bottom:0')
       .all-members-list-wrapper.modal-content.container(style="width:95%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
@@ -409,47 +508,6 @@ html
               .main-box.mb-dull
                 a#holdoff-determine.a-cursor-pointer
                   h6 상태변경하기
-        
-    //- Use milage modal
-    #use-milage-modal.modal(style='padding-top:0px')
-      form.modal-content.animate(style='width:60%')
-        .col-2
-          label
-            | ID
-            input#use-milage-name(placeholder='ID를 입력해주세요.', name='membername', required='required')
-        .col-2
-          label
-            | 마일리지
-            input#amount-use-milage(placeholder='사용할 마일리지를 입력해주세요.' name='milage', type='text', required='required')
-        .col-2
-          label
-            | 내용
-            input#content-use-milage(placeholder='내용.' name='content', type='text', required='required')
-        .col-submit
-          button.submitbtn#use-milage-submit 사용하기
-        //-THERE'S HIDDEN FORM TO SEND TOKENS
-        input(type='hidden' name='accessToken')
-        input(type='hidden' name='refreshToken')
-    //- Charge milage
-    #charge-milage-modal.modal(style='padding-top:0px')
-      form.modal-content.animate(style='width:60%')
-        .col-2
-          label
-            | ID
-            input#charge-milage-name(placeholder='ID를 입력해주세요.', name='membername', required='required')
-        .col-2
-          label
-            | 마일리지
-            input#amount-charge-milage(placeholder='충전할 마일리지를 입력해주세요.' name='milage', type='text', required='required')
-        .col-2
-          label
-            | 내용
-            input#content-charge-milage(placeholder='내용.' name='content', type='text', required='required')
-        .col-submit
-          button.submitbtn#charge-milage-submit 충전하기
-        //-THERE'S HIDDEN FORM TO SEND TOKENS
-        input(type='hidden' name='accessToken')
-        input(type='hidden' name='refreshToken')
     #main
       //- TOP NAV BAR
       ul#top_nav
@@ -638,6 +696,7 @@ html
     script(type='text/javascript', src='public/javascripts/temp/custom.js')
     script(type='text/javascript', src='public/javascripts/temp/jquery.seat-charts.min.js')
     //- CUSTOM SCRIPTS
+    
     script.
       $(document).ready(function() {
         
@@ -724,18 +783,12 @@ html
           var history             = document.getElementById('history-modal');
 
           var usage_list          = document.getElementById('member-usage-list-modal');
-          var sell_product        = document.getElementById('sell-product-modal');
           
           if (event.target == usage_list) {
             usage_list.style.display = "none";
             return false;
           }
-          
-          if(event.target == sell_product) {
-            sell_product.style.display = "none";
-            return false;
-          }
-        
+                  
           if (event.target == holdoff) {
             holdoff.style.display = "none";
             var holdoffId = document.getElementById("holdoff-name").value = "";
@@ -856,28 +909,25 @@ html
             }
             return false;
           }
+          
+          var usage_list_modal         = document.getElementById('member-usage-list-modal');
+          if(event.target == usage_list_modal) {
+            usage_list_modal.style.display = "none";
+            clearUsageList();
+            return false;
+          }
+          
+          var sell_product_modal         = document.getElementById('sell-product-modal');
+          if(event.target == sell_product_modal) {
+            sell_product_modal.style.display = "none";
+            clearShoppingList();
+            clearSalesWin();
+        
+            return false;
+          }
         }// end of function
 
-        /* *******************************************************8
-          SNACKBAR 
-        ***************************************************************/
-        //- function show_snackbar(id) {
-        //-   //- Get the snackbar
-        //-   var sb = document.getElementById(id);
-        //-   //- Add the class
-        //-   sb.className = "show";
-        //-   //- After 3 seconds, remove the show class from snackbar
-        //-   setTimeout(function() {sb.className = sb.className.replace("show", ""); }, 3000);
-        //- }
-        //- 
-        //- if(register_succ_snackbar === "true") {show_snackbar('snackbar'); return false;}
-        //- if(phonenum_length_err === "1") {show_snackbar('phonenum-length-err-snackbar'); return false;}
-        //- if(password_length_err === "1") {show_snackbar('password-length-err-snackbar'); return false;}
-        //- if(recharge_succ === "1") {show_snackbar('snackbar'); return false;}
-        //- if(recharge_succ === "0") {show_snackbar('still-use-other-payment-snackbar'); return false;}
-        //- if(already_register_err === "1"){show_snackbar('already-reigster-err-snackbar'); return false;}
-        
-        //- END OF SNACKBAR
+
         /*
           if account page button clicked
         */
@@ -918,12 +968,12 @@ html
                 ' <td data-title="membername">'+ o.membername +'</td>' +
                 ' <td data-title="payment">'+ pnameList[i]  +'</td>' +
                 ' <td data-title="leftDay">'+ o.leftDay +'</td>' +
-                ' <td date-title="seat">'+ o.seatnum+'</td>' +
-                ' <td date-title="sex">'+ sex +'</td>' +
-                ' <td date-title="prepare">' + o.prepare +'</td>' +
-                ' <td date-title="milage">' + o.milage +'</td>' + 
-                ' <td date-title="memo">' + o.memo +'</td>' + 
-                ' <td date-title="modify">' +
+                ' <td data-title="seat">'+ o.seatnum+'</td>' +
+                ' <td data-title="sex">'+ sex +'</td>' +
+                ' <td data-title="prepare">' + o.prepare +'</td>' +
+                ' <td data-title="milage">' + o.milage +'</td>' + 
+                ' <td data-title="memo">' + o.memo +'</td>' + 
+                ' <td data-title="modify">' +
                 '   <i class="fa fa-pencil-square-o modify-member fa-2x" aria-hidden="true" style="cursor:pointer" title="회원정보변경"></i> &nbsp;' +
                 '   <i class="fa fa-trash-o delete-member fa-2x" aria-hidden="true" style="cursor:pointer" title="회원삭제"></i> &nbsp;' +
                 '   <i class="fa fa-list-alt list-member-usage fa-2x" aria-hidden="true" style="cursor:pointer" title="이용내역"></i> &nbsp;' +
@@ -1007,13 +1057,22 @@ html
                 all member SELL PRODUCT click event handler
               */
               $('tr[name="member-'+i+'"] td i.sell-product').on('click', function(event) {
-                $('#sell-product-modal').css("display", "block");
+                var $parent = $(this).parent().parent('tr');
+                var alias   = $parent.find('td[data-title="ID"]').text();
+                var name    = $parent.find('td[data-title="membername"]').text();
+                var milage  = $parent.find('td[data-title="milage"]').text();
+                /* 1. get the product list */
+                sellProduct(cart, alias, name, milage); // in accountRelated.js cart is defined
               });
               
               /*
                 all member LIST USAGE click event handler
               */
               $('tr[name="member-'+i+'"] td i.list-member-usage').on('click', function(event) {
+                var $parent = $(this).parent().parent('tr');
+                var alias   = $parent.find('td[data-title="ID"]').text();
+                var name    = $parent.find('td[data-title="membername"]').text();
+                showUsageList(name, alias);
                 $('#member-usage-list-modal').css("display", "block");
               });
             }
@@ -1030,34 +1089,44 @@ html
           member's sales window datetimepicker
         */
         $('#sales-payday-datetimepicker').datetimepicker({
-          useCurrent: true,
           widgetPositioning: {vertical: 'top'},
+          defaultDate: moment().format('YYYY-MM-DD')
         });
-        $('#sales-payday-datetimepicker').data("DateTimePicker").format('YYYY-MM-DD');
+        $('#sales-payday-datetimepicker').data("DateTimePicker");
         
         /*
           member's usage list datetimepicker
         */
         $('#member-usage-datetimepicker-start').datetimepicker({
-          useCurrent: true
+          useCurrent: true,
+          format: 'YYYY-MM-DD',
+          defaultDate: moment().format('YYYY-MM-DD')
         });
-        $('#member-usage-datetimepicker-start').data("DateTimePicker").format('YYYY-MM-DD');
+        $('#member-usage-datetimepicker-start').data("DateTimePicker");
         $('#member-usage-datetimepicker-end').datetimepicker({
-          useCurrent: true
+          useCurrent: true,
+          format: 'YYYY-MM-DD',
+          defaultDate: moment().format('YYYY-MM-DD')
         });
-        $('#member-usage-datetimepicker-end').data("DateTimePicker").format('YYYY-MM-DD');
+        $('#member-usage-datetimepicker-end').data("DateTimePicker");
         
+        $('#member-usage-datetimepicker-start').on('dp.change', function(e) {
+          $('#member-usage-datetimepicker-end').data("DateTimePicker").minDate(e.date);
+        });
+        $('#member-usage-datetimepicker-end').on('dp.change', function(e) {
+          $('#member-usage-datetimepicker-start').data("DateTimePicker").maxDate(e.date);
+        });
         /*
           member's enter/leave list
         */
         $('#member-enterleave-datetimepicker-start').datetimepicker({
           useCurrent: true
         });
-        $('#member-enterleave-datetimepicker-start').data("DateTimePicker").format('YYYY-MM-DD');
+        $('#member-enterleave-datetimepicker-start').data("DateTimePicker");
         $('#member-enterleave-datetimepicker-end').datetimepicker({
           useCurrent: true
         });
-        $('#member-enterleave-datetimepicker-end').data("DateTimePicker").format('YYYY-MM-DD');
+        $('#member-enterleave-datetimepicker-end').data("DateTimePicker");
         
         
         /*
@@ -1091,10 +1160,10 @@ html
                 ' <td data-title="enterts">'+ jsonObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'] +'</td>' +
                 ' <td data-title="fints">'+ jsonObj.lts +'</td>' +
                 ' <td data-title="usedMin">'+ hour +' 시간 '+ min +' 분'+'</td>' +
-                ' <td date-title="ispause">'+ ispause+'</td>' +
-                ' <td date-title="break">'+  bhour +' 시간 '+ bmin +' 분'+'</td>' +
-                ' <td date-title="pts">'+ jsonObj.pts +'</td>' +
-                ' <td date-title="vacant"><i class="fa fa-times vacant-seat" aria-hidden="true" style="cursor:pointer"></i></td>' +
+                ' <td data-title="ispause">'+ ispause+'</td>' +
+                ' <td data-title="break">'+  bhour +' 시간 '+ bmin +' 분'+'</td>' +
+                ' <td data-title="pts">'+ jsonObj.pts +'</td>' +
+                ' <td data-title="vacant"><i class="fa fa-times vacant-seat" aria-hidden="true" style="cursor:pointer"></i></td>' +
                 '</tr>'
               );
               
@@ -1495,93 +1564,7 @@ html
           });
         });
       
-        /*
-          Use Milage 
-        */
-        $('#use-milage').click(function() {
-          $('#use-milage-modal').css("display", "block");          
-        });
-        /* when submit the form*/
-        $('#use-milage-submit').click(function(event) {
-          event.preventDefault();
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken');
-          var membername = $('#use-milage-name').val();
-          var milage     = $('#amount-use-milage').val();
-          var content    = $('#content-use-milage').val();
-          
-          $.ajax({
-            url: '/system/use-milage',
-            method: 'post',
-            data: {
-              accessToken   : valAccess,
-              refreshToken  : valRefresh,
-              membername    : membername,
-              milage        : milage,
-              content       : content
-            }
-          }).done( function (results) {
-            var json = JSON.parse(results);
-            console.log(json);
-            // show snackbar or some alert to admin
-            if (json.err === "1") {
-              // failed
-              show_snackbar('lack-of-milage-err-snackbar');
-            }
-            else if(json.err === "0") {
-              //success
-              show_snackbar('success-at-using-milage-snackbar');
-            }
-            
-            $('#use-milage-name').val("");
-            $('#amount-use-milage').val("");
-            $('#content-use-milage').val("");
-          });
-        });
         
-        /*
-          charge milage
-        */
-        $('#charge-milage').click(function() {
-          $('#charge-milage-modal').css("display", "block");          
-        });
-        /* when submit the form*/
-        $('#charge-milage-submit').click(function(event) {
-          event.preventDefault();
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken');
-          var membername = $('#charge-milage-name').val();
-          var milage     = $('#amount-charge-milage').val();
-          var content    = $('#content-charge-milage').val();
-          
-          $.ajax({
-            url: '/system/charge-milage',
-            method: 'post',
-            data: {
-              accessToken   : valAccess,
-              refreshToken  : valRefresh,
-              membername    : membername,
-              milage        : milage,
-              content       : content
-            }
-          }).done(function(result) {
-            if (result == "success") {
-              alert('충전되었습니다.');
-              $('#charge-milage-name').val("");
-              $('#amount-charge-milage').val("");   
-              $('#content-charge-milage').val("");           
-            }
-            else if (result == "err1") {
-              alert('ID가 잘못되었습니다.');
-            }
-            else if (result == "err2") {
-              alert('마일리지를 잘못 입력하였습니다.');
-            }
-            else if (result == "err3") {
-              alert('존재하지 않는 회원입니다.');
-            }
-          });
-        });
         
         
         /*
@@ -1872,3 +1855,6 @@ html
           
         });
       }
+    script(type='text/javascript', src='public/javascripts/useNchargeMilage.js')
+    script(type='text/javascript', src='public/javascripts/accountRelated.js')
+    script(type='text/javascript', src='public/javascripts/userUsageList.js')

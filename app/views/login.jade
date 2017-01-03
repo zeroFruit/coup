@@ -5,23 +5,52 @@ html
     meta(http-equiv="X-UA-Compatible" content="IE=edge")
     meta(name="viewport" content="width=device-width initial-scale=1")
     // Bootstrap CSS CDN
-    //link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous")
+    link(href='public/stylesheets/temp/bootstrap.css',      rel='stylesheet')
+    //- FONTAWESOME STYLES
+    link(href='public/stylesheets/temp/font-awesome.css',   rel='stylesheet')
+    //- TEMPLATE BASIC STYLES
+    link(href='public/stylesheets/temp/basic.css',          rel='stylesheet')
+    //- TEMPLATE MAIN STYLES
+    link(href='public/stylesheets/temp/custom.css',         rel='stylesheet')
+    //- TEMPLATE MODAL STYLES
+    link(href='public/stylesheets/temp/modal-form.css', rel='stylesheet')
     link(href="/public/stylesheets/login-style.css" rel='stylesheet')
-  body
+    //- TEMPLATE SNACKBAR STYLES
+    link(href='public/stylesheets/temp/snackbar.css',     rel='stylesheet')
+  body(style='background-color:#0A1612')
     .container
       .login
         h1.login-heading
-          strong Welcome.
-          |  Please login.
+          strong co:up study house
           form(method='post' action='/')
-            input.input-txt(type='text' name='username' placeholder='Username' required='required')
-            input.input-txt(type='password' name='password' placeholder='Password' required='required')
+            input.input-txt(type='text' name='username' placeholder='아이디' required='required')
+            input.input-txt(type='password' name='password' placeholder='패스워드' required='required')
             .login-footer
-              a.lnk(href='#')
-                | I've forgotten something
-              button.btn.btn--right(type='submit') Sign in
+              a.lnk#chg-info(href='#')
+                | 아이디/비밀번호 변경
+              button.btn.btn--right(type='submit') 
+                strong 로그인
+      #password-length-err-snackbar
+        | 등록되지 않은 사용자입니다.
+      #already-reigster-err-snackbar
+        | 비밀번호가 정확하지 않습니다.
     // jQuery (necessary for Bootstrap's Javascript Plugins)
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
     // Bootstrap js CDN
     script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
-    
+    script.
+      $(document).ready(function() {
+        var err = '!{err}';
+        if(err === "0") {show_snackbar('password-length-err-snackbar'); return false;}
+        if(err === "1") {show_snackbar('already-reigster-err-snackbar'); return false;}
+      });
+      function show_snackbar(id) {
+        //- Get the snackbar
+        var sb = document.getElementById(id);
+        //- Add the class
+        sb.className = "show";
+        //- After 3 seconds, remove the show class from snackbar
+        setTimeout(function() {sb.className = sb.className.replace("show", ""); }, 3000);
+      }
+
+      

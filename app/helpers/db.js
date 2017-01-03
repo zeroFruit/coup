@@ -1,4 +1,3 @@
-const sformat         = require('string-format');
 const moment         = require('moment');
 const moment_tz      = require('moment-timezone');
 const pbkdf2Password = require('pbkdf2-password');
@@ -11,16 +10,7 @@ const conn           = mysql.createConnection({
   database  : 'crm'
 });
 conn.connect();
-/***************************************************************************************
-  What should be fixed.
 
-    1. make respond function which deals with error handling
-
-    2. When this app is in production, modify the logging
-
-    3. db utils related with users/client should move to another module 'models/Users'
-
-***************************************************************************************/
 module.exports = {
   /*
     Connection, end
@@ -51,6 +41,23 @@ module.exports = {
 
   */
   user: {
+    chgAdminInfo: function(data, cb) {
+      var username = data.username;
+      var password = data.password;
+
+      hasher({password: password}, function(err, pass, salt, hash) {
+        var sql = 'UPDATE users SET hash=?, salt=?, username=? where id=1';
+        conn.query(sql, [hash, salt, username], function(err, results) {
+          if (err) {
+            console.log(err);
+            return cb(err);
+          }
+          else {
+            cb(null, {err: "0"});
+          }
+        });
+      });
+    },
     /*
       updateOrCreate - exactly same as original passport serilizeUser function
 
@@ -72,17 +79,23 @@ module.exports = {
           console.log('query error');
           return cb(null, false);
         }
-
-        var user = results[0]; /* query success */
-        return hasher({password:password, salt:user.salt}, function(err, pass, salt, hash) {
-          if(hash === user.hash) {
-            console.log('LocalStrategy', user);
-            cb(null, user);
+        if (results.length == 0) {
+          return cb(null, false, {message: '0'});
+        }
+        else {
+          var user = results[0]; /* query success */
+          if (!user.hasOwnProperty('salt')) {
+            return cb(null, false, {message: '1'});
           }
-          else {
-            cb(null, false);
-          }
-        });
+          return hasher({password:password, salt:user.salt}, function(err, pass, salt, hash) {
+            if(hash === user.hash) {
+              cb(null, user);
+            }
+            else {
+              cb(null, false, {message: '1'});
+            }
+          });
+        }
       });
     }
   }, /* end of user */
@@ -106,6 +119,7 @@ module.exports = {
           res.status(500);
         }
         else {
+          console.log('client-updateOrCreate');
           cb(null, {username: data.user.username});
         }
       });
@@ -875,9 +889,7 @@ module.exports = {
           payment     = results[0].payment;
           seatnum     = results[0].seatnum;
           membername  = results[0].membername;
-          /*
-            when matcing client is exist, first insert into pause_table
-          */
+
 
           var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s"), pause FROM members WHERE alias=?';
           conn.query(sql, [data.pcid, data.pcpwd], function(err, results) {
@@ -1158,7 +1170,7 @@ module.exports = {
       checkPause
     */
     checkPause: function(cb) {
-      console.log('hello');
+      console.log('checkPause');
       var sql ='SELECT alias, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM pause_table WHERE mask=1';
       conn.query(sql, function(err, results) {
         if (err) {
@@ -1172,10 +1184,12 @@ module.exports = {
             var tsStr = obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
             var tsObj = new Date(Date.parse(tsStr.replace('-','/','g')));
             var tsCur = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+            tsCur = new Date(Date.parse(tsCur.replace('-','/','g'))); // change to date object
             var diff = Math.abs(tsCur - tsObj);
 
             var minutes = Math.floor((diff/1000)/60);
 
+            console.log('alias: '+ obj.alias+' minutes: ' + minutes);
 
             if (minutes > 60) {
               uptList.push(obj.alias);
@@ -1867,13 +1881,13 @@ module.exports = {
 
           for (var i = 0; i < results.length; i++) {
             var booked = results[i]; /* float, integer */
-            if (booked.start <= fstartHour && (booked.start + booked.duration) >= fstartHour ) {
+            if (booked.start <= fstartHour && (booked.start + booked.duration) > fstartHour ) {
               return cb(null, {err : "2"});
             }
-            else if (booked.start <= fendHour && (booked.start + booked.duration) >= fendHour ) {
+            else if (booked.start < fendHour && (booked.start + booked.duration) >= fendHour ) {
               return cb(null, {err :"2"});
             }
-            else if (fstartHour < booked.start && fendHour > (booked.start + booked.duration) ) {
+            else if (fstartHour <= booked.start && fendHour >= (booked.start + booked.duration) ) {
               return cb(null, {err : "2"});
             }
           }

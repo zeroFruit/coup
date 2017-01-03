@@ -9,10 +9,67 @@
 const config    = require('../helpers/config');
 
 const db        = require('../helpers/db');
+const db2       = require('../helpers/dbforAccount');
 const moment         = require('moment');
 const moment_tz      = require('moment-timezone');
 
 module.exports = {
+  /*
+    deleteUsageList
+  */
+  deleteUsageList: function(req, res, next) {
+    db2.account.deleteUsageList(req.body, function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+  /*
+    editUsageList
+  */
+  editUsageList: function(req, res, next) {
+    db2.account.updateUsageList(req.body, function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+  /*
+    getPersonalList
+  */
+  getPersonalList: function(req, res, next) {
+    db2.account.getPersonalList(req.body, function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+  /*
+    addAccountList
+  */
+  addAccountList: function(req, res, next) {
+    db2.account.addList(req.body, function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
   /*
     addList
   */

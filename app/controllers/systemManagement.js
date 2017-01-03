@@ -11,6 +11,7 @@ var member      = require('../models/member');
 var account     = require('../models/account');
 var system      = require('../models/system');
 var payment     = require('../models/payments');
+var product     = require('../models/product');
 var respond     = require('../helpers/respond');
 var express     = require('express');
 var Async       = require('async');
@@ -19,14 +20,152 @@ var moment_tz   = require('moment-timezone');
 
 module.exports.set = function(app, passport) {
   /*
-    /system (GET)
+    /system/chgadmininfo
   */
-  // app.post('/system', function(req, res, next) {
-  //   console.log('this is home');
-  //   console.log(req.body);
-  // }, jwtauth, requireAuth, function(req, res, next) {
-  //   respond.auth(req, res);
-  // });
+  app.post('/system/chgadmininfo', function(req, res, next) {
+    system.chgAdminInfo(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send('0');
+    }
+  });
+  /*
+    /system/deleteusagelist
+  */
+  app.post('/system/deleteusagelist', function(req, res, next) {
+    account.deleteUsageList(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send('0');
+    }
+  });
+  /*
+    /system/editusagelist
+  */
+  app.post('/system/editusagelist', function(req, res, next) {
+    account.editUsageList(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send('0');
+    }
+  });
+  /*
+    /system/usagelist
+  */
+  app.post('/system/usagelist', function(req, res, next) {
+    account.getPersonalList(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send(req.results);
+    }
+  });
+  /*
+    /system/sales
+  */
+  app.post('/system/sales', function(req, res, next) {
+    req.body.basket = JSON.parse(req.body.basket); // change basket to obj again
+
+    account.addAccountList(req, res, next);
+  }, function(req, res, next) {
+    res.send('0');
+  });
+  /*
+    /system/productlist
+  */
+  app.post('/system/allproductlist', function(req, res, next) {
+    product.getAllList(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send(req.results);
+    }
+  });
+
+  /*
+    /system/productlist
+  */
+  app.post('/system/productlist', function(req, res, next) {
+    product.getProductList(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send(req.results);
+    }
+  });
+
+  /*
+    /system/product
+  */
+  app.post('/system/product', function(req, res, next) {
+    product.addProduct(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send('0');
+    }
+  });
+
+  /*
+    /system/modifyproduct
+  */
+  app.post('/system/modifyproduct', function(req, res, next) {
+    product.modifyProduct(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send('0');
+    }
+  });
+
+  /*
+    /system/deleteproduct
+  */
+  app.post('/system/deleteproduct', function(req, res, next) {
+    product.deleteProduct(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send('0');
+    }
+  })
+
+  /*
+    /system/productgrouplist
+  */
+  app.post('/system/productgrouplist', function(req, res, next) {
+    product.getProductGroupList(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send(req.results);
+    }
+  });
+  /*
+    /system/productgroup
+  */
+  app.post('/system/newproductgroup', function(req, res, next) {
+    product.addProductGroup(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send('0');
+    }
+  });
+  /*
+    /system/modifyproductgroup
+  */
+  app.post('/system/modifyproductgroup', function(req, res, next) {
+    product.modifyProductGroup(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+        res.send('0');
+    }
+  });
+  /*
+    /system/deleteproductgroup
+  */
+  app.post('/system/deleteproductgroup', function(req, res, next) {
+    product.deleteProductGroup(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err == "0") {
+      res.send('0');
+    }
+  });
+
+
   /*
     /system/vacant-seat
   */
@@ -352,11 +491,8 @@ module.exports.set = function(app, passport) {
     /system/use-milage
   */
   app.post('/system/use-milage', function(req, res, next) {
-    console.log('this is use-milage');
     system.useMilage(req, res, next);
   }, function(req, res, next) {
-    console.log('this is use-milage -- after');
-
     if (req.useMilage.err === "1") {
       return respond.lack_of_milage(req, res);
     }

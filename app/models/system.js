@@ -11,10 +11,25 @@
 const config          = require('../helpers/config');
 
 const db              = require('../helpers/db');
+const db2             = require('../helpers/dbforAccount');
 const moment          = require('moment');
 const moment_tz       = require('moment-timezone');
 
 module.exports = {
+  /*
+    chgAdminInfo
+  */
+  chgAdminInfo: function(req, res, next) {
+    db.user.chgAdminInfo(req.body, function(err, results) {
+      if (err) {
+        console.log(err);
+        return next(err);
+      }
+      else {
+        req.results = results;
+      }
+    });
+  },
   /*
     useMilage
   */
@@ -26,6 +41,17 @@ module.exports = {
       }
       else {
         req.useMilage = results;
+        // /* after using milage record to account table */
+        // db2.system.useMilageRecord(req.body, function(err, results) {
+        //   if (err) {
+        //     console.log(err);
+        //     return next(err);
+        //   }
+        //   else {
+        //     req.results = results;
+        //     next();
+        //   }
+        // });
         next();
       }
     });
@@ -52,7 +78,7 @@ module.exports = {
   */
   studyRoomCurrentState: function(req, res, next) {
     /* before query to db validate the date format*/
-    
+
     db.system.studyRoomCurrentState(req.body, function(err, results) {
       if (err) {
         return next(err);
