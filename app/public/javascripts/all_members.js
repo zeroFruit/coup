@@ -17,7 +17,6 @@ function refreshAllMemberTable() {
     url: '/system/all-members',
     method: 'post',
   }).done(function(results) {
-    var json = JSON.parse(results);
     var memberList = json.memberList;
     var pnameList  = json.pnameList;
 
