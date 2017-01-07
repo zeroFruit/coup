@@ -50,9 +50,20 @@ module.exports.set = function(app, passport) {
     }
   });
   /*
+    /system/enterancelist
+  */
+  app.post('/system/enterancelist', function(req, res, next) {
+    system.getSomeoneHistory(req, res, next);
+  }, function(req, res, next) {
+    if (req.err == "0") {
+      res.send(req.history);
+    }
+  });
+  /*
     /system/usagelist
   */
   app.post('/system/usagelist', function(req, res, next) {
+    console.log(req.body);
     account.getPersonalList(req, res, next);
   }, function(req, res, next) {
     if (req.results.err == "0") {
@@ -64,7 +75,14 @@ module.exports.set = function(app, passport) {
   */
   app.post('/system/sales', function(req, res, next) {
     req.body.basket = JSON.parse(req.body.basket); // change basket to obj again
+    req.body.milage = req.body.usecoup;
+    system.useMilage(req, res, next);
 
+  }, function(req, res, next) {
+    req.body.milage = req.body.addcoup;
+    system.chargeMilage(req, res, next);
+
+  }, function(req, res, next) {
     account.addAccountList(req, res, next);
   }, function(req, res, next) {
     res.send('0');
@@ -494,6 +512,13 @@ module.exports.set = function(app, passport) {
     system.useMilage(req, res, next);
   }, function(req, res, next) {
     if (req.useMilage.err === "1") {
+      next();
+    }
+    else {
+      account.recordUseMilage(req, res, next);
+    }
+  }, function(req, res, next) {
+    if (req.useMilage.err === "1") {
       return respond.lack_of_milage(req, res);
     }
     else {
@@ -505,8 +530,20 @@ module.exports.set = function(app, passport) {
     /system/charge-milage
   */
   app.post('/system/charge-milage', function(req, res, next) {
-    console.log('this is charge-milage');
     system.chargeMilage(req, res, next);
+  }, function(req, res, next) {
+    if (req.err === "0") {
+      account.recordChargeMilage(req, res, next);
+    }
+    else if (req.err === "1") {
+      next();
+    }
+    else if (req.err === "2") {
+      next();
+    }
+    else if (req.err ==="3") {
+      next();
+    }
   }, function(req, res, next) {
     if (req.err === "0") {
       return respond.success_at_charge_milage(req, res);
@@ -570,30 +607,19 @@ module.exports.set = function(app, passport) {
     }
   });
 
-  /*
-    Payback
-  */
-  app.post('/system/payback', function(req, res, next) {
-    member.getMemberInfo(req, res, next);
-  }, function(req, res, next) {
-    var pid = req.member.payment;
-    payment.id2NameSingle(pid, function(pname) {
-      req.member.payment = pname;
-      next();
-    });
-  },function(req, res, next) {
-    if (req.err === "1") {
-      return respond.member_dont_exist(req, res);
-    }
-    else {
-      respond.get_memberinfo_succ(req, res);
-    }
-  });
+
   /*
     /system/payback-determine
   */
   app.post('/system/payback-determine', function(req, res, next) {
     system.payback(req, res, next);
+  }, function(req, res, next) {
+    if (req.err === "0") {
+      account.recordPayback(req, res, next);
+    }
+    else {
+      next();
+    }
   }, function(req, res, next) {
     if (req.err === "0") {
       respond.payback_succ(req, res);

@@ -4,16 +4,135 @@ $(document).ready(function() {
   /* When clicked refresh */
   $('a#refresh-userusagelist').click(function() {
     refreshUsageList();
+    refreshEnteranceList();
   });
 });
+
 function clearUsageList() {
   var usage_table_body = document.getElementById('member-usage-table-body');
 
   while(usage_table_body.firstChild) {
     usage_table_body.removeChild(usage_table_body.firstChild);
   }
+  $('#member-usage-datetimepicker-start input').val(moment().format('YYYY-MM-DD').toString());
+  $('#member-usage-datetimepicker-end input').val(moment().format('YYYY-MM-DD').toString());
+}
+function clearUsageList2() {
+  var usage_table_body = document.getElementById('member-usage-table-body');
+
+  while(usage_table_body.firstChild) {
+    usage_table_body.removeChild(usage_table_body.firstChild);
+  }
+}
+function clearHistoryList() {
+  var tbody1 = document.getElementById('member-enterance-table-body');
+  var tbody2 = document.getElementById('member-enterance-static-table-body');
+
+  while(tbody1.firstChild) {
+    tbody1.removeChild(tbody1.firstChild);
+  }
+  while(tbody2.firstChild) {
+    tbody2.removeChild(tbody2.firstChild);
+  }
 }
 
+function refreshEnteranceList() {
+  var membername = $('#member-usage-list-name').text();
+  var alias = $('#member-usage-list-id').text();
+  var startDate = $('#member-usage-datetimepicker-start input').val();
+  var endDate = $('#member-usage-datetimepicker-end input').val();
+
+  $.ajax({
+    url: '/system/enterancelist',
+    method: 'post',
+    data: {
+      membername: membername,
+      alias: alias,
+      startDate: startDate,
+      endDate: endDate
+    }
+  }).done(function(results) {
+    clearHistoryList();
+    appendPersonalHistoryTBody(results);
+  });
+}
+
+function appendPersonalHistoryTBody(results) {
+  var tsList = [];
+  for (var i = results.length-1; i >= 0; i--) {
+    var obj = results[i];
+    var ts = obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'];
+    var o = {};
+    o.ts = ts;
+    o.job = parseInt(obj.job);
+    tsList.push(o);
+
+    $('#member-enterance-table-body').append(
+      '<tr name="'+obj.job+'">'+
+      ' <td data-title="ts">'+ ts +'</td>' +
+      ' <td data-title="seatnum">'+ obj.seatnum +'</td>' +
+      ' <td data-title="do">'+ obj.do +'</td>' +
+      '</tr>'
+    );
+    if (obj.job == 0) {
+      $('tr[name="'+obj.job+'"]').css('background-color', '#baffc9');
+    }
+    else if(obj.job == 1) {
+      $('tr[name="'+obj.job+'"]').css('background-color', '#ffffba');
+    }
+    else if(obj.job == 2) {
+      $('tr[name="'+obj.job+'"]').css('background-color', '#bae1ff');
+    }
+    else if(obj.job == 3) {
+      $('tr[name="'+obj.job+'"]').css('background-color', '#ffb3ba');
+    }
+  }
+  var sum = calcHistory(tsList);
+  $('#member-enterance-static-table-body').append(
+    '<tr name="total">'+
+    ' <td data-title="ts">'+ sum +'</td>' +
+    '</tr>'
+  );
+
+}
+function calcHistory(tmp) {
+  var stack = [];
+  var sum = 0;
+  for (var i = 0; i < tmp.length; i++) {
+    // var t = moment(tmp[i], 'YYYY-MM-DD HH:mm');
+    var e = tmp[i];
+    switch(e.job) {
+      case 0:
+        stack.push(e.ts);
+        break;
+      case 1:
+        if (stack.length != 0) {
+          var s = stack.pop();
+          var enter = moment(s, 'YYYY-MM-DD HH:mm');
+          var pause = moment(e.ts, 'YYYY-MM-DD HH:mm');
+          var duration = moment.duration(pause.diff(enter));
+          sum += parseInt(duration.asMinutes());
+        }
+        break;
+      case 2:
+        stack.push(e.ts);
+        break;
+      case 3:
+        if (stack.length != 0) {
+          var s = stack.pop();
+          var enter = moment(s, 'YYYY-MM-DD HH:mm');
+          var leave = moment(e.ts, 'YYYY-MM-DD HH:mm');
+          var duration = moment.duration(leave.diff(enter));
+          sum += parseInt(duration.asMinutes());
+        }
+        break;
+      default:
+        break;
+    }
+    console.log(sum);
+  }// end of for
+  return sum;
+}
 function showUsageList(membername, alias) {
   $('#member-usage-list-name').text(membername);
   $('#member-usage-list-id').text(alias);
@@ -23,7 +142,7 @@ function refreshUsageList() {
   var membername = $('#member-usage-list-name').text();
   var alias = $('#member-usage-list-id').text();
   var startDate = $('#member-usage-datetimepicker-start input').val();
-  var endDate = $('#member-usage-datetimepicker-start input').val();
+  var endDate = $('#member-usage-datetimepicker-end input').val();
 
   $.ajax({
     url: '/system/usagelist',
@@ -35,13 +154,18 @@ function refreshUsageList() {
       endDate: endDate
     }
   }).done(function(results) {
+    clearUsageList2();
     console.log(results);
     if (results.err == "0") {
       /* render table with results */
       var list = results.results;
       for (var i = 0; i < list.length; i++) {
         var elt = list[i];
-        var d = elt.ts.split("T"); var pd = elt.payDay.split("T");
+        var d = elt.ts.split("T");
+        var pd = elt.payDay;
+        if (pd == null) { pd = '-'; }
+        else { pd = elt.payDay.split("T"); }
+
         d = d[0]; pd = pd[0];
         $('#member-usage-table-body').append(
           '<tr name="'+elt.id+'">'+

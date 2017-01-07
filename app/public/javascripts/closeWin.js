@@ -4,22 +4,30 @@
 
 window.onclick = function(event) {
   var register            = document.getElementById('register-form');
-  var recharge            = document.getElementById('recharge-form');
   var active_members_list = document.getElementById('active-members-list');
   var all_members_list    = document.getElementById('all-members-list');
-  var account_list        = document.getElementById('account-list');
   var use_milage          = document.getElementById('use-milage-modal');
   var charge_milage       = document.getElementById('charge-milage-modal');
   var reserve_studyroom   = document.getElementById('studyroom-reservation-modal');
   var payback             = document.getElementById('payback-modal');
   var holdoff             = document.getElementById('holdoff-modal');
   var history             = document.getElementById('history-modal');
-  var chgInfoModal        = document.getElementById('chg-info-modal');
 
+  var usage_list          = document.getElementById('member-usage-list-modal');
+  var payment_modal       = document.getElementById('new-payment-modal');
 
-  if (event.target == chgInfoModal) {
-    chgInfoModal.style.display = "none";
-    clearChgInfoModal(); // defined in login.js
+  if(event.target == payment_modal) {
+    payment_modal.style.display = "none";
+    clearPaymentModal();
+    clearAllMemberTable();
+    refreshAllMemberTable();
+    return false;
+  }
+
+  if (event.target == usage_list) {
+    usage_list.style.display = "none";
+    clearUsageList();
+    return false;
   }
 
   if (event.target == holdoff) {
@@ -38,33 +46,11 @@ window.onclick = function(event) {
 
   if (event.target == payback) {
     payback.style.display = "none";
-    var paybackId = document.getElementById("payback-name").value = "";
-    var container = document.getElementById("payback-result");
-    var submitform= document.getElementById("payback-submitform");
-
-    container.style.display = "none";
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
-    submitform.style.display = "none";
-
-    return false;
+    clearPaybackModal();
+    clearAllMemberTable();
+    refreshAllMemberTable();
   }
 
-  if (event.target == recharge) {
-    recharge.style.display = "none";
-    var paymentList = document.getElementById("choose-payment");
-    var memberList  = document.getElementById("choose-member");
-    var cash        = document.getElementById("choose-cash");
-
-    while(paymentList.firstChild) {
-      paymentList.removeChild(paymentList.firstChild);
-    }
-    memberList.value = "";
-    cash.value = "";
-
-    return false;
-  }
 
   if (event.target == register) {
       register.style.display = "none";
@@ -94,32 +80,21 @@ window.onclick = function(event) {
     return false;
   }
 
-  if (event.target == account_list) {
-    account_list.style.display = "none";
-    /*
-      AND also erase old value
-    */
-    var tbody = document.getElementById("account-table-body");
-    while (tbody.firstChild) {
-      tbody.removeChild(tbody.firstChild);
-    }
-
-    return false;
-  }
-
   if (event.target == use_milage) {
     use_milage.style.display = "none";
-    document.getElementById("use-milage-name").value = "";
-    document.getElementById("amount-use-milage").value = "";
+    clearUseMilageWin();
 
+    clearAllMemberTable();
+    refreshAllMemberTable();
     return false;
   }
 
   if (event.target == charge_milage) {
     charge_milage.style.display = "none";
-    document.getElementById("charge-milage-name").value = "";
-    document.getElementById("amount-charge-milage").value = "";
+    clearChargeMilageWin();
 
+    clearAllMemberTable();
+    refreshAllMemberTable();
     return false;
   }
 
@@ -142,4 +117,24 @@ window.onclick = function(event) {
     }
     return false;
   }
+
+  var usage_list_modal         = document.getElementById('member-usage-list-modal');
+  if(event.target == usage_list_modal) {
+    usage_list_modal.style.display = "none";
+    clearUsageList();
+    clearAllMemberTable();
+    refreshAllMemberTable();
+    return false;
+  }
+
+  var sell_product_modal         = document.getElementById('sell-product-modal');
+  if(event.target == sell_product_modal) {
+    sell_product_modal.style.display = "none";
+    clearShoppingList2();
+    clearSalesWin();
+    clearAllMemberTable();
+    refreshAllMemberTable();
+    return false;
+  }
+
 }// end of function

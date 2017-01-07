@@ -15,6 +15,77 @@ const moment_tz      = require('moment-timezone');
 
 module.exports = {
   /*
+    getAllList
+  */
+  getAllList: function(req, res, next) {
+    db2.account.getAllList(req.body, function(err, results) {
+      if (err) {
+        return next();
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+  /*
+    recordPayback
+  */
+  recordPayback: function(req, res, next) {
+    db2.system.recordPayback(req.body, function(err, results) {
+      if (err) {
+        return next();
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+  /*
+    recordUseMilage
+  */
+  recordUseMilage: function(req, res, next) {
+    db2.system.useMilageRecord(req.body, function(err, results) {
+      if (err) {
+        console.log(err);
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+  /*
+    recordChargeMilage
+  */
+  recordChargeMilage: function(req, res, next) {
+    db2.system.chargeMilageRecord(req.body, function(err, results) {
+      if (err) {
+        console.log(err);
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+  /*
+    recordPayment
+  */
+  recordPayment: function(req, res, next) {
+    db2.system.recordPayment(req.body, function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        next();
+      }
+    });
+  },
+  /*
     deleteUsageList
   */
   deleteUsageList: function(req, res, next) {
@@ -66,23 +137,6 @@ module.exports = {
       }
       else {
         req.results = results;
-        next();
-      }
-    });
-  },
-  /*
-    addList
-  */
-  addList: function(req, res, next) {
-    db.account.addList(req.body, function(err, results) {
-      if (err) {
-        return next(err);
-      }
-      else {
-        console.log('this is addList-- account');
-        currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD').toString();
-        req.err = results;
-        req.body.ts = currentTsStr;
         next();
       }
     });

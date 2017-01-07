@@ -276,6 +276,22 @@ module.exports = {
           cb(new Error(err));
         }
         else {
+          console.log(results);
+          cb(null, {results: results, err: "0"});
+        }
+      });
+    },
+
+    getAllList: function(data, cb) {
+      var startDate = data.startDate;
+      var endDate = data.endDate+" 23:59:59";
+      var sql = 'SELECT * FROM account WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
+      conn.query(sql, [startDate, endDate], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error(err));
+        }
+        else {
           cb(null, {results: results, err: "0"});
         }
       });
@@ -321,14 +337,15 @@ module.exports = {
 
   system: {
     useMilageRecord: function(data, cb) {
-      var alias   = data.membername;
-      var milage  = data.milage;
-      var content = data.content;
-      var memo    = data.memo;
-      var membername = "use-milage:"+alias;
+      var membername   = data.membername;
+      var milage       = data.milage;
+      var content      = data.content;
+      var memo         = data.memo;
+      var alias        = data.alias;
+      var option       = "코업머니"
 
       var sql = 'INSERT INTO account (content, membername, alias, sales_option, useCoup, memo) VALUES (?, ?, ?, ?, ?, ?)';
-      conn.query(sql, [content, membername, alias, "코업머니", milage, memo], function(err, results) {
+      conn.query(sql, [content, membername, alias, option, parseInt(milage), memo], function(err, results) {
         if (err) {
           console.log(err);
           cb(new Error(err));
@@ -338,19 +355,67 @@ module.exports = {
         }
       });
     },
+
     chargeMilageRecord: function(data, cb) {
-      var alias, milage, content, discount, price, option, memo;
-      alias     = data.membername;
+      var membername, alias, milage, content, discount, price, option, memo;
+      membername= data.membername;
+      alias     = data.alias;
       milage    = data.milage;
       content   = data.content;
       discount  = data.discount;
       price     = data.price;
       option    = data.option;
       memo      = data.memo;
-      var membername = "charge-milage:"+alias;
+
 
       var sql = 'INSERT INTO account (content, price, service, membername, alias, sales_option, addCoup, memo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-      conn.query(sql, [content, price, discount, membername, alias, option, milage, memo], function(err, results) {
+      conn.query(sql, [content, parseInt(price), parseInt(discount), membername, alias, option, parseInt(milage), memo], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error(err));
+        }
+        else {
+          cb(null, {err: "0"});
+        }
+      });
+    },
+
+    recordPayback: function(data, cb) {
+      var alias, milage, membername, option, content, addCoup;
+      console.log('data');
+      console.log(data);
+      alias = data.alias;
+      milage = data.milage;
+      membername = data.membername;
+      option = "코업머니";
+      content = "환불";
+
+      var sql = 'INSERT INTO account (content, membername, alias, sales_option, addCoup) VALUES (?, ?, ?, ?, ?)';
+      conn.query(sql, [content, membername, alias, option, milage], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error(err));
+        }
+        else {
+          cb(null, {err: "0"});
+        }
+      });
+    },
+
+    recordPayment: function(data, cb) {
+      var membername, alias, price, discount, addCoup, useCoup, option, content, memo;
+      membername  = data.membername;
+      alias       = data.member;
+      price       = data.price;
+      discount    = data.discount;
+      addCoup     = data.addCoup;
+      useCoup     = data.useCoup;
+      option      = data.option;
+      content     = data.content;
+      memo        = data.memo;
+
+      var sql = 'INSERT INTO account (membername, alias, price, service, addCoup, useCoup, sales_option, content, memo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      conn.query(sql, [membername, alias, price, discount, addCoup, useCoup, option, content, memo], function(err, results) {
         if (err) {
           console.log(err);
           cb(new Error(err));

@@ -5,7 +5,9 @@ $(document).ready(function() {
   $('#use-milage').click(function() {
     $('#use-milage-modal').css("display", "block");
   });
-  /* when submit the form*/
+  /*
+    when submit the form
+  */
   $('#use-milage-submit').click(function(event) {
     event.preventDefault();
     useMilageSubmit();
@@ -20,15 +22,40 @@ $(document).ready(function() {
 
     $('#charge-milage-modal').css("display", "block");
   });
-  /* when submit the form*/
+
+  /*
+    when submit the form
+  */
   $('#charge-milage-submit').click(function(event) {
     event.preventDefault();
     chargeMilageSubmit();
   });
 });
 
+
+function initUseMilage(membername, alias, milage) {
+  $('#use-milage-name').val(membername);
+  $('#use-milage-alias').val(alias);
+  $('#use-milage-coup').val(milage);
+
+  $('#use-milage-modal').css("display", "block");
+}
+
+
+function initAddMilage(membername, alias, milage) {
+  $('#add-milage-name').val(membername);
+  $('#add-milage-alias').val(alias);
+  $('#add-milage-coup').val(milage);
+  $("#discount-charge-milage").val('0');
+  $('#price-charge-milage').val('0');
+
+  $('#charge-milage-modal').css("display", "block");
+}
+
+
 function useMilageSubmit() {
   var membername = $('#use-milage-name').val();
+  var alias      = $('#use-milage-alias').val();
   var milage     = $('#amount-use-milage').val();
   var content    = $('#content-use-milage').val();
   var memo       = $('#memo-use-milage').val();
@@ -42,6 +69,7 @@ function useMilageSubmit() {
       method: 'post',
       data: {
         membername    : membername,
+        alias         : alias,
         milage        : milage,
         content       : content,
         memo          : memo
@@ -64,14 +92,13 @@ function useMilageSubmit() {
 }
 
 function clearUseMilageWin() {
-  $('#use-milage-name').val("");
   $('#amount-use-milage').val("");
-  $('#content-use-milage').val("");
   $('#memo-use-milage').val("");
 }
 
 function chargeMilageSubmit() {
-  var membername  = $('#charge-milage-name').val();
+  var membername  = $('#add-milage-name').val();
+  var alias       = $('#add-milage-alias').val();
   var milage      = $('#amount-charge-milage').val();
   var content     = $('#content-charge-milage').val();
   var discount    = $('#discount-charge-milage').val();
@@ -88,6 +115,7 @@ function chargeMilageSubmit() {
       method: 'post',
       data: {
         membername    : membername,
+        alias         : alias,
         milage        : milage,
         content       : content,
         discount      : discount,

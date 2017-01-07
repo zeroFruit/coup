@@ -11,14 +11,22 @@ function clearSalesWin() {
   $('#sales-memo').val('');
 }
 function clearShoppingList() {
-  var $product_tbody      = document.getElementById("product-table-body");
   var $shoppinglist_tbody = document.getElementById("selected-product-table-body");
   /* and also should erase their children */
-  while($product_tbody.firstChild) {
-    $product_tbody.removeChild($product_tbody.firstChild);
-  }
   while($shoppinglist_tbody.firstChild) {
     $shoppinglist_tbody.removeChild($shoppinglist_tbody.firstChild);
+  }
+}
+
+function clearShoppingList2() {
+  var $productlist_tbody  = document.getElementById("product-table-body");
+  var $shoppinglist_tbody = document.getElementById("selected-product-table-body");
+  /* and also should erase their children */
+  while($shoppinglist_tbody.firstChild) {
+    $shoppinglist_tbody.removeChild($shoppinglist_tbody.firstChild);
+  }
+  while($productlist_tbody.firstChild) {
+    $productlist_tbody.removeChild($productlist_tbody.firstChild);
   }
 }
 /*

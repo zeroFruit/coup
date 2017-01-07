@@ -1351,6 +1351,9 @@ module.exports = {
       var paymentId = data.paymentId;
       var leftDay;
       var night = 0;
+      var addCoup = parseInt(data.addCoup);
+      var useCoup = parseInt(data.useCoup);
+      var price = parseInt(data.price);
       // if (data.night == true) {
       //   night = 1;
       // }
@@ -1373,6 +1376,10 @@ module.exports = {
           else if(results[0].payment != null) {/* if this member still use other payment abort.*/
             return cb(null, {err: "1"});
           }
+          /*
+            update coup money
+          */
+          var sql = ''
           /*
             get the left day
           */
@@ -1417,11 +1424,13 @@ module.exports = {
                     //   return cb(null, {err: "1"}); /* still using other payment */
                     // }
 
-                    var oldMilages = Number(results[0].milage);
-                    var newMilages = Number(data.price) + oldMilages; /* Now we get new milages*/
-                    var newLeftTime = "" + Math.round((Number(data.price) / 800) * 60); /* Now update left time */
-                    var sql = 'UPDATE members SET milage=?, payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
-                    conn.query(sql, [newMilages, data.paymentId, newLeftTime, leftDay, night, alias], function(err, results) {
+                    var oldMilages = parseInt(results[0].milage);
+                    var newMilages = price + oldMilages + addCoup - useCoup; /* Now we get new milages*/
+                    var newLeftTime = "" + Math.round((price / 800) * 60); /* prepay user left time is determined by milage */
+
+                    console.log(oldMilages, price, newMilages, addCoup, useCoup);
+                    var sql = 'UPDATE members SET milage=?, payment=?, leftTime=0, leftDay=?, night=? WHERE alias=?';
+                    conn.query(sql, [newMilages, data.paymentId, leftDay, night, alias], function(err, results) {
                       if(err) {
                         console.log(err);
                         cb(new Error('query error'));
@@ -1438,8 +1447,8 @@ module.exports = {
                 daily
               */
               else if (data.type === 'daily') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
+                var sql = 'UPDATE members SET milage=(milage+?-?), payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [addCoup, useCoup, data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1454,8 +1463,8 @@ module.exports = {
                 monthly
               */
               else if (data.type === 'monthly') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
+                var sql = 'UPDATE members SET milage=(milage+?-?), payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [addCoup, useCoup, data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1470,8 +1479,8 @@ module.exports = {
                 halfmonthly
               */
               else if (data.type === 'halfmonthly') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
+                var sql = 'UPDATE members SET milage=(milage+?-?), payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [addCoup, useCoup, data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1486,8 +1495,8 @@ module.exports = {
                 night
               */
               else if (data.type === 'night') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=?WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
+                var sql = 'UPDATE members SET milage=(milage+?-?), payment=?, leftTime=?, leftDay=?, night=?WHERE alias=?';
+                conn.query(sql, [addCoup, useCoup, data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1502,8 +1511,8 @@ module.exports = {
                 special
               */
               else if (data.type === 'special') {
-                var sql = 'UPDATE members SET payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
-                conn.query(sql, [data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
+                var sql = 'UPDATE members SET milage=(milage+?-?), payment=?, leftTime=?, leftDay=?, night=? WHERE alias=?';
+                conn.query(sql, [addCoup, useCoup, data.paymentId, parseInt(data.minPerDay), leftDay, night, alias], function(err, results) {
                   if(err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1705,30 +1714,28 @@ module.exports = {
       useMilage
     */
     useMilage: function(data, cb) {
+      var alias = data.alias;
+      var milage = parseInt(data.milage);
       /*
         data.membername, data.milage
       */
       /* before update milage, first check whether that client exist */
       var sql = 'SELECT milage FROM members WHERE alias=?';
-      conn.query(sql, [data.membername], function(err, results) {
+      conn.query(sql, [alias], function(err, results) {
         if (err) {
           console.log(err);
           cb(new Error('query error'));
         }
         else {
           /* check the data*/
-          console.log('this is useMilage');
-          console.log(results);
-
           var useMilage = parseInt(data.milage)
           if (results[0].milage < useMilage) { /* In the case when client wants to use milage more than he/she has */
             return cb(null, {err: "1"});
           }
           else {
             var reducedMilage = results[0].milage - useMilage;
-
             var sql = 'UPDATE members SET milage=? WHERE alias=?';
-            conn.query(sql, [reducedMilage, data.membername], function(err, results) {
+            conn.query(sql, [reducedMilage, alias], function(err, results) {
               if (err) {
                 console.log(err);
                 cb(new Error('query error'));
@@ -1738,7 +1745,7 @@ module.exports = {
                   insert into stock table
                 */
                 var sql = 'INSERT INTO stockList (content, spending, price) VALUES (?, 1, ?)';
-                conn.query(sql, [data.content, parseInt(data.milage)], function(err, results) {
+                conn.query(sql, [data.content, milage], function(err, results) {
                   if (err) {
                     console.log(err);
                     cb(new Error('query error'));
@@ -1760,11 +1767,13 @@ module.exports = {
     */
     chargeMilage: function(data, cb) {
       /*data validation*/
-      var alias = data.membername;
+      var alias = data.alias;
+      var milage = parseInt(data.milage);
+
       if (alias.length !== 8 || Number.isInteger(alias)) {
         return cb(null, {err: "1"}); /* alias format err */
       }
-      else if (!Number.isInteger(parseInt(data.milage))){
+      else if (!Number.isInteger(milage)){
         return cb(null, {err: "2"}); /* price format err */
       }
       else {
@@ -1780,7 +1789,7 @@ module.exports = {
             }
             else {
               var sql = 'UPDATE members SET milage = milage + ? WHERE alias=?';
-              conn.query(sql, [parseInt(data.milage), alias], function(err, results) {
+              conn.query(sql, [milage, alias], function(err, results) {
                 if (err) {
                   console.log(err);
                   cb(new Error('query error'));
@@ -1789,17 +1798,13 @@ module.exports = {
                   /*
                     insert into stockList
                   */
-                  console.log('chargemilage');
-                  console.log(data);
                   var sql = 'INSERT INTO stockList (content, income, price) VALUES (?, 1, ?)';
-                  console.log(sql);
-                  conn.query(sql, [data.content, parseInt(data.milage)], function(err, results) {
+                  conn.query(sql, [data.content, milage], function(err, results) {
                     if (err) {
                       console.log(err);
                       cb(new Error('query error'));
                     }
                     else {
-                      console.log('success charge milage');
                       cb(null, {err: "0"});
                     }
                   });
@@ -2180,11 +2185,12 @@ module.exports = {
     payback: function(data, cb) {
       /* data.id  data.milage */
       var milage;
+      var alias = data.alias;
       if (data.milage == "") milage = 0;
       else                   milage = parseInt(data.milage);
 
-      var sql = 'UPDATE members SET payment=NULL, leftDay=0, milage=milage+?, leftTime=0 WHERE id=?';
-      conn.query(sql, [milage, data.id], function(err, result) {
+      var sql = 'UPDATE members SET payment=NULL, leftDay=0, milage=milage+?, leftTime=0 WHERE alias=?';
+      conn.query(sql, [milage, alias], function(err, result) {
         if (err) {
           console.log(err);
           cb(new Error('query error'));
@@ -2323,7 +2329,25 @@ module.exports = {
         }
       });
     },
+    getSomeoneHistory: function(data, cb) {
+      var membername, alias, startDate, endDate;
+      membername = data.membername;
+      alias = data.alias;
+      startDate = data.startDate + " 00:00:00";
+      endDate = data.endDate+" 23:59:59";
 
+      var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i"), seatnum, job FROM history WHERE ((ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")) AND membername=? AND alias=?) ORDER BY ts DESC';
+      conn.query(sql, [startDate, endDate, membername, alias], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          cb(null, {err: "0", results: results});
+        }
+      });
+    },
+    
     getHistroy: function(cb) {
       // handle last element
       var date = moment();

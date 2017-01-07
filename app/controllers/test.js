@@ -24,13 +24,13 @@ module.exports.set = function(app, passport) {
   /*
     /test (GET)
   */
-  app.get('/test',/* jwtauth, requireAuth,*/ function(req, res, next) {
-    res.render('test');
-  });
-
-  app.post('/test/account', function(req, res, next) {
-    res.render('account_manage');
-  });
+  // app.get('/test',/* jwtauth, requireAuth,*/ function(req, res, next) {
+  //   res.render('test');
+  // });
+  //
+  // app.post('/test/account', function(req, res, next) {
+  //   res.render('account_manage');
+  // });
 
   app.post('/test/manage', function(req, res, next) {
     res.render('test');

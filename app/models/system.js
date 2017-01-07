@@ -42,18 +42,7 @@ module.exports = {
       }
       else {
         req.useMilage = results;
-        /* after using milage record to account table */
-        db2.system.useMilageRecord(req.body, function(err, results) {
-          if (err) {
-            console.log(err);
-            return next(err);
-          }
-          else {
-            req.results = results;
-            next();
-          }
-        });
-        //next();
+        next();
       }
     });
   },
@@ -69,18 +58,7 @@ module.exports = {
       }
       else {
         req.err = results.err;
-        /* after charging milage record to account table */
-        db2.system.chargeMilageRecord(req.body, function(err, results) {
-          if (err) {
-            console.log(err);
-            return next(err);
-          }
-          else {
-            req.results = results;
-            next();
-          }
-        });
-        //next();
+        next();
       }
     })
   },
@@ -198,17 +176,6 @@ module.exports = {
       }
       else {
         req.err = results.err;
-        /*
-        db2.system.recordPayBack(req.body, function(err, results) {
-          if (err) {
-            return next();
-          }
-          else {
-            req.results = results;
-            next();
-          }
-        });
-        */
         next();
       }
     });
@@ -258,6 +225,38 @@ module.exports = {
     });
   },
 
+  getSomeoneHistory: function(req, res, next) {
+    db.system.getSomeoneHistory(req.body, function(err, results) {
+      if (err) {
+        console.log(err);
+        return next();
+      }
+      else {
+        console.log('hi');
+        console.log(results);
+        req.err     = results.err;
+
+        var history = results.results;
+        for (var i = 0; i < history.length; i++) {
+          if (history[i].job == 0) {
+            history[i].do = '입실';
+          }
+          else if(history[i].job == 1) {
+            history[i].do = '일시정지';
+          }
+          else if(history[i].job == 2) {
+            history[i].do = '재시작';
+          }
+          else if(history[i].job == 3) {
+            history[i].do = '퇴실';
+          }
+        }
+        req.history = history;
+        next();
+      }
+    });
+  },
+
   getHistroy: function(req, res, next) {
     db.system.getHistroy(function(err, results) {
       if (err) {
@@ -285,6 +284,6 @@ module.exports = {
         req.history = history;
         next();
       }
-    })
+    });
   }
 }

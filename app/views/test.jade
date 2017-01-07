@@ -34,38 +34,38 @@ html
     link(href='public/stylesheets/temp/seat-chart-custom.css' rel='stylesheet')
     link(href='public/stylesheets/temp/sales.css' rel='stylesheet')
   body
-    #recharge-form.modal
-      form.modal-content.animate
-        .col-4
-          label ID
-            | 
-            input#choose-member(name='choose-member' placeholder='ID를 입력해주세요.')
-            //- javascript dynamically insert members
-        .col-4
-          label
-            | 요금제
-            select#choose-payment
-            //- javascript dynamically insert payments
-        .col-4
-          label
-            | 충전하실 금액을 입력해주세요.
-            input#choose-cash(name='recharge-cash' placeholder='요금제일 때만 입력해주세요.' disabled='true')
-        .col-4
-          label
-            | 할인금액
-            input#choose-discount(name='discount-cash' placeholder='할인금액')
+    //- #recharge-form.modal
+    //-   form.modal-content.animate
+    //-     .col-4
+    //-       label ID
+    //-         | 
+    //-         input#choose-member(name='choose-member' placeholder='ID를 입력해주세요.')
+    //-         //- javascript dynamically insert members
+    //-     .col-4
+    //-       label
+    //-         | 요금제
+    //-         select#choose-payment
+    //-         //- javascript dynamically insert payments
+    //-     .col-4
+    //-       label
+    //-         | 충전하실 금액을 입력해주세요.
+    //-         input#choose-cash(name='recharge-cash' placeholder='요금제일 때만 입력해주세요.' disabled='true')
+    //-     .col-4
+    //-       label
+    //-         | 할인금액
+    //-         input#choose-discount(name='discount-cash' placeholder='할인금액')
         //- .col-1
         //-   label
         //-     | 야간 월권 추가
         //-     center(style='position:relative;margin-bottom:8px;')
         //-       input.switchery.js-switch(type='checkbox' name='using-night')
-        .col-submit
-          button.submitbtn#charge-btn 충전하기
-        input(type='hidden' name='minPerDay')
-        input(type='hidden' name='member')
-        input(type='hidden' name='paymentId')
-        input(type='hidden' name='type')
-        input(type='hidden' name='price')
+        //- .col-submit
+        //-   button.submitbtn#charge-btn 충전하기
+        //- input(type='hidden' name='minPerDay')
+        //- input(type='hidden' name='member')
+        //- input(type='hidden' name='paymentId')
+        //- input(type='hidden' name='type')
+        //- input(type='hidden' name='price')
     //- USAGE LIST
     #member-usage-list-modal.modal(style='padding-top:0;padding-bottom:0;z-index:2;')
       .sell-product-modal-wrapper.modal-content.container.animate(style="width:70%; height:98%; padding:20px; padding-top:30px; margin-top:10px;")
@@ -238,16 +238,99 @@ html
                         .main-box.mb-dull(style='padding:5px')
                           a#register-selling.a-cursor-pointer
                             h6 판매
+    //- New Payment modal
+    #new-payment-modal.modal(style='padding-top:0px;z-index:2;')
+      form.modal-content.animate(style='width:40%;height:81%;padding:20px;padding-top:30px;margin-top:10px')
+        h1.page-subhead-line(style="font-size:18px;text-align:center") 요금제 등록
+        .sales-content(style='font-size:9px;')
+          .row
+            .col-md-5.col-md-offset-1
+              .input-group
+                span.input-group-addon 이름
+                input.form-control#payment-name(type='text' readonly)
+                input.form-control#payment-alias(type='hidden')
+            .col-md-5
+              .input-group
+                span.input-group-addon 코업머니
+                input.form-control#payment-coupmoney(type='text' readonly)
+          br
+          .row
+            .col-md-10.col-md-offset-1
+          br
+          hr
+          br
+          .row
+            .col-md-10.col-md-offset-1
+              .input-group
+                span.input-group-addon 요금제 종류
+                select.form-control#choose-payment
+          br
+          .row
+            .col-md-10.col-md-offset-1      
+              .input-group
+                span.input-group-addon 금액
+                input.form-control#choose-cash(type='text' name='recharge-cash' placeholder='요금제일 때만 입력해주세요.' disabled='true')
+          br
+          .row
+            .col-md-10.col-md-offset-1
+              .input-group
+                span.input-group-addon 할인금액
+                input.form-control#choose-discount(type='text' name='discount-cash')
+          br
+          .row
+            .col-md-5.col-md-offset-1
+              .input-group
+                span.input-group-addon 사용코업머니
+                input.form-control#payment-usecoup(type='text' name='payment-usecoup')
+            .col-md-5
+              .input-group
+                span.input-group-addon 적립코업머니
+                input.form-control#payment-addcoup(type='text' name='payment-addcoup')
+          br
+          hr
+          br
+          .row
+            .col-md-5.col-md-offset-1
+              .input-group
+                span.input-group-addon 결제 방법
+                select.form-control#payment-option
+                  option(name='0')  현금
+                  option(name='1')  카드
+                  option(name='2')  무통장
+                  option(name='3')  기타
+            .col-md-5
+              .input-group
+                span.input-group-addon 장부 내용
+                input.form-control#payment-content(type='text' name='payment-content')
+          br
+          br
+          .row
+            .col-md-10.col-md-offset-1
+              .input-group
+                span.input-group-addon 메모
+                input.form-control#payment-memo(type='text' name='payment-memo')
+          .row(style='margin-top:7%')
+            .col-md-4.col-md-offset-4
+              .main-box.mb-dull(style='padding:5px')
+                a#payment-submit.a-cursor-pointer
+                  h6 등록
     //- Use milage modal
-    #use-milage-modal.modal(style='padding-top:0px')
+    #use-milage-modal.modal(style='padding-top:0px;z-index:2;')
       form.modal-content.animate(style='width:40%;height:78%;padding:20px;padding-top:30px;margin-top:10px')
         h1.page-subhead-line(style="font-size:18px;text-align:center") 코업머니 사용
         .sales-content(style='font-size:9px;')
           .row
-            .col-md-8.col-md-offset-2
+            .col-md-4.col-md-offset-2
               .input-group
-                .span.input-group-addon ID
-                input.form-control#use-milage-name(type='text' name='membername', required='required')
+                .span.input-group-addon 이름
+                input.form-control#use-milage-name(type='text' name='membername', readonly)
+                input#use-milage-alias(type='hidden')
+            .col-md-4
+              .input-group
+                .span.input-group-addon 코업머니
+                input.form-control#use-milage-coup(type='text' name='membername', readonly)
+          br
+          hr
           br
           .row
             .col-md-8.col-md-offset-2
@@ -273,15 +356,22 @@ html
                 a#use-milage-submit.a-cursor-pointer
                   h6 사용
     //- Charge milage
-    #charge-milage-modal.modal(style='padding-top:0px')
+    #charge-milage-modal.modal(style='padding-top:0px;z-index:2;')
       form.modal-content.animate(style='width:40%;height:78%;padding:20px;padding-top:30px;margin-top:10px')
         h1.page-subhead-line(style="font-size:18px;text-align:center") 코업머니 충전
         .sales-content(style='font-size:9px;')
           .row
-            .col-md-8.col-md-offset-2
+            .col-md-4.col-md-offset-2
               .input-group
-                .span.input-group-addon ID
-                input.form-control#charge-milage-name(type='text' name='membername', required='required')
+                .span.input-group-addon 이름
+                input.form-control#add-milage-name(type='text' name='membername', readonly)
+                input#add-milage-alias(type='hidden')
+            .col-md-4
+              .input-group
+                .span.input-group-addon 코업머니
+                input.form-control#add-milage-coup(type='text' name='membername', readonly)
+          br
+          hr
           br
           .row
             .col-md-8.col-md-offset-2
@@ -399,98 +489,47 @@ html
               th 상태
           tbody#history-table-body
         //- DISPLAY ACTIVE MEMBERS LIST
-    //- DISPLAY ACCOUNT
-    #account-list.modal(style='padding-top:0px;overflow-y:scroll')
-      .modal-content.animate#account-wrapper(style='width:80%; padding-top:20px; margin-top:3%;')
-        #account-head.container
-          h1.page-subhead-line 장부 조회
-          .col-md-2.col-md-offset-2
-            .form-group
-              #datetimepickerMin.input-group.date
-                input.form-control(type='text' name='mindate' placeholder='시작 날짜')
-                span.input-group-addon
-                  span.fa.fa-calendar(area-hidden='true')
-          .col-md-2
-            .form-group
-              #datetimepickerMax.input-group.date
-                input.form-control(type='text' name='maxdate' placeholder='마지막 날짜')
-                span.input-group-addon
-                  span.fa.fa-calendar(area-hidden='true')
-          .col-md-2
-            .main-box.mb-dull
-              a#view-account-list
-                h6 보기
-        .container#account-list-container
-          .com-md-12
-            form#add-account-list
-              .col-4
-                label
-                  | 내용
-                  input(placeholder='내용을 입력해주세요.', name='account-content', required='required')
-              .col-4.switch
-                label 수입<->지출
-                center(style='position:relative;margin-bottom:8px;')
-                  input.switchery.js-switch(type='checkbox' name='account-inout')
-              .col-4
-                label
-                  | 금액
-                  input(name='account-price', type='text', required='required')
-              .col-4
-                label
-                  | 서비스
-                  input(name='account-service' type='text')
-              .col-submit
-                button.submitbtn#account-submit 등록하기
-              //-THERE'S HIDDEN FORM TO SEND TOKENS
-        script.
-          //-
-          //- turn on/off switch action
-          //-
-          var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
-          elems.forEach(function(html) {
-          var switchery = new Switchery(html);
-          });
-
-        .container
-          .col-md-12
-            h1.page-subhead-line 장부 목록
-            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%')
-              //- Table starts here
-              table#account-table.table.table-hover.table-bordered.table-mc-light-blue
-                thead
-                  tr
-                    th 일자
-                    th 내용
-                    th 수입/지출
-                    th 금액
-                    th
-                    th(style="display='none'")
-                tbody#account-table-body
-                //- DISPLAY ACCOUNT
     //- Payback modal
-    #payback-modal.modal
-      .modal-content.animate(style='width:40%')
-        form
-          .col-2
-            label
-              | ID 
-              input#payback-name(placeholder='ID를 입력해주세요.' name='alias' required='required')
-          .col-2
-            button.submitbtn#payback-submit 검색
-        .container#payback-hidden-container(style='display:none; width:100%')
+    #payback-modal.modal(style='padding-top:0px;z-index:2;')
+      form.modal-content.animate(style='width:40%;height:78%;padding:20px;padding-top:30px;margin-top:10px')
+        h1.page-subhead-line(style="font-size:18px;text-align:center") 요금제 환불
+        .sales-content(style='font-size:9px;')
           .row
-            .col-md-12
-              #payback-result(style='padding-top:5%;padding-bottom:5%;padding-left:10%')
+            .col-md-4.col-md-offset-2
+              .input-group
+                .span.input-group-addon 이름
+                input.form-control#payback-name(type='text' name='membername', readonly)
+                input#payback-alias(type='hidden')
+            .col-md-4
+              .input-group
+                .span.input-group-addon 코업머니
+                input.form-control#payback-coup(type='text' name='membername', readonly)
+          br
+          hr
+          br
           .row
-            #payback-submitform(style='display:none')
-              .col-md-8.col-md-offset-2.form-group
-                .input-group
-                  .span.input-group-addon 환불 코업머니
-                  input.form-control#payback-cashback(type='text' placeholder='환불 코업머니를 입력해주세요.' )
-              .col-md-4.col-md-offset-4
-                .main-box.mb-dull
-                  a#payback-determine.a-cursor-pointer
-                    h6 환불하기
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 이용 요금제
+                input.form-control#payback-payment(type='text' readonly)
+          br
+          .row
+            .col-md-8.col-md-offset-2
+              .input-group
+                .span.input-group-addon 잔여 일
+                input.form-control#payback-leftdays(type='text' readonly)
+          br
+          .row
+            .col-md-8.col-md-offset-2.form-group
+              .input-group
+                .span.input-group-addon 환불 코업머니
+                input.form-control#payback-cashback(type='text' placeholder='환불 코업머니를 입력해주세요.' )
+          br
+          .row(style='margin-top:7%')
+            .col-md-4.col-md-offset-4
+              .main-box.mb-dull
+                a#payback-determine.a-cursor-pointer
+                  h6 환불하기
     //- Holdoff modal
     #holdoff-modal.modal      
       .modal-content.animate(style='width:40%')
@@ -542,10 +581,6 @@ html
                         h5 명이 이용 중입니다.
                 .row  
                   .col-md-6
-                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
-                      a#recharge.a-cursor-pointer
-                        i.fa.fa-dollar.fa-5x
-                        h5 요금제 등록
                   .col-md-6
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#reserve-studyroom.a-cursor-pointer
@@ -553,21 +588,9 @@ html
                         h5 스터디룸 예약
                 .row
                   .col-md-6
-                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
-                      a#account-management.a-cursor-pointer
-                        i.fa.fa-book.fa-5x
-                        h5 장부 관리
                   .col-md-6
-                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
-                      a#use-milage.a-cursor-pointer
-                        i.fa.fa-minus-square.fa-5x
-                        h5 마일리지 사용
                 .row
                   .col-md-6
-                    .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
-                      a#charge-milage.a-cursor-pointer
-                        i.fa.fa-plus-square.fa-5x
-                        h5 마일리지 충전
                   .col-md-6
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#payback.a-cursor-pointer
@@ -664,20 +687,6 @@ html
       | 비밀번호가 정확하지 않습니다.
     #already-reigster-err-snackbar
       | 이미 등록된 회원입니다.
-    
-    script.
-      //- Set the width of the side navigation to 250px and the left margin of the page content to 250px 
-      function openNav() {
-        document.getElementById('mySidenav').style.width = "250px";
-        document.getElementById('main').style.marginLeft ="250px";
-      }
-      //- Set the width of the side navigation to 0 and the left margin of the page content to 0 
-      function closeNav() {
-        document.getElementById('mySidenav').style.width = '0';
-        document.getElementById('main').style.marginLeft = '0';
-      }    
-
-            
     //- JQUERY SCRIPTS
     script(src='public/javascripts/temp/jquery-1.10.2.js')
     //- BOOTSTRAP SCRIPTS
@@ -785,9 +794,17 @@ html
           var history             = document.getElementById('history-modal');
 
           var usage_list          = document.getElementById('member-usage-list-modal');
+          var payment_modal       = document.getElementById('new-payment-modal');
+          
+          if(event.target == payment_modal) {
+            payment_modal.style.display = "none";
+            clearPaymentModal();
+            return false;
+          }
           
           if (event.target == usage_list) {
             usage_list.style.display = "none";
+            clearUsageList();
             return false;
           }
                   
@@ -807,17 +824,7 @@ html
           
           if (event.target == payback) {
             payback.style.display = "none";
-            var paybackId = document.getElementById("payback-name").value = "";
-            var container = document.getElementById("payback-result");
-            var submitform= document.getElementById("payback-submitform");
-            
-            container.style.display = "none";
-            while (container.firstChild) {
-              container.removeChild(container.firstChild);
-            }
-            submitform.style.display = "none";
-            
-            return false;
+            clearPaybackModal();
           }
           
           if (event.target == recharge) {
@@ -943,149 +950,7 @@ html
         });
         
         
-        /*
-          All member list button clicked
-        */
-        var len;
-        $('a#all-members').click(function(event) {
-          /* get the token */
-          
-          $.ajax({
-            url: '/system/all-members',
-            method: 'post',
-          }).done(function(results) {
-            var json = JSON.parse(results);
-            var memberList = json.memberList;
-            var pnameList  = json.pnameList;
-
-            for (var i = 0; i < pnameList.length; i++) {
-              var o = memberList[i];
-              var sex;
-              if (o.sex === 0) sex = "남";
-              else             sex = "여";
-              
-              $('#all-members-table-body').append(
-                '<tr name="member-'+i+'">'+
-                ' <td data-title="ID">'+ o.alias +'</td>' +
-                ' <td data-title="membername">'+ o.membername +'</td>' +
-                ' <td data-title="payment">'+ pnameList[i]  +'</td>' +
-                ' <td data-title="leftDay">'+ o.leftDay +'</td>' +
-                ' <td data-title="seat">'+ o.seatnum+'</td>' +
-                ' <td data-title="sex">'+ sex +'</td>' +
-                ' <td data-title="prepare">' + o.prepare +'</td>' +
-                ' <td data-title="milage">' + o.milage +'</td>' + 
-                ' <td data-title="memo">' + o.memo +'</td>' + 
-                ' <td data-title="modify">' +
-                '   <i class="fa fa-pencil-square-o modify-member fa-2x" aria-hidden="true" style="cursor:pointer" title="회원정보변경"></i> &nbsp;' +
-                '   <i class="fa fa-trash-o delete-member fa-2x" aria-hidden="true" style="cursor:pointer" title="회원삭제"></i> &nbsp;' +
-                '   <i class="fa fa-list-alt list-member-usage fa-2x" aria-hidden="true" style="cursor:pointer" title="이용내역"></i> &nbsp;' +
-                '   <i class="fa fa-money sell-product fa-2x" aria-hidden="true" style="cursor:pointer" title="상품판매"></i> &nbsp;' +
-                ' </td>' +
-                '</tr>'
-              );
-              /*
-                all member MODIFY click event handler
-              */
-              $('tr[name="member-'+i+'"] td i.modify-member').on('click', function(event) {
-                var $parent = $(this).parent().parent('tr');
-                var id = $parent.find('td:eq(0)').text();
-                var editable = $parent.find('td:eq(1)').attr("contenteditable");
-                if (editable === undefined || editable == 'false') {
-                  alert("내용을 변경한 뒤 다시한번 클릭해주세요. \n\n <수정가능목록> \n  1. 이름\n  2. 잔여 일\n  3. 성별\n  4. 준비시험\n  5. 메모");
-                  $parent.find('td:eq(1)').attr("contenteditable", true); // membername
-                  //$parent.find('td:eq(2)').attr("contenteditable", true);
-                  $parent.find('td:eq(3)').attr("contenteditable", true); // left day
-                  //$parent.find('td:eq(4)').attr("contenteditable", true);
-                  $parent.find('td:eq(5)').attr("contenteditable", true);
-                  $parent.find('td:eq(6)').attr("contenteditable", true);
-                  $parent.find('td:eq(8)').attr("contenteditable", true);
-                  return false;
-                }
-                else if (editable == 'true'){
-                  
-                  $parent.find('td:eq(1)').attr("contenteditable", false);
-                  //$parent.find('td:eq(2)').attr("contenteditable", false);
-                  $parent.find('td:eq(3)').attr("contenteditable", false);
-                  //$parent.find('td:eq(4)').attr("contenteditable", false);
-                  $parent.find('td:eq(5)').attr("contenteditable", false);
-                  $parent.find('td:eq(6)').attr("contenteditable", false);
-                  $parent.find('td:eq(8)').attr("contenteditable", false);
-                  
-                  /* should pack modified data and ajax */
-                  var membername  = $parent.find('td:eq(1)').text();
-                  //var payment     = $parent.find('td:eq(2)').text();
-                  var leftDay     = $parent.find('td:eq(3)').text();
-                  var sex         = $parent.find('td:eq(5)').text();
-                  var prepare     = $parent.find('td:eq(6)').text();
-                  var memo        = $parent.find('td:eq(8)').text();
-                  
-                  $.ajax({
-                    url: '/system/modify-member-info',
-                    method: 'post',
-                    data: {
-                      id: id,
-                      membername: membername,
-                      leftDay: leftDay,
-                      //payment: payment,
-                      sex: sex,
-                      prepare: prepare,
-                      memo: memo
-                    }
-                  }).done(function(result) {
-                    alert('변경되었습니다.');
-                  });
-                }
-              });
-              /*
-                all member DELETE click event handler
-              */
-              $('tr[name="member-'+i+'"] td i.delete-member').on('click', function(event) {
-                var r = confirm("삭제하시겠습니까?");
-                if (r == true) {
-                  var $parent = $(this).parent().parent('tr');
-                  var id = $parent.find('td:eq(0)').text();
-                  
-                  $.ajax({
-                    url: '/system/delete-member-info',
-                    method: 'post',
-                    data: {id: id}
-                  }).done(function(result) {
-                    alert('삭제되었습니다.');
-                  });
-                }
-              });
-              
-              /*
-                all member SELL PRODUCT click event handler
-              */
-              $('tr[name="member-'+i+'"] td i.sell-product').on('click', function(event) {
-                var $parent = $(this).parent().parent('tr');
-                var alias   = $parent.find('td[data-title="ID"]').text();
-                var name    = $parent.find('td[data-title="membername"]').text();
-                var milage  = $parent.find('td[data-title="milage"]').text();
-                /* 1. get the product list */
-                sellProduct(cart, alias, name, milage); // in accountRelated.js cart is defined
-              });
-              
-              /*
-                all member LIST USAGE click event handler
-              */
-              $('tr[name="member-'+i+'"] td i.list-member-usage').on('click', function(event) {
-                var $parent = $(this).parent().parent('tr');
-                var alias   = $parent.find('td[data-title="ID"]').text();
-                var name    = $parent.find('td[data-title="membername"]').text();
-                showUsageList(name, alias);
-                $('#member-usage-list-modal').css("display", "block");
-              });
-            }
-            /*
-              All members table sorter
-            */
-            $('#all-members-table').tablesorter();  
-            
-            $('#all-members-list').css("display", "block");
-          });          
-        });
+        
         
         /*
           member's sales window datetimepicker
@@ -1367,299 +1232,7 @@ html
         $("#studyroom-datetimepickerMax").on("dp.change", function (e) {
           $('#studyroom-datetimepickerMin').data("DateTimePicker").maxDate(e.date);
         });
-        
-        /*
-          If admin clicked btn which reserve studyroom between two dates
-        */
-        
-        /*
-          If admin clicked btn which display accoutn list between two dates
-        */
-        $('#view-account-list').click(function() {
-          var mindate = $('#datetimepickerMin').data("date");
-          var maxdate = $('#datetimepickerMax').data("date");
-          console.log(mindate);
-          
-          if (mindate === undefined || maxdate === undefined) {
-            alert('날짜를 입력해주세요.');
-            return false;
-          }
-          /*
-            should erase old value
-          */
-          var tbody = document.getElementById('account-table-body');
-          while (tbody.firstChild) {
-            tbody.removeChild(tbody.firstChild);
-          }
-          
-          
-          /*
-            then ajax
-          */
-          $.ajax({
-            url: '/system/view-account-list',
-            method: 'post',
-            data: {
-              mindate: mindate,
-              maxdate: maxdate
-            }
-          }).done(function(results) {
-            console.log(results);
-            var json = JSON.parse(results);
-            
-            console.log(json);
-            
-            for (var i = 0; i < json.length; i++) {
-              var jsonelt = json[i];
-              var inout;
-              console.log(jsonelt.ep);
-              if (jsonelt.ep == 'true') {
-                inout = "지출";
-              }
-              else {
-                inout = "수입";
-              }
-            
-              $('tbody#account-table-body').append(
-                '<tr name="row-'+i+'">'+
-                ' <td data-title="ts">'+ jsonelt['DATE_FORMAT(ts, "%Y-%m-%d")'] +'</td>' +
-                ' <td data-title="content">'+ jsonelt.content +'</td>' +
-                ' <td data-title="inout">'+ inout +'</td>' +
-                ' <td data-title="price">'+ jsonelt.price +'</td>' +
-                ' <td date-title="modify">' +
-                  '<i class="fa fa-pencil-square-o modify-row fa-2x" aria-hidden="true"></i>' +
-                  '<i class="fa fa-trash-o delete-row fa-2x" aria-hidden="true"></i></td>' +
-                ' <td date-title="id" style="display:none" name="'+parseInt(jsonelt.id) +'" >'+parseInt(jsonelt.id)+'</td>' +
-                '</tr>'
-              );
-              
-              /*
-                account table MODIFY click event handler
-              */
-              $('tr[name="row-'+i+'"] td i.modify-row').on('click', function(event) {
-                var $parent = $(this).parent().parent('tr');
-                var id = $parent.find('td:eq(5)').text();
-                var editable = $parent.find('td[data-title="content"]').attr("contenteditable");
-                
-                if (editable === undefined || editable === false) {
-                  alert("내용을 변경한 뒤 다시한번 클릭해주세요.\n\n <수정가능목록> \n  1. 장부내용\n  2. 수입/지출 표시\n  3. 가격 ");
-                  console.log(editable);
-                  $parent.find('td:eq(1)').attr("contenteditable", true);
-                  $parent.find('td:eq(2)').attr("contenteditable", true);
-                  $parent.find('td:eq(3)').attr("contenteditable", true);
-                  return false;
-                }
-                else {
-                  
-                  $parent.find('td:eq(1)').attr("contenteditable", false);
-                  $parent.find('td:eq(2)').attr("contenteditable", false);
-                  $parent.find('td:eq(3)').attr("contenteditable", false);
-                
-                  
-                  /* should pack modified data and ajax */
-                  var content = $parent.find('td:eq(1)').text();
-                  var inout   = $parent.find('td:eq(2)').text();
-                  var price   = $parent.find('td:eq(3)').text();
-                  var id      = $parent.find('td:eq(5)').text();
-                
-                  $.ajax({
-                    url: '/system/modify-account-list',
-                    method: 'post',
-                    data: {
-                      content: content,
-                      inout: inout,
-                      price: price,
-                      id: id
-                    }
-                  }).done(function(result) {
-                    if (result === "fail") {
-                      alert('변경에 실패하였습니다.(1)');
-                    }
-                    else {
-                      alert('변경되었습니다.');                      
-                    }
-                  });
-                }
-              });
-              // end of click handler
-              /*
-                account table DELETE click event handler
-              */
-              $('tr[name="row-'+i+'"] td i.delete-row').on('click', function(event) {
-                var $parent = $(this).parent().parent('tr');
-                var id = $parent.find('td:eq(5)').text();
-                
-                $.ajax({
-                  url: '/system/delete-account-list',
-                  method: 'post',
-                  data: { id: id}
-                }).done(function(result) {
-                  alert("삭제하였습니다.");
-                  $(this).parent().parent('tr[name="row-'+i+'"]').remove();
-                });
-              });
-              // end of delete handler
-              
-              $('.modify-row').css('cursor', 'pointer');
-            }
-            
-          });
-        });
       
-        
-        
-        
-        /*
-          home link always send tokens with ajax call
-        */
-        $('a#home').click(function(event) {
-          var valAccess  = window.localStorage.getItem('accessToken');    
-          var valRefresh = window.localStorage.getItem('refreshToken'); 
-
-          $.ajax({
-            url: '/home',
-            method: 'post',
-            data: {
-              accessToken: valAccess,
-              refreshToken: valRefresh
-            }
-          });
-        });
-        //- recharge milage button clicked, inflate the recharge form
-        
-        /* 
-          Now memArr, payArr can used globally
-        */
-        var memArr;
-        var payArr;
-        $('a#recharge').click(function(event) {
-          //- When clicked, should get data from database.
-          $.ajax({
-            url: '/recharge',
-            method: 'post'
-          }).done(function(results) {
-            payArr = results.paymentObj;
-            console.log(payArr);
-            
-            
-            $('#choose-payment').append("<option>선택해주세요.</option>");
-            for (var i = 0; i < payArr.length; i++) {
-              var paymentname;
-              if(payArr[i].type === "daily") {
-                paymentname = payArr[i].name + ' - 하루 단위';
-              }
-              else if (payArr[i].type === "monthly") {
-                paymentname = payArr[i].name + ' - 월 단위';
-              }
-              else if (payArr[i].type === "halfmonthly") {
-                paymentname = payArr[i].name + ' - 보름 단위';
-              }
-              else {
-                paymentname = payArr[i].name;
-              }
-              
-              $('#choose-payment').append("<option>"+paymentname+"</option>");
-            }
-
-            $('#recharge-form').css("display", "block");
-                        
-          });
-        });
-
-        $('#choose-payment').on('change',$(this), function(event) {
-          /* if change first erae the cash value */
-          
-          var val = $(this).prop('selectedIndex');
-          if(val === 1) {
-            $("#choose-cash").attr("disabled", false);
-            $("#choose-cash").attr("placeholder", '');
-          }
-          else {
-            $("#choose-cash").attr("disabled", true);
-            $("#choose-cash").val(payArr[val-1].price);
-          }
-        })
-        /*
-          Buggy : set again disabled = true and placeholder again when window is reopened
-        */
-        /*
-          When trying to submit the form, just validate the input value, and check emptyness.
-        */
-        $("input[name='using-night']").click(function(event) {
-          alert($(this).is(':checked'));
-        });
-        $("#charge-btn").click(function(event) {
-          event.preventDefault();
-          
-          var memberId    = $("#choose-member").val();
-          var paymentIdx  = $("#choose-payment").prop('selectedIndex');
-          var cash        = $("#choose-cash").val();
-          var discount    = $('#choose-discount').val();
-          var night       = $('input[name="using-night"]').is(':checked');
-          
-          if (discount == "") {
-            discount=0;
-          }
-          
-          if (paymentIdx === 0) {
-            alert("요금제를 선택해주세요.");
-            event.preventDefault();
-          }
-          else if (cash === '') {
-            
-            alert("금액을 입력해주세요.");
-            event.preventDefault();
-          }
-          else {
-            $.ajax({
-              url: '/charge',
-              method: 'post',
-              data: {
-                minPerDay   :  payArr[paymentIdx-1].timePerDay,
-                member      :  memberId,
-                paymentId   :  payArr[paymentIdx-1].id,
-                type        :  payArr[paymentIdx-1].type,
-                price       :  $('#choose-cash').val(),
-                paymentName :  payArr[paymentIdx-1].name,
-                discount    :  discount
-                //night       : night
-              }
-            }).done(function(result) {
-              if (result == "err0") {
-                alert('성공적으로 등록되었습니다.');
-              }
-              else if (result == "err1") {
-                alert('다른 요금제를 사용중입니다. 환불 절차를 먼저 거쳐주세요.');
-              }
-              else if(result =="err2") {
-                alert('존재하지 않는 ID입니다.');
-              }
-              // clean up
-              $("#choose-member").val("");
-              $("#choose-payment").prop('selectedIndex', 0);
-              $("#choose-cash").val("");
-              $('#choose-discount').val("");
-              //- $('input[name="using-night"]').attr("checked", false);
-              //- $('.switchery')
-              //-   .css("box-shadow", "rgb(223, 223, 223) 0px 0px 0px 0px inset")
-              //-   .css("border-color", "rgb(223, 223, 223)")
-              //-   .css("background-color", "rgb(255, 255, 255)");
-              //- $('.switchery > small').css("left", "0px");
-            });
-          }
-        });
-        
-        //- When User clicked System Manger button
-        $('#system_manager').click(function(event) {
-          $.ajax({
-            url: '/home',
-            method: 'post',
-            data: {
-              accessToken: valAccess,
-              refreshToken: valRefresh
-            }
-          });          
-        });
         
         //- When User clicked System Manger button
         $('a#clients_page').click(function(event) {
@@ -1797,6 +1370,8 @@ html
           
         });
       }
+    script(type='text/javascript', src='public/javascripts/payment.js')
+    script(type='text/javascript', src='public/javascripts/all_members.js')
     script(type='text/javascript', src='public/javascripts/payback.js')
     script(type='text/javascript', src='public/javascripts/useNchargeMilage.js')
     script(type='text/javascript', src='public/javascripts/accountRelated.js')

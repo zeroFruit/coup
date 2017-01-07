@@ -104,22 +104,22 @@ html
           $counter = $('#counter'),
           sc = $('#seat-map').seatCharts({
           map: [
-            '_nn_nn____',
-            '_nn_nn____',
-            '________nn',
+            'n_n_n_n_nn',
+            'n_n_n_n___',
             '________nn',
             '__________',
             '________nn',
-            '_nn__nn_nn',
-            '_nn__nnWWW',
-            'PPPP___W__',
+            '__________',
+            'n_n_n_n_nn',
+            'n_n_n_nWEW',
+            'PP___PPW__',
             '_______W__',
-            'P_PP__PW__',
-            'P_PP__PW__',
-            'P_PP__PW__',
-            'P_PP__PW__',
+            'PPPP__PW__',
+            'PPPP__PW__',
+            'PPPP__PW__',
+            '______PW__',
             '_______E__',
-            '_______E__'
+            'wwww___E__'
           ],
           seats: {
             n: {
@@ -142,10 +142,11 @@ html
             top : false,
             left: false,
             getLabel : function (character, row, column) {
-              if ((row == 15 && column == 8) || (row == 16 && column == 8)) {
+              if ((row == 15 && column == 8) || (row == 16 && column == 8)||(row==8&&column==9)) {
                 return 'E';
               }
-              if ((row==14&&column==8)||(row==13&&column==8)||(row==12&&column==8)||(row==11&&column==8)||(row==10&&column==8)||(row==9&&column==8)||(row==8&&column==10)||(row==8&&column==9)||(row==8&&column==8)) {
+              if ((row==14&&column==8)||(row==13&&column==8)||(row==12&&column==8)||(row==11&&column==8)||(row==10&&column==8)||(row==9&&column==8)||(row==8&&column==10)||(row==8&&column==8)
+                ||(row==16&&column==1)||(row==16&&column==2)||(row==16&&column==3)||(row==16&&column==4)) {
                 return '';
               }
               return firstSeatLabel++;
@@ -188,7 +189,7 @@ html
         /*
           Enterance
         */
-        sc.get(['15_8', '16_8', '14_8', '13_8', '12_8','11_8','10_8','9_8','8_8','8_9','8_10']).status('unavailable');
+        sc.get(['15_8', '16_8', '14_8', '13_8', '12_8','11_8','10_8','9_8','8_8','8_9','8_10', '16_1', '16_2', '16_3', '16_4']).status('unavailable');
         /* 
           after creating sc object, fetch unavailable seat with seatinfo object 
         */

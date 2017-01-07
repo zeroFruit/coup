@@ -78,28 +78,33 @@ module.exports.set = function(app, passport) {
     charge - user send the form field
   */
   app.post('/charge', function(req, res, next) {
-    /*
-      req.body.
-    */
     console.log('this is charge');
     payments.updatePaymentList(req, res, next);
     /*
       req.newMilages have updated milages
     */
-  }, function(req, res, next) {
+  },
+  function(req, res, next) {
+    if (req.payment.err == "1") {
+      next();
+    }
+    else if (req.payment.err == "2") {
+      next();
+    }
+    else {
+      account.recordPayment(req, res, next);
+    }
+  },
+  function(req, res, next) {
     if (req.payment.err == "1") {
       return respond.still_use_other_payment(req, res);
     }
     else if (req.payment.err == "2") {
       return respond.no_member(req,res);
     }
-    /*
-      add register info to account db
-    */
-    req.body.content = req.body.member + ":" + req.body.paymentName;
-    req.body.inout = 'true';
-    req.body.service = req.body.discount;
-    account.addList(req, res, next);
+    else {
+      next();
+    }
   },
   function(req, res, next) {
     respond.recharge_succ(req, res);

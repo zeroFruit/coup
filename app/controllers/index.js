@@ -18,7 +18,7 @@ var recharge  = require('./recharge');
 var system    = require('./systemManagement');
 var clients   = require('./clients');
 var ad        = require('./advertise');
-
+var account   = require('./account');
 
 //test route
 var test      = require('./test');
@@ -36,6 +36,7 @@ module.exports.set = function(app) {
   system.set(app, passport);
   clients.set(app, passport);
   ad.set(app, passport);
+  account.set(app, passport);
 
 
   ///////////////test
