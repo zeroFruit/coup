@@ -129,7 +129,6 @@ function calcHistory(tmp) {
       default:
         break;
     }
-    console.log(sum);
   }// end of for
   return sum;
 }
@@ -155,7 +154,6 @@ function refreshUsageList() {
     }
   }).done(function(results) {
     clearUsageList2();
-    console.log(results);
     if (results.err == "0") {
       /* render table with results */
       var list = results.results;
