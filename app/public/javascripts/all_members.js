@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  $('#all-members-table').tablesorter(); // initialize table sorter
   /*
     All member list button clicked
   */
@@ -190,7 +191,7 @@ function refreshAllMemberTable() {
     /*
       All members table sorter
     */
-    $('#all-members-table').tablesorter();
+    $('#all-members-table').trigger('update');
 
     $('#all-members-list').css("display", "block");
   });

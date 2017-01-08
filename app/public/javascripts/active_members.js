@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  $('#active-members-table').tablesorter(); // initialize
   /*
     Active member list button clicked
   */
@@ -56,10 +57,10 @@ $(document).ready(function() {
           });
         });
       }
-      $('#active-members-table').tablesorter();
+      $('#active-members-table').trigger('update');
 
       $('#active-members-list').css("display", "block");
     });
   });
-  
+
 });
