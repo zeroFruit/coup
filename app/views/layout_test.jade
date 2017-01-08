@@ -367,7 +367,36 @@ html
                     th 코업머니
                     th 메모
                     th
-                tbody#all-members-table-body          
+                tbody#all-members-table-body 
+    //- DISPLAY ACTIVE MEMBERS LIST
+    #active-members-list.modal(style='padding-top:10px;')
+      .active-members-list-wrapper.modal-content.container(style="width:90%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
+        h1.page-subhead-line(style="font-size:20px; text-align:center") 사용 중인 회원 목록입니다.
+        .row
+          .col-md-2.col-md-offset-10
+            .input-group
+              .input-group-addon
+                i.fa.fa-search(aria-hidden="true")
+              input#active-members-filter.form-control(type="text" placeholder='이름으로 검색' onkeyup="active_members_finder()")
+        .row
+          .col-md-12
+            .table-responsive-vertical.shadow-z-1.scroll-table(style='width:100%; margin-top:1%; height:75%')
+              //- Table starts here
+              table#active-members-table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+                thead
+                  tr
+                    th ID
+                    th 이름
+                    th 요금제
+                    th 입실시간
+                    th 정지/퇴실시간
+                    th 사용시간(분)
+                    th 일시정지 여부
+                    th 휴식시간(누적)
+                    th 일시정지 시간
+                    th 퇴실처리하기
+                tbody#active-members-table-body
+              //- DISPLAY ACTIVE MEMBERS LIST         
     //- DISPLAY ACTIVE MEMBERS LIST
     #active-members-list.modal(style='padding-top:10px;')
       .active-members-list-wrapper.modal-content.container(style="width:90%; height:100%; padding:20px; padding-top:30px; margin-top:10px;")
@@ -892,6 +921,7 @@ html
                       a#reserve-studyroom.a-cursor-pointer
                         i.fa.fa-check-square-o.fa-5x
                         h5 스터디룸 예약
+                
                 .row
                   .col-md-6
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
@@ -1065,6 +1095,7 @@ html
               sex: sex
             }
           }).done(function(results) {
+            console.log(results);
             if (results == "0") {
               alert('등록에 성공했습니다.');
             }
@@ -1437,6 +1468,7 @@ html
           data: {reqeust: '1'}
         }).done(function(results) {
           var json = JSON.parse(results);
+          console.log(json);
           
           var alert_member_table_body = document.getElementById('alert-member-table-body');
           while (alert_member_table_body.firstChild) {
@@ -1502,6 +1534,7 @@ html
       }
     script(type='text/javascript', src='public/javascripts/studyroom.js')
     script(type='text/javascript', src='public/javascripts/payment.js')
+    script(type='text/javascript', src='public/javascripts/active_members.js')
     script(type='text/javascript', src='public/javascripts/all_members.js')
     script(type='text/javascript', src='public/javascripts/payback.js')
     script(type='text/javascript', src='public/javascripts/useNchargeMilage.js')
