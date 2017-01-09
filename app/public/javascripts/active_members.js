@@ -10,7 +10,6 @@ $(document).ready(function() {
       method: 'post',
     }).done(function(results) {
       var json = JSON.parse(results);
-      console.log(json);
 
       for (var i = 0; i < json.length; i++) {
         var jsonObj = json[i];
