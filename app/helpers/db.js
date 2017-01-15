@@ -1891,15 +1891,29 @@ module.exports = {
             return cb(null, {err: "4"});
           }
 
+
           for (var i = 0; i < results.length; i++) {
             var booked = results[i]; /* float, integer */
+
             if (booked.start <= fstartHour && (booked.start + booked.duration) > fstartHour ) {
+              console.log('booked.start', booked.start);
+              console.log('booked.start+booked.duration', booked.start + booked.duration);
+              console.log('fs', fstartHour);
+              console.log('fe', fendHour);
               return cb(null, {err : "2"});
             }
             else if (booked.start < fendHour && (booked.start + booked.duration) >= fendHour ) {
+              console.log('booked.start', booked.start);
+              console.log('booked.start+booked.duration', booked.start + booked.duration);
+              console.log('fs', fstartHour);
+              console.log('fe', fendHour);
               return cb(null, {err :"2"});
             }
             else if (fstartHour <= booked.start && fendHour >= (booked.start + booked.duration) ) {
+              console.log('booked.start', booked.start);
+              console.log('booked.start+booked.duration', booked.start + booked.duration);
+              console.log('fs', fstartHour);
+              console.log('fe', fendHour);
               return cb(null, {err : "2"});
             }
           }
@@ -2347,7 +2361,7 @@ module.exports = {
         }
       });
     },
-    
+
     getHistroy: function(cb) {
       // handle last element
       var date = moment();
