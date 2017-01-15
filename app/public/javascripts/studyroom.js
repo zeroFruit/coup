@@ -15,140 +15,15 @@ $(document).ready(function() {
     /*
       open the select hour form
     */
-    /* before block container, erase old tr */
-    var tbody1 = document.getElementById('reservation-table-body-1');
-    while(tbody1.firstChild) {
-      tbody1.removeChild(tbody1.firstChild);
-    }
-    var tbody2 = document.getElementById('reservation-table-body-2');
-    while(tbody2.firstChild) {
-      tbody2.removeChild(tbody2.firstChild);
-    }
-    var tbody3 = document.getElementById('reservation-table-body-3');
-    while(tbody3.firstChild) {
-      tbody3.removeChild(tbody3.firstChild);
-    }
+    clearStudyroomStatus();
 
     $.ajax({
       url: '/system/studyroom-currentstate',
       method: 'post'
     }).done(function(results) {
-      var json = JSON.parse(results);
-      var room1Reservation = json.room1;
-      var room2Reservation = json.room2;
-      var room3Reservation = json.room3;
-      /*
-        SHOULD RENDER THE JSON DATA
-      */
-      /*
-        Now we should separate depends on the room number
-      */
-      /* render room 1 column */
-      for (var i = 0; i < room1Reservation.length; i++) {
-        var jsonelt = room1Reservation[i];
-
-        if (jsonelt.users == "") {
-          jsonelt.users = "-";
-        }
-        if (jsonelt.purpose == "") {
-          jsonelt.purpose = "-";
-        }
-        var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-        var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-        var option = jsonelt.ro;
-        if (option == 0) {
-          option = "평일, 주말";
-        }
-        else if (option == 1) {
-          option = "주말";
-        }
-        else if (option == 2) {
-          option = "평일";
-        }
-        $('#reservation-table-body-1').append(
-          '<tr name="sr1-'+i+'">'+
-          ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-          ' <td data-title="st">'+ jsonelt.start +'</td>' +
-          ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-          ' <td data-title="room">'+ jsonelt.room +'</td>' +
-          ' <td data-title="user">'+ jsonelt.users +'</td>' +
-          ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-          ' <td data-title="option">'+ option +'</td>'
-        );
-      }
-      /* render room 2 column */
-      for (var i = 0; i < room2Reservation.length; i++) {
-        var jsonelt = room2Reservation[i];
-
-        if (jsonelt.users == "") {
-          jsonelt.users = "-";
-        }
-        if (jsonelt.purpose == "") {
-          jsonelt.purpose = "-";
-        }
-        var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-        var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-        var option = jsonelt.ro;
-        if (option == 0) {
-          option = "평일, 주말";
-        }
-        else if (option == 1) {
-          option = "주말";
-        }
-        else if (option == 2) {
-          option = "평일";
-        }
-        $('#reservation-table-body-2').append(
-          '<tr name="sr2-'+i+'">'+
-          ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-          ' <td data-title="st">'+ jsonelt.start +'</td>' +
-          ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-          ' <td data-title="room">'+ jsonelt.room +'</td>' +
-          ' <td data-title="user">'+ jsonelt.users +'</td>' +
-          ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-          ' <td data-title="option">'+ option +'</td>'
-        );
-      }
-      /* render room 3 column */
-      for (var i = 0; i < room3Reservation.length; i++) {
-        var jsonelt = room3Reservation[i];
-
-        if (jsonelt.users == "") {
-          jsonelt.users = "-";
-        }
-        if (jsonelt.purpose == "") {
-          jsonelt.purpose = "-";
-        }
-        var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-        var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-        var option = jsonelt.ro;
-        if (option == 0) {
-          option = "평일, 주말";
-        }
-        else if (option == 1) {
-          option = "주말";
-        }
-        else if (option == 2) {
-          option = "평일";
-        }
-        $('#reservation-table-body-3').append(
-          '<tr name="sr3-'+i+'">'+
-          ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-          ' <td data-title="st">'+ jsonelt.start +'</td>' +
-          ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-          ' <td data-title="room">'+ jsonelt.room +'</td>' +
-          ' <td data-title="user">'+ jsonelt.users +'</td>' +
-          ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-          ' <td data-title="option">'+ option +'</td>'
-        );
-      }
-
-      /*
-        tablesort
-      */
-      $('#study1-table').trigger('update');
-      $('#study2-table').trigger('update');
-      $('#study3-table').trigger('update');
+      renderStudyroomStatus(results);
+      $('#status-choosedDate').text('(현재 날짜 기준)');
+      updateStudyroomStatusTable();
 
     }); // end of callback
   });
@@ -167,142 +42,20 @@ $(document).ready(function() {
       /*
         open the select hour form
       */
-      /* before block container, erase old tr */
-      var tbody1 = document.getElementById('reservation-table-body-1');
-      while(tbody1.firstChild) {
-        tbody1.removeChild(tbody1.firstChild);
-      }
-      var tbody2 = document.getElementById('reservation-table-body-2');
-      while(tbody2.firstChild) {
-        tbody2.removeChild(tbody2.firstChild);
-      }
-      var tbody3 = document.getElementById('reservation-table-body-3');
-      while(tbody3.firstChild) {
-        tbody3.removeChild(tbody3.firstChild);
-      }
+      clearStudyroomStatus()
 
       $('#select-hours-container').css('display', 'block');
 
       $.ajax({
         url: '/system/studyroom-currentstate',
-        method: 'post'
+        method: 'post',
+        data: {
+          dateMin: reserveDateMin
+        }
       }).done(function(results) {
-        var json = JSON.parse(results);
-        var room1Reservation = json.room1;
-        var room2Reservation = json.room2;
-        var room3Reservation = json.room3;
-        /*
-          SHOULD RENDER THE JSON DATA
-        */
-        /*
-          Now we should separate depends on the room number
-        */
-        /* render room 1 column */
-        for (var i = 0; i < room1Reservation.length; i++) {
-          var jsonelt = room1Reservation[i];
-
-          if (jsonelt.users == "") {
-            jsonelt.users = "-";
-          }
-          if (jsonelt.purpose == "") {
-            jsonelt.purpose = "-";
-          }
-          var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-          var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-          var option = jsonelt.ro;
-          if (option == 0) {
-            option = "평일, 주말";
-          }
-          else if (option == 1) {
-            option = "주말";
-          }
-          else if (option == 2) {
-            option = "평일";
-          }
-          $('#reservation-table-body-1').append(
-            '<tr name="sr1-'+i+'">'+
-            ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-            ' <td data-title="st">'+ jsonelt.start +'</td>' +
-            ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-            ' <td data-title="room">'+ jsonelt.room +'</td>' +
-            ' <td data-title="user">'+ jsonelt.users +'</td>' +
-            ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-            ' <td data-title="option">'+ option +'</td>'
-          );
-        }
-        /* render room 2 column */
-        for (var i = 0; i < room2Reservation.length; i++) {
-          var jsonelt = room2Reservation[i];
-
-          if (jsonelt.users == "") {
-            jsonelt.users = "-";
-          }
-          if (jsonelt.purpose == "") {
-            jsonelt.purpose = "-";
-          }
-          var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-          var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-          var option = jsonelt.ro;
-          if (option == 0) {
-            option = "평일, 주말";
-          }
-          else if (option == 1) {
-            option = "주말";
-          }
-          else if (option == 2) {
-            option = "평일";
-          }
-          $('#reservation-table-body-2').append(
-            '<tr name="sr2-'+i+'">'+
-            ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-            ' <td data-title="st">'+ jsonelt.start +'</td>' +
-            ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-            ' <td data-title="room">'+ jsonelt.room +'</td>' +
-            ' <td data-title="user">'+ jsonelt.users +'</td>' +
-            ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-            ' <td data-title="option">'+ option +'</td>'
-          );
-        }
-        /* render room 3 column */
-        for (var i = 0; i < room3Reservation.length; i++) {
-          var jsonelt = room3Reservation[i];
-
-          if (jsonelt.users == "") {
-            jsonelt.users = "-";
-          }
-          if (jsonelt.purpose == "") {
-            jsonelt.purpose = "-";
-          }
-          var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-          var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-          var option = jsonelt.ro;
-          if (option == 0) {
-            option = "평일, 주말";
-          }
-          else if (option == 1) {
-            option = "주말";
-          }
-          else if (option == 2) {
-            option = "평일";
-          }
-          $('#reservation-table-body-3').append(
-            '<tr name="sr3-'+i+'">'+
-            ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-            ' <td data-title="st">'+ jsonelt.start +'</td>' +
-            ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-            ' <td data-title="room">'+ jsonelt.room +'</td>' +
-            ' <td data-title="user">'+ jsonelt.users +'</td>' +
-            ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-            ' <td data-title="option">'+ option +'</td>'
-          );
-        }
-
-        /*
-          tablesort
-        */
-        $('#study1-table').trigger('update');
-        $('#study2-table').trigger('update');
-        $('#study3-table').trigger('update');
+        renderStudyroomStatus(results);
+        $('#status-choosedDate').text(`${reserveDateMin} ~ ${reserveDateMax} 날짜 기준`);
+        updateStudyroomStatusTable();
       }); // end of callback
     }
   });
@@ -323,19 +76,7 @@ $(document).ready(function() {
       /*
         open the select hour form
       */
-      /* before block container, erase old tr */
-      var tbody1 = document.getElementById('reservation-table-body-1');
-      while(tbody1.firstChild) {
-        tbody1.removeChild(tbody1.firstChild);
-      }
-      var tbody2 = document.getElementById('reservation-table-body-2');
-      while(tbody2.firstChild) {
-        tbody2.removeChild(tbody2.firstChild);
-      }
-      var tbody3 = document.getElementById('reservation-table-body-3');
-      while(tbody3.firstChild) {
-        tbody3.removeChild(tbody3.firstChild);
-      }
+      clearStudyroomStatus();
       /*
         open the select hour form
       */
@@ -343,124 +84,14 @@ $(document).ready(function() {
 
       $.ajax({
         url: '/system/studyroom-currentstate',
-        method: 'post'
+        method: 'post',
+        data: {
+          dateMin: cancelDateMin
+        }
       }).done(function(results) {
-        var json = JSON.parse(results);
-        var room1Reservation = json.room1;
-        var room2Reservation = json.room2;
-        var room3Reservation = json.room3;
-        /*
-          SHOULD RENDER THE JSON DATA
-        */
-        /*
-          Now we should separate depends on the room number
-        */
-        /* render room 1 column */
-        for (var i = 0; i < room1Reservation.length; i++) {
-          var jsonelt = room1Reservation[i];
-
-          if (jsonelt.users == "") {
-            jsonelt.users = "-";
-          }
-          if (jsonelt.purpose == "") {
-            jsonelt.purpose = "-";
-          }
-          var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-          var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-          var option = jsonelt.ro;
-          if (option == 0) {
-            option = "평일, 주말";
-          }
-          else if (option == 1) {
-            option = "주말";
-          }
-          else if (option == 2) {
-            option = "평일";
-          }
-          $('#reservation-table-body-1').append(
-            '<tr name="sr1-'+i+'">'+
-            ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-            ' <td data-title="st">'+ jsonelt.start +'</td>' +
-            ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-            ' <td data-title="room">'+ jsonelt.room +'</td>' +
-            ' <td data-title="user">'+ jsonelt.users +'</td>' +
-            ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-            ' <td data-title="option">'+ option +'</td>'
-          );
-        }
-        /* render room 2 column */
-        for (var i = 0; i < room2Reservation.length; i++) {
-          var jsonelt = room2Reservation[i];
-
-          if (jsonelt.users == "") {
-            jsonelt.users = "-";
-          }
-          if (jsonelt.purpose == "") {
-            jsonelt.purpose = "-";
-          }
-          var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-          var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-          var option = jsonelt.ro;
-          if (option == 0) {
-            option = "평일, 주말";
-          }
-          else if (option == 1) {
-            option = "주말";
-          }
-          else if (option == 2) {
-            option = "평일";
-          }
-          $('#reservation-table-body-2').append(
-            '<tr name="sr2-'+i+'">'+
-            ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-            ' <td data-title="st">'+ jsonelt.start +'</td>' +
-            ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-            ' <td data-title="room">'+ jsonelt.room +'</td>' +
-            ' <td data-title="user">'+ jsonelt.users +'</td>' +
-            ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-            ' <td data-title="option">'+ option +'</td>'
-          );
-        }
-        /* render room 3 column */
-        for (var i = 0; i < room3Reservation.length; i++) {
-          var jsonelt = room3Reservation[i];
-
-          if (jsonelt.users == "") {
-            jsonelt.users = "-";
-          }
-          if (jsonelt.purpose == "") {
-            jsonelt.purpose = "-";
-          }
-          var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
-          var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
-          var option = jsonelt.ro;
-          if (option == 0) {
-            option = "평일, 주말";
-          }
-          else if (option == 1) {
-            option = "주말";
-          }
-          else if (option == 2) {
-            option = "평일";
-          }
-          $('#reservation-table-body-3').append(
-            '<tr name="sr3-'+i+'">'+
-            ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
-            ' <td data-title="st">'+ jsonelt.start +'</td>' +
-            ' <td data-title="du">'+ jsonelt.duration +'</td>' +
-            ' <td data-title="room">'+ jsonelt.room +'</td>' +
-            ' <td data-title="user">'+ jsonelt.users +'</td>' +
-            ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
-            ' <td data-title="option">'+ option +'</td>'
-          );
-        }
-
-        /*
-          tablesort
-        */
-        $('#study1-table').trigger('update');
-        $('#study2-table').trigger('update');
-        $('#study3-table').trigger('update');
+        renderStudyroomStatus(results);
+        $('#status-choosedDate').text(`${cancelDateMin} ~ ${cancelDateMax} 날짜 기준`);
+        updateStudyroomStatusTable();
       }); // end of callback
     }
   });
@@ -522,6 +153,11 @@ $(document).ready(function() {
         alert('예약에 성공했습니다.\n\n  예약 일 수 :'+json.days+' 일');
       }
       /*
+        should empty the datepicker input value
+      */
+      clearStudyroomDatetimePicker();
+
+      /*
         Should clear the select hour form after that..
       */
       $('#select-hours').prop('selectedIndex', 0);
@@ -557,7 +193,10 @@ $(document).ready(function() {
     }).done(function(results) {
       if (results == "0") {
         alert("취소하였습니다.");
-
+        /*
+          should empty the datepicker input value
+        */
+        clearStudyroomDatetimePicker();
         /*
           Should clear the select hour form after that..
         */
@@ -571,3 +210,151 @@ $(document).ready(function() {
     });
   });
 });
+
+function clearStudyroomStatus() {
+  /* before block container, erase old tr */
+  var tbody1 = document.getElementById('reservation-table-body-1');
+  while(tbody1.firstChild) {
+    tbody1.removeChild(tbody1.firstChild);
+  }
+  var tbody2 = document.getElementById('reservation-table-body-2');
+  while(tbody2.firstChild) {
+    tbody2.removeChild(tbody2.firstChild);
+  }
+  var tbody3 = document.getElementById('reservation-table-body-3');
+  while(tbody3.firstChild) {
+    tbody3.removeChild(tbody3.firstChild);
+  }
+}
+
+function emptyDatePicker() {
+
+}
+
+function renderStudyroomStatus(results) {
+  var json = JSON.parse(results);
+  var room1Reservation = json.room1;
+  var room2Reservation = json.room2;
+  var room3Reservation = json.room3;
+  /*
+    SHOULD RENDER THE JSON DATA
+  */
+  /*
+    Now we should separate depends on the room number
+  */
+  /* render room 1 column */
+  for (var i = 0; i < room1Reservation.length; i++) {
+    var jsonelt = room1Reservation[i];
+
+    if (jsonelt.users == "") {
+      jsonelt.users = "-";
+    }
+    if (jsonelt.purpose == "") {
+      jsonelt.purpose = "-";
+    }
+    var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+    var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+    var option = jsonelt.ro;
+    if (option == 0) {
+      option = "평일, 주말";
+    }
+    else if (option == 1) {
+      option = "주말";
+    }
+    else if (option == 2) {
+      option = "평일";
+    }
+    $('#reservation-table-body-1').append(
+      '<tr name="sr1-'+i+'">'+
+      ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+      ' <td data-title="st">'+ jsonelt.start +'</td>' +
+      ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+      ' <td data-title="room">'+ jsonelt.room +'</td>' +
+      ' <td data-title="user">'+ jsonelt.users +'</td>' +
+      ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+      ' <td data-title="option">'+ option +'</td>'
+    );
+  }
+  /* render room 2 column */
+  for (var i = 0; i < room2Reservation.length; i++) {
+    var jsonelt = room2Reservation[i];
+
+    if (jsonelt.users == "") {
+      jsonelt.users = "-";
+    }
+    if (jsonelt.purpose == "") {
+      jsonelt.purpose = "-";
+    }
+    var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+    var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+    var option = jsonelt.ro;
+    if (option == 0) {
+      option = "평일, 주말";
+    }
+    else if (option == 1) {
+      option = "주말";
+    }
+    else if (option == 2) {
+      option = "평일";
+    }
+    $('#reservation-table-body-2').append(
+      '<tr name="sr2-'+i+'">'+
+      ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+      ' <td data-title="st">'+ jsonelt.start +'</td>' +
+      ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+      ' <td data-title="room">'+ jsonelt.room +'</td>' +
+      ' <td data-title="user">'+ jsonelt.users +'</td>' +
+      ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+      ' <td data-title="option">'+ option +'</td>'
+    );
+  }
+  /* render room 3 column */
+  for (var i = 0; i < room3Reservation.length; i++) {
+    var jsonelt = room3Reservation[i];
+
+    if (jsonelt.users == "") {
+      jsonelt.users = "-";
+    }
+    if (jsonelt.purpose == "") {
+      jsonelt.purpose = "-";
+    }
+    var rs = jsonelt['DATE_FORMAT(tsStart, "%Y-%m-%d")'];
+    var re = jsonelt['DATE_FORMAT(tsEnd, "%Y-%m-%d")'];
+    var option = jsonelt.ro;
+    if (option == 0) {
+      option = "평일, 주말";
+    }
+    else if (option == 1) {
+      option = "주말";
+    }
+    else if (option == 2) {
+      option = "평일";
+    }
+    $('#reservation-table-body-3').append(
+      '<tr name="sr3-'+i+'">'+
+      ' <td data-title="rd">'+ rs +' ~ '+ re +'</td>' +
+      ' <td data-title="st">'+ jsonelt.start +'</td>' +
+      ' <td data-title="du">'+ jsonelt.duration +'</td>' +
+      ' <td data-title="room">'+ jsonelt.room +'</td>' +
+      ' <td data-title="user">'+ jsonelt.users +'</td>' +
+      ' <td data-title="purpose">'+ jsonelt.purpose +'</td>' +
+      ' <td data-title="option">'+ option +'</td>'
+    );
+  }
+}
+
+function updateStudyroomStatusTable() {
+  /*
+    tablesort
+  */
+  $('#study1-table').trigger('update');
+  $('#study2-table').trigger('update');
+  $('#study3-table').trigger('update');
+}
+
+function clearStudyroomDatetimePicker() {
+  $('#studyroom-datetimepickerMin input').val('');
+  $('#studyroom-datetimepickerMax input').val('');
+  $('#studyroom-datetimepickerMin-cancel input').val('');
+  $('#studyroom-datetimepickerMax-cancel input').val('');
+}

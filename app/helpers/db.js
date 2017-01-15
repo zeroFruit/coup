@@ -401,9 +401,6 @@ module.exports = {
             console.log('you are prepay member but no milage, abort');
             return cb(null, {err: "7"});
           }
-          // else if() {
-          //
-          // }
           else {
             /*
               Before enter we need to check whether time is over 12:00 PM
@@ -898,7 +895,6 @@ module.exports = {
             }
             else {
               console.log('this is pause');
-              console.log(results);
               var resultObj = results[0];
               isPause = resultObj.pause;
               pts = resultObj['DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s")'];
@@ -1168,6 +1164,8 @@ module.exports = {
 
     /*
       checkPause
+
+        For those of who paused over 60 minutes, turn their states into 'LEFT'
     */
     checkPause: function(cb) {
       console.log('checkPause');
@@ -1188,8 +1186,6 @@ module.exports = {
             var diff = Math.abs(tsCur - tsObj);
 
             var minutes = Math.floor((diff/1000)/60);
-
-            console.log('alias: '+ obj.alias+' minutes: ' + minutes);
 
             if (minutes > 60) {
               uptList.push(obj.alias);
@@ -1239,7 +1235,10 @@ module.exports = {
                           hour++;
                         }
                         fee = hour * 800;
-                        /* this member status is changed as left */
+                        /*
+                          this member status is changed as left
+                          But break keep its value for final
+                        */
                         var sql = 'UPDATE members SET milage=milage-?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=?';
                         conn.query(sql, [fee, alias], function(err, results) {
                           if (err) {
@@ -1819,24 +1818,45 @@ module.exports = {
       studyRoomCurrentState
     */
     studyRoomCurrentState: function(data, cb) {
-      /*
-        data.reserveDate
-      */
-
-      var sql = 'SELECT room, users, purpose, duration, start, DATE_FORMAT(tsStart, "%Y-%m-%d"), DATE_FORMAT(tsEnd, "%Y-%m-%d"), ro ';
-      sql += 'FROM studyroom n ';
-      sql += 'WHERE tsEnd >= CURDATE() AND id = (SELECT MAX(id) FROM studyroom n2 WHERE n2.users = n.users AND n2.tsStart = n.tsStart AND n2.tsEnd = n.tsEnd AND n2.room = n.room AND n2.start = n.start AND n2.duration = n.duration)';
-      conn.query(sql, function(err, results) {
-        if (err) {
-          console.log(err);
-          cb(new Error('query error'));
-        }
-        else {
-          console.log('this is view studyroom reservation list');
-          console.log(results);
-          cb(null, results);
-        }
-      });
+      if (data.dateMin) {
+        /*
+          When there's min date, then query data depends on min date
+          (When select, cancel date select fired this block is executed)
+        */
+        var sql = 'SELECT room, users, purpose, duration, start, DATE_FORMAT(tsStart, "%Y-%m-%d"), DATE_FORMAT(tsEnd, "%Y-%m-%d"), ro ';
+        sql += 'FROM studyroom n ';
+        sql += 'WHERE tsEnd >= STR_TO_DATE(?, "%Y-%m-%d") AND id = (SELECT MAX(id) FROM studyroom n2 WHERE n2.users = n.users AND n2.tsStart = n.tsStart AND n2.tsEnd = n.tsEnd AND n2.room = n.room AND n2.start = n.start AND n2.duration = n.duration)';
+        conn.query(sql, [data.dateMin], function(err, results) {
+          if (err) {
+            console.log(err);
+            cb(new Error('query error'));
+          }
+          else {
+            console.log('this is view studyroom reservation list');
+            cb(null, results);
+          }
+        });
+      }
+      else {
+        /*
+          WHne there's no min date, then query data depends on current date
+          (When refresh button fired, this block execute)
+        */
+        var sql = 'SELECT room, users, purpose, duration, start, DATE_FORMAT(tsStart, "%Y-%m-%d"), DATE_FORMAT(tsEnd, "%Y-%m-%d"), ro ';
+        sql += 'FROM studyroom n ';
+        sql += 'WHERE tsEnd >= CURDATE() AND id = (SELECT MAX(id) FROM studyroom n2 WHERE n2.users = n.users AND n2.tsStart = n.tsStart AND n2.tsEnd = n.tsEnd AND n2.room = n.room AND n2.start = n.start AND n2.duration = n.duration)';
+        conn.query(sql, function(err, results) {
+          if (err) {
+            console.log(err);
+            cb(new Error('query error'));
+          }
+          else {
+            console.log('this is view studyroom reservation list');
+            console.log(results);
+            cb(null, results);
+          }
+        });
+      }
     },
 
     /*
@@ -1894,26 +1914,13 @@ module.exports = {
 
           for (var i = 0; i < results.length; i++) {
             var booked = results[i]; /* float, integer */
-
             if (booked.start <= fstartHour && (booked.start + booked.duration) > fstartHour ) {
-              console.log('booked.start', booked.start);
-              console.log('booked.start+booked.duration', booked.start + booked.duration);
-              console.log('fs', fstartHour);
-              console.log('fe', fendHour);
               return cb(null, {err : "2"});
             }
             else if (booked.start < fendHour && (booked.start + booked.duration) >= fendHour ) {
-              console.log('booked.start', booked.start);
-              console.log('booked.start+booked.duration', booked.start + booked.duration);
-              console.log('fs', fstartHour);
-              console.log('fe', fendHour);
               return cb(null, {err :"2"});
             }
             else if (fstartHour <= booked.start && fendHour >= (booked.start + booked.duration) ) {
-              console.log('booked.start', booked.start);
-              console.log('booked.start+booked.duration', booked.start + booked.duration);
-              console.log('fs', fstartHour);
-              console.log('fe', fendHour);
               return cb(null, {err : "2"});
             }
           }
@@ -2017,12 +2024,8 @@ module.exports = {
             }
           }
 
-          console.log('insertData');
-          console.log(insertData+"\r\n");
           /* Now reservation time is valid */
           var sql = 'INSERT INTO studyroom (ro, ts, start, duration, room, users, purpose, tsStart, tsEnd) VALUES ' + insertData;
-          console.log('sql');
-          console.log(sql);
           conn.query(sql, function(err, results) {
             if (err) {
               console.log(err);
@@ -2140,11 +2143,6 @@ module.exports = {
                         nextQS += next[next.length-1];
                       }
 
-                      console.log('prevNewRdsStr:prevNewRdeStr');
-                      console.log(prevNewRdsStr+":"+prevNewRdeStr);
-                      console.log('nextNewRdsStr:nextNewRdeStr');
-                      console.log(nextNewRdsStr+":"+nextNewRdeStr);
-
                       var sql = 'UPDATE studyroom SET tsStart = DATE(STR_TO_DATE("'+prevNewRdsStr+'", "%Y-%m-%d %H:%i:%s")), tsEnd = DATE(STR_TO_DATE("'+prevNewRdeStr+'", "%Y-%m-%d %H:%i:%s")) WHERE id IN ('+prevQS+')';
                       conn.query(sql, function(err, results) {
                         if (err) {
@@ -2216,7 +2214,7 @@ module.exports = {
     },
 
     holdoff: function(data, cb) {
-
+      console.log('this is holdoff');
       var sql = 'UPDATE members SET stop=IF(stop=0, 1, 0) WHERE id=?';
       conn.query(sql, [data.id], function(err, result) {
         if (err) {
@@ -2226,7 +2224,6 @@ module.exports = {
         else {
           var sql = 'SELECT stop FROM members WHERE id=?';
           conn.query(sql, [data.id], function(err, result) {
-            console.log(result);
             var isStop = result[0].stop;
             cb(null, {err: "0", do: isStop});
           });
@@ -2235,6 +2232,7 @@ module.exports = {
     },
 
     vacantSeat: function(data, cb) {
+      console.log('this is vacantSeat');
       /*
         first select member payment, if that member is prepay member get the ts and get min diff
       */
@@ -2257,7 +2255,6 @@ module.exports = {
             /* get time diff */
             var ts  = obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
 
-            console.log(cts);
             /*
               get Date Object from String
             */
@@ -2321,6 +2318,7 @@ module.exports = {
       getPauseTs
     */
     getPauseTs: function(alias, cb) {
+      console.log('this is getPauseTs');
       var sql = 'SELECT alias, DATE_FORMAT(ts, "%Y-%m-%d %H:%i") FROM pause_table WHERE alias=? AND mask=1';
       conn.query(sql, [alias], function(err, results) {
         if (err) {
@@ -2329,8 +2327,6 @@ module.exports = {
         }
         else {
           var tmp = results[0];
-          console.log('db');
-          console.log(results);
           if (results.length > 1) {
             return cb(null, {err: "1"}); /* querying result is not 1*/
           }

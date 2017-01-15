@@ -802,6 +802,7 @@ html
           .row
             .col-md-12
               h1.page-subhead-line(style='font-size:18px; text-align: center') 예약 현황 
+              h1.page-subhead-line#status-choosedDate(style='font-size:18px; text-align: center') (현재 날짜 기준)
           .row
             .col-md-2.col-md-offset-5
               .main-box.mb-dull(style='padding:5px')
@@ -1358,6 +1359,28 @@ html
         */
         setInterval(pauseTableChk, 10 * 60 * 1000);
       });
+      function product_finder() {
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("products-filter");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("product-table");
+        tr = table.getElementsByTagName("tr");
+        
+        /*
+          Loop through all table rows, and hide those who don't match the search query
+        */
+        for (var i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[0]; // filter with name
+          if (td) {
+            if(td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            }
+            else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
       /*
         all-members-table finder with name
       */ 

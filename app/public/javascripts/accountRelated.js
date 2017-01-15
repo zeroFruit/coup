@@ -9,7 +9,9 @@ function clearSalesWin() {
   $('#sales-option option:eq(0)').prop('selected', true);
   $('#sales-payday-datetimepicker').val('');
   $('#sales-memo').val('');
+  $('#products-filter').val('');
 }
+
 function clearShoppingList() {
   var $shoppinglist_tbody = document.getElementById("selected-product-table-body");
   /* and also should erase their children */
