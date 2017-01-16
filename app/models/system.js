@@ -16,6 +16,17 @@ const moment          = require('moment');
 const moment_tz       = require('moment-timezone');
 
 module.exports = {
+  pauseleave: function(req, res, next) {
+    db.member.PauseLeave(req.body, function(err, results) {
+      if (err) {
+        console.log(err);
+        return next(err);
+      }
+      else {
+        next();
+      }
+    });
+  },
   /*
     chgAdminInfo
   */

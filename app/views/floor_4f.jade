@@ -63,6 +63,7 @@ html
       input(type='hidden' name='floorid')
       input(type='hidden' name='mn')
       input(type='hidden' name='n')
+      input(type='hidden' name='ab')
     form#floor-change(action='/clients/floor' method='post')
       input(type='hidden' name='alias')
       input(type='hidden' name='floornum')
@@ -70,15 +71,13 @@ html
       input(type='hidden' name='lt')
       input(type='hidden' name='mn')
       input(type='hidden' name='n')
-      
+      input(type='hidden' name='ab')
     //- JQUERY SCRIPTS
     script(src='public/javascripts/temp/jquery-1.10.2.js')
     //- BOOTSTRAP SCRIPTS
     script(src='public/javascripts/temp/bootstrap.js')
     //- METISMENU SCRIPTS
     script(src='public/javascripts/temp/jquery.metisMenu.js')
-    //- TEMPLATE LAYOUT SCRIPTS
-    script(src='public/javascripts/temp/custom.js')
     script(src='public/javascripts/temp/jquery.seat-charts.min.js')
     script.
       var floorid         = "4";
@@ -89,6 +88,7 @@ html
       var leftTime        = '!{leftTime}';
       var membername      = '!{membername}';
       var night           = '!{night}';
+      var accumlateBreak  = '!{accumlateBreak}';
       
       var jsonSeatInfo  = JSON.parse(seatinfo);
       //alert(seatinfo);
@@ -249,6 +249,7 @@ html
           $('input[name="floorid"]').val(floorid); /* this indicate which floor are you going to book */
           $('input[name="mn"]').val(membername);
           $('input[name="n"]').val(night);
+          $('input[name="ab"]').val(accumlateBreak);
           
           $('#seat-submit').submit();
         });
@@ -261,6 +262,7 @@ html
           $('input[name="alias"]').val(accessMember);
           $('input[name="mn"]').val(membername);
           $('input[name="n"]').val(night);
+          $('input[name="ab"]').val(accumlateBreak);
           
           $('#floor-change').submit();                   
         });
@@ -271,6 +273,7 @@ html
           $('input[name="alias"]').val(accessMember);
           $('input[name="mn"]').val(membername);
           $('input[name="n"]').val(night);
+          $('input[name="ab"]').val(accumlateBreak);
           
           $('#floor-change').submit();                   
         });

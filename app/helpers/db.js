@@ -411,8 +411,19 @@ module.exports = {
               night = 1; // if night enterance then set night as 1
             }
 
+            /* set flag */
+            var resObj    = results[0];
+            var ts        = resObj.ts;
+            var pause     = resObj.pause;
+            var enterance = resObj.enterance;
+            console.log('resObj', resObj);
+            console.log('ts', ts);
+            var accumlateBreak = false;
+            if (ts !== null && pause === '0' && enterance === '0') {
+              accumlateBreak = true;
+            }
+            console.log('accumlateBreak', accumlateBreak);
             console.log('this is enter');
-            console.log(results);
 
             if(results[0].payment == '0') { // if prepay user trying to enter, than change milage to left time
               var milage = results[0].milage;
@@ -420,8 +431,6 @@ module.exports = {
               results[0].leftTime = leftHour * 60;
 
             }
-            console.log('this is leftTime');
-            console.log(results[0].leftTime);
             cb(null,
               {
                 err: "0",
@@ -430,6 +439,7 @@ module.exports = {
                 paymentid: results[0].payment,
                 leftTime: results[0].leftTime.toString(),
                 membername: results[0].membername,
+                accumlateBreak: accumlateBreak,
                 night: night
               });
           }
@@ -441,19 +451,24 @@ module.exports = {
     */
     takeSeat: function(data, cb) {
 
+      console.log('this is takeSeat');
       console.log(data);
       /*
         data.paymentid
       */
-      var paymentid  = data.paymentid;
-      var leftTime   = data.leftTime;
-      var membername = data.mn;
-      var night      = data.n;  // if 1, this is night mode
+      var paymentid       = data.paymentid;
+      var leftTime        = data.leftTime;
+      var membername      = data.mn;
+      var night           = data.n;  // if 1, this is night mode
+      var accumlateBreak  = data.ab;     // this is for checking pause then leaving member
+
+      console.log('accumlateBreak', accumlateBreak);
 
       /*
         after 12:00 PM, change payment policy, except free user
+        But reject for those who pause leave members
       */
-      if (night === 1 && paymentid !== '14') {
+      if (night === 1 && paymentid !== '14' && accumlateBreak === false) {
 
         var today = moment().tz('Asia/Tokyo').format('YYYY-MM-DD').toString();
         today = today + " 05:00:00"; /* get today 05:00:00 AM */
@@ -515,8 +530,57 @@ module.exports = {
         /* this need to set fints */
         if (paymentid === '0' || paymentid === '2' || paymentid === '4' || paymentid === '5' || paymentid === '6'
           || paymentid === '8' || paymentid === '9' || paymentid === '10' || paymentid === '11') {
-            console.log('leftTIME');
-            console.log(leftTime);
+
+          if (accumlateBreak == 'true') {
+            /* do not init ts
+              and update break as CURTIME - PTS min
+            */
+            var sql = 'SELECT DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+            conn.query(sql, [data.alias], function(err, results) {
+              if (err) {
+                console.log(err);
+                cb(new Error('query error'));
+              }
+              else {
+                console.log('ab true');
+                var pts = results[0]['DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s")'];
+                var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                /*
+                  before update rts, let's calculate break min
+                */
+                var ptsDate   = new Date(Date.parse(pts.replace('-','/','g')));
+                var curTsDate = new Date(Date.parse(currentTsStr.replace('-','/','g')));
+                var diff = curTsDate - ptsDate;
+                var breaks = Math.floor((diff/1000)/60);
+
+                var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, break=break+? WHERE alias=?';
+                conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, breaks, data.alias], function(err, results) {
+                  if (err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    /*
+                      now update history of this user
+                    */
+                    var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                    var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+                    conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
+                      if (err) {
+                        console.log(err);
+                        cb(new Error('query error'));
+                      }
+                      else {
+                        cb(null, {success: '1'});
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+          else {
+            console.log('ab false');
             var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE) WHERE alias=?';
             conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, parseInt(leftTime), data.alias], function(err, results) {
               if(err) {
@@ -540,35 +604,86 @@ module.exports = {
                 });
               }
             });
+          }
         }
         /* this don't need to set fints => but need to set limit 00:00 AM */
         else if (paymentid === '1' || paymentid === '3' || paymentid === '7' || paymentid === '12' || paymentid === '13' ) {
-          var nextday = moment().tz('Asia/Tokyo').add(1, 'd').format('YYYY-MM-DD').toString();
-          nextday = nextday + " 00:00:00"; /* get nextday 00:00:00 AM */
+          if (accumlateBreak == 'true') {
+            /* do not init ts
+              and update break as CURTIME - PTS min
+            */
+            var sql = 'SELECT DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+            conn.query(sql, [data.alias], function(err, results) {
+              if (err) {
+                console.log(err);
+                cb(new Error('query error'));
+              }
+              else {
+                console.log('ab true');
+                var pts = results[0]['DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s")'];
+                var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                /*
+                  before update rts, let's calculate break min
+                */
+                var ptsDate   = new Date(Date.parse(pts.replace('-','/','g')));
+                var curTsDate = new Date(Date.parse(currentTsStr.replace('-','/','g')));
+                var diff = curTsDate - ptsDate;
+                var breaks = Math.floor((diff/1000)/60);
 
-          var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") WHERE alias=?';
-          conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, nextday, data.alias], function(err, results) {
-            if(err) {
-              console.log(err);
-              cb(new Error("query error"));
-            }
-            else {
-              /*
-                now update history of this user
-              */
-              var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
-              var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
-              conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
-                if (err) {
-                  console.log(err);
-                  cb(new Error('query error'));
-                }
-                else {
-                  cb(null, {success: '1'});
-                }
-              });
-            }
-          });
+                var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, break=break+? WHERE alias=?';
+                conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, breaks, data.alias], function(err, results) {
+                  if (err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    /*
+                      now update history of this user
+                    */
+                    var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                    var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+                    conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
+                      if (err) {
+                        console.log(err);
+                        cb(new Error('query error'));
+                      }
+                      else {
+                        cb(null, {success: '1'});
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+          else {
+            var nextday = moment().tz('Asia/Tokyo').add(1, 'd').format('YYYY-MM-DD').toString();
+            nextday = nextday + " 00:00:00"; /* get nextday 00:00:00 AM */
+
+            var sql = 'UPDATE members SET enterance=?, seat=?, seatnum=?, seat_floor=?, ts=CURRENT_TIMESTAMP, fints=STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") WHERE alias=?';
+            conn.query(sql, ["1", data.seatid, data.seatnum, data.floorid, nextday, data.alias], function(err, results) {
+              if(err) {
+                console.log(err);
+                cb(new Error("query error"));
+              }
+              else {
+                /*
+                  now update history of this user
+                */
+                var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                var sql = 'INSERT INTO history (ts, job, alias, seatnum, membername) VALUES (DATE_FORMAT("'+currentTsStr+'", "%Y-%m-%d %H:%i:%s"), 0, ?, ?, ?)';
+                conn.query(sql, [data.alias, data.seatnum, membername], function(err, results) {
+                  if (err) {
+                    console.log(err);
+                    cb(new Error('query error'));
+                  }
+                  else {
+                    cb(null, {success: '1'});
+                  }
+                });
+              }
+            });
+          }
         }
       }
     },
@@ -662,11 +777,6 @@ module.exports = {
             night = 1; // night is only set 1, when users enter 0 <= hour <= 5
           }
           console.log('leave night: ' + night);
-
-
-          /*
-            when matcing client is exist
-          */
           /*
             then insert history of leave that member
           */
@@ -735,7 +845,11 @@ module.exports = {
                       }
                     });
                   }
-                  /* this is another policy */
+                  /* this is another policy
+                    This include the case
+
+                      that when user enter before day and leave next day.
+                  */
                   else {
                     /*
                       if the use is prepay user, when he/she tries to exit then we should update the milage and left time
@@ -796,7 +910,7 @@ module.exports = {
                       He/She is not prepay payment member
                     */
                     else {
-                      var sql = 'SELECT DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s") FROM members WHERE alias=?';
+                      var sql = 'SELECT DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(rts, "%Y-%m-%d %H:%i:%s"), leftTime FROM members WHERE alias=?';
                       conn.query(sql, [data.lcid], function(err, results) {
                         if (err) {
                           console.log(err);
@@ -807,26 +921,56 @@ module.exports = {
                             if leave time is later than fints, than reduce milage
                           */
                           var resultObj    = results[0];
-                          var oldTsStr     = resultObj['DATE_FORMAT(fints, "%Y-%m-%d %H:%i:%s")'];
+                          var leftTime     = resultObj.leftTime;
+                          var ptsStr = resultObj['DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s")'];
+                          var rtsStr = resultObj['DATE_FORMAT(rts, "%Y-%m-%d %H:%i:%s")'];
+
+                          var oldTsStr2    = resultObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")']
                           var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
                           /*
                             get Date Object from String
                           */
-                          var oldTsDate     = new Date(Date.parse(oldTsStr.replace('-','/','g')));
+                          //var ptsDate = new Date(Date.parse(ptsStr.replace('-','/','g')));
+                          //var rtsDate = new Date(Date.parse(rtsStr.replace('-','/','g')));
+                          //var oldTsDate     = new Date(Date.parse(oldTsStr.replace('-','/','g')));
+                          var oldTsDate2    = new Date(Date.parse(oldTsStr2.replace('-','/','g')));
                           var curTsDate     = new Date(Date.parse(currentTsStr.replace('-','/','g')));
-                          var diff = curTsDate - oldTsDate;
+                          var diff = curTsDate - oldTsDate2;
                           /*
                             FINALLY get the difference of minutes
                           */
                           var fee = 0;
                           if(diff > 0) {
+                            var diffMin;
+                            var curHour = moment().tz('Asia/Tokyo').hours(); // 0~23
+
                             var minutes = Math.floor((diff/1000)/60) - breaks;
-                            var hour = parseInt(minutes / 60);
-                            var over = minutes % 60;
-                            if (over > 10) {
-                              hour = hour + 1;
+
+                            if ((minutes > leftTime) && (memInfo.payment === "2" || memInfo.payment === "4" || memInfo.payment === "5" || memInfo.payment === "6" || memInfo.payment === "8"
+                                || memInfo.payment === "9" || memInfo.payment === "10" || memInfo.payment === "11")) {
+                                  /* the case when used minutes is larger than leftTime, then fee is diff between them*/
+                              diffMin = minutes - leftTime;
+                              var hour = parseInt(diffMin / 60);
+                              var over = diffMin % 60;
+                              if (over > 10) {
+                                hour = hour + 1;
+                              }
+                              fee = hour * 800;
                             }
-                            fee = hour * 800;
+                            else if (curHour >= 0 && curHour <=5) { /* then case when used minutes is not over leftTime but leaving time is next day fee is diff between curtime and 12:00 PM*/
+                              var nextday = moment().tz('Asia/Tokyo').format('YYYY-MM-DD').toString();
+                              var current = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+                              nextday = nextday + " 00:00:00"; /* get nextday 00:00:00 AM */
+                              var nextdayDate     = new Date(Date.parse(nextday.replace('-','/','g')));
+                              var currentDate     = new Date(Date.parse(current.replace('-','/','g')));
+                              diffMin = currentDate - nextdayDate;
+                              var over = diffMin % 60;
+                              if (over > 10) {
+                                hour = hour + 1;
+                              }
+                              fee = hour * 800;
+                            }
+                            /* else fee = 0*/
                           }
 
                           var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, milage=milage-?, fints=NULL, pause="0", break=0 WHERE alias=? AND password=?';
@@ -1009,7 +1153,6 @@ module.exports = {
                   Now trying to pause
                 */
                 if (isPause === "0") {
-                  console.log('hello');
                   // curent time
                   var currentTsStr = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
 
@@ -1187,7 +1330,7 @@ module.exports = {
 
             var minutes = Math.floor((diff/1000)/60);
 
-            if (minutes > 60) {
+            if (minutes > 1) {
               uptList.push(obj.alias);
               pauseStartDate.push(tsObj);
             }
@@ -1207,7 +1350,7 @@ module.exports = {
               }
               else {
                 /* If we finished changing pause mask then upt member status */
-                var sql = 'SELECT alias, payment, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s") FROM members WHERE '+mem;
+                var sql = 'SELECT alias, payment, DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s"), break FROM members WHERE '+mem;
                 conn.query(sql, function(err, results) {
                   if (err) {
                     return cb(new Error('query error'));
@@ -1217,6 +1360,7 @@ module.exports = {
                       var obj     = results[i];
                       var alias   = obj.alias;
                       var payment = obj.payment;
+                      var breaks  = obj.break;
 
                       if (payment === "0") { // in the case of prepay we should reduce milage
                         /*
@@ -1227,7 +1371,7 @@ module.exports = {
                         var tsDate  = new Date(Date.parse(tsStr.replace('-','/','g')));
                         var diff    = pauseStartDate[i] - tsDate;
 
-                        var minutes = Math.floor((diff/1000)/60);
+                        var minutes = Math.floor((diff/1000)/60) - breaks;
                         var hour = minutes / 60;
                         var over  = minutes % 60;
                         var fee = 0;
@@ -1239,7 +1383,7 @@ module.exports = {
                           this member status is changed as left
                           But break keep its value for final
                         */
-                        var sql = 'UPDATE members SET milage=milage-?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=?';
+                        var sql = 'UPDATE members SET milage=milage-?, enterance="0", seat="0", seatnum="0", seat_floor=NULL, pause="0" WHERE alias=?';
                         conn.query(sql, [fee, alias], function(err, results) {
                           if (err) {
                             return cb(new Error('query error'));
@@ -1250,7 +1394,7 @@ module.exports = {
                         });
                       }
                       else {
-                        var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, ts=NULL, fints=NULL, pause="0" WHERE alias=?';
+                        var sql = 'UPDATE members SET enterance="0", seat="0", seatnum="0", seat_floor=NULL, pause="0" WHERE alias=?';
                         conn.query(sql, [alias], function(err, results) {
                           if (err) {
                             console.log('err');
@@ -1267,6 +1411,111 @@ module.exports = {
               }
             });
           }
+        }
+      });
+    },
+
+    checkPauseLeave: function(cb) {
+      var sql = 'SELECT membername, alias, payment FROM members WHERE ts IS NOT NULL AND enterance="0" AND pause="0"';
+      conn.query(sql, function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          console.log(results);
+          cb(null, {err: "0", results: results});
+        }
+      });
+    },
+
+    PauseLeave: function(data, cb) {
+      var membername, alias;
+      membername = data.membername;
+      alias = data.alias;
+
+      var sql = 'SELECT payment, DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s"), DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s"), break, leftTime FROM members WHERE alias=?';
+      conn.query(sql, [alias], function(err, results) {
+        if (err) {
+          console.log(err);
+          cb(new Error('query error'));
+        }
+        else {
+          var resObj = results[0];
+          var payment = resObj.payment;
+          var breaks  = resObj.break;
+          var leftTime= resObj.leftTime;
+          var pts     = resObj['DATE_FORMAT(pts, "%Y-%m-%d %H:%i:%s")'];
+          var ts      = resObj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i:%s")'];
+          var current = moment().tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm:ss').toString();
+          var current2= moment().tz('Asia/Tokyo').format('YYYY-MM-DD').toString(); current2 += " 00:00:00";
+
+          var ptsDate = new Date(Date.parse(pts.replace('-','/','g')));
+          var tsDate  = new Date(Date.parse(ts.replace('-','/','g')));
+          var curDate = new Date(Date.parse(current.replace('-','/','g')));
+          var curDate2= new Date(Date.parse(current2.replace('-','/','g')));
+
+          if (payment === "0") {
+            var diff = ptsDate - tsDate;
+            var minutes = Math.floor((diff/1000)/60) - breaks;
+
+            var hour = parseInt(minutes / 60);
+            var over = minutes % 60;
+            if (over > 10) {
+              hour = hour + 1;
+            }
+            fee = hour * 800;
+          }
+          else if (payment === "2" || payment === "4" || payment === "5" || payment === "6" || payment === "8" || payment === "9" || payment === "10" || payment === "11") {
+            var fee = 0;
+            var diff = ptsDate - tsDate;
+            var minutes = Math.floor((diff/1000)/60) - breaks;
+            var ptsHour = moment(pts).hours();
+
+            if (minutes > leftTime) {
+              var overHour = parseInt((minutes - leftTime) / 60);
+              var overOver = (minutes - leftTime) % 60;
+              if (overOver > 10) {
+                  overHour++;
+              }
+              fee = overHour * 800;
+            }
+            else if (ptsHour >=0 && ptsHour <= 5) {
+              var diff = ptsDate - curDate2;
+              var minutes = Math.floor((diff/1000)/60);
+              var hour = parseInt(minutes / 60);
+              var over = minutes % 60;
+              if (over > 10) {
+                hour++;
+              }
+              fee = hour * 800;
+            }
+          }
+          else {
+            var fee = 0;
+            var ptsHour = moment(pts).hours();
+            if (ptsHour >=0 && ptsHour <= 5) {
+              var diff = ptsDate - curDate2;
+              var minutes = Math.floor((diff/1000)/60);
+              var hour = parseInt(minutes / 60);
+              var over = minutes % 60;
+              if (over > 10) {
+                hour++;
+              }
+              fee = hour * 800;
+            }
+          }
+
+          var sql = 'UPDATE members SET milage=milage-?, ts=NULL, fints=NULL WHERE alias=?';
+          conn.query(sql, [fee, data.alias], function(err, results) {
+            if (err) {
+              console.log(err);
+              cb(new Error('query error'));
+            }
+            else {
+              cb(null, {err: "0"});
+            }
+          });
         }
       });
     },

@@ -901,45 +901,62 @@ html
         #page-wrapper
           #page-inner
             .row
-              .col-md-6(style='padding-left:30px; padding-right:30px')
-                .row
-                  .col-md-12
-                    h1.page-head-line 도구 모음
-                .row
-                  .col-md-6
+              .col-md-12(style='padding-left:30px; padding-right:30px')
+                .row(style='margin-bottom: 50px;')
+                  .col-md-6.col-md-offset-3
+                    h1.page-head-line(style='font-size:15px;') 도구 모음
+                .row(style='margin-bottom: 50px;')
+                  .col-md-2.col-md-offset-1
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#all-members.a-cursor-pointer
                         i.fa.fa-bolt.fa-5x
-                        h5 !{renderSrc.numOfMem} 명이 등록하였습니다.
-                  .col-md-6
+                        h5(style='font-size:12px;') !{renderSrc.numOfMem} 명이 등록하였습니다.
+                  .col-md-2
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#active-members
                         i.fa.fa-plug.fa-5x
-                        h5 !{renderSrc.numOfActiveMem} 명이 이용 중입니다.
-                .row  
-                  .col-md-12
+                        h5(style='font-size:12px;') !{renderSrc.numOfActiveMem} 명이 이용 중입니다.
+                  .col-md-2
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#reserve-studyroom.a-cursor-pointer
                         i.fa.fa-check-square-o.fa-5x
-                        h5 스터디룸 예약
-                
-                .row
-                  .col-md-6
+                        h5(style='font-size:12px;') 스터디룸 예약
+                  .col-md-2
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#holdoff.a-cursor-pointer
                         i.fa.fa-pause.fa-5x
-                        h5 사용보류
-                  .col-md-6
+                        h5(style='font-size:12px;') 사용보류
+                  .col-md-2
                     .main-box.mb-dull(style='margin-right:20px; margin-left:20px')
                       a#history.a-cursor-pointer
                         i.fa.fa-history.fa-5x
-                        h5 사용기록
-              .col-md-6(style='padding-left:30px; padding-right:30px')
+                        h5(style='font-size:12px;') 사용기록
+            //- .row            
+            //-   .col-md-12(style='padding-left:30px; padding-right:30px')
+            //-     .row(style='margin-bottom: 50px;')
+            //-       .col-md-6.col-md-offset-3
+            //-         h1.page-head-line(style='font-size:15px;') 퇴실 필요 회원들 
+            //-     .row
+            //-       .col-md-6.col-md-offset-3
+            //-         .scroll-table(style='margin-right:40px; margin-left:40px; height: 40%')
+            //-           .table-responsive-vertical.shadow-z-1
+            //-             //- Table starts here
+            //-             table#table.table.table-hover.table-bordered.table-mc-light-blue.tablesorter
+            //-               thead
+            //-                 tr
+            //-                   th ID
+            //-                   th 좌석번호
+            //-                   th 잔여시간 (분)
+            //-                   th 
+            //-               tbody#alert-member-table-body
+            .row
+              .col-md-12(style='padding-left:30px; padding-right:30px')
+                .row(style='margin-bottom: 50px;')
+                  .col-md-6.col-md-offset-3
+                    h1.page-head-line(style='font-size:15px;') 일시정지 시간초과로 자리비움 처리된 회원들
+                    h1.page-subhead-line 마감 때 이 목록에 남아있는 회원들은 버튼을 이용하여 퇴실처리 해야합니다. 운영 중엔 퇴실버튼을 누르지 마세요!
                 .row
-                  .col-md-12
-                    h1.page-head-line 퇴실 필요 회원들 
-                .row
-                  .col-md-12
+                  .col-md-6.col-md-offset-3
                     .scroll-table(style='margin-right:40px; margin-left:40px; height: 40%')
                       .table-responsive-vertical.shadow-z-1
                         //- Table starts here
@@ -948,17 +965,16 @@ html
                             tr
                               th ID
                               th 좌석번호
-                              th 잔여시간 (분)
                               th 
-                          tbody#alert-member-table-body
+                          tbody#pauseleave-member-table-body
       //- This is for rendering client page
-      form#to-client-page(action='/clients/index' method='post')
+      form#to-client-page(action='/clients/index' method='post' style='margin-top:500px;')
       #wrapper
         #page-wrapper
           #page-inner
-            .row
-              .col-md-12
-                h1.page-head-line(style='text-align:center') 좌석 현황
+            .row(style='margin-bottom: 50px;')
+              .col-md-6.col-md-offset-3
+                h1.page-head-line(style='text-align:center; font-size:15px;') 좌석 현황
                 h1.page-subhead-line(style='text-align:center;') 새로고침을 누른 후 좌석이동을 해주세요. <br><br>좌석에 마우스를 올려 놓으면 회원 이름을 확인 할 수 있습니다.
             .row
               .row
@@ -1208,117 +1224,10 @@ html
         });
         $('#member-enterleave-datetimepicker-end').data("DateTimePicker");
         
-        /*
-          history
-        */
-        $('#history').click(function(event) {
-          
-          $.ajax({
-            url: '/system/history',
-            method: 'post'
-          }).done(function(results) {
-            for (var i = 0; i < results.length; i++) {
-              var obj = results[i];
-              $('#history-table-body').append(
-                '<tr name="history-'+i+'">'+
-                ' <td data-title="ID">'+ obj['DATE_FORMAT(ts, "%Y-%m-%d %H:%i")'] +'</td>' +
-                ' <td data-title="alias">'+ obj.alias +'</td>' +
-                ' <td data-title="membername">'+ obj.membername +'</td>' +
-                ' <td data-title="seatnum">'+ obj.seatnum +'</td>' +
-                ' <td data-title="do">'+ obj.do +'</td>' +
-                '</tr>'
-              );
-              if (obj.job == 0) {
-                $('tr[name="history-'+i+'"]').css('background-color', '#baffc9');
-              }
-              else if(obj.job == 1) {
-                $('tr[name="history-'+i+'"]').css('background-color', '#ffffba');
-              }
-              else if(obj.job == 2) {
-                $('tr[name="history-'+i+'"]').css('background-color', '#bae1ff');
-              }
-              else if(obj.job == 3) {
-                $('tr[name="history-'+i+'"]').css('background-color', '#ffb3ba');
-              }
-            }
-            $('#history-modal').css("display", "block");
-          });
-        });
         
         
         
-        
-        /*
-          Holdoff
-        */
-        $('a#holdoff').click(function(event) {
-          $('#holdoff-modal').css("display", "block");
-        });
-        $('#holdoff-submit').click(function(event) {
-          event.preventDefault();
-          
-          /*
-            before getting data erase the old content
-          */
-          var container = document.getElementById('holdoff-result');
-          while(container.firstChild) {
-            container.removeChild(container.firstChild);
-          }
-          /* do next job */
-          var alias = $('#holdoff-name').val();
-          
-          if (alias === "") {
-            alert('ID를 입력해주세요.');
-            return false;
-          }
-          
-          $.ajax({
-            url: '/system/holdoff',
-            method: 'post',
-            data: {alias: alias}
-          }).done(function(results) {
-            var json = JSON.parse(results);
-            console.log(json);
-            
-            var holdoff;
-            if (json.stop == 0) {
-              holdoff = "정상 진행중";
-            }
-            else if(json.stop == 1) {
-              holdoff = "보류 상태";
-            }
-            $('#holdoff-hidden-container').css('display', 'block');
-            $('#holdoff-result').append(
-              '<h4> 이름: '+json.membername+'</h4><br>' + 
-              '<h4> 이용 요금제: '+json.payment+'</h4><br>' +
-              '<h4> 잔여 일: '+ json.leftDay +' 일</h4><br>' +
-              '<h4> 잔여 마일리지: '+json.milage+' 포인트</h4><br>' +
-              '<h4> 보류 여부: '+ holdoff +'</h4><br>' +
-              '<input type="hidden" name="holdoff-id" value="'+ json.id +'">' + 
-              '<input type="hidden" name="holdoff-stop" value="'+ json.stop +'">'
-            );
-          });
-        });
-        $('a#holdoff-determine').click(function(event) {
-          var id    = $('input[name="holdoff-id"]').val();
-          var stop  = $('input[name="holdoff-stop"]').val(); 
-          $.ajax({
-            url: '/system/holdoff-determine',
-            method: 'post',
-            data: {
-              id: id,
-              stop: stop
-            }
-          }).done(function(result) {
-            if (result == "1") { /* re-running */
-              alert("이제 보류합니다.");
-            }
-            else if(result == "0") {
-              alert("이제 재시작합니다.");
-            }
-          });
-        });
-        
+      
         /*
           Datepicker Display - studyroom list
         */
@@ -1353,12 +1262,69 @@ html
         //-
         //- Periodically request to server to check whether there is users who almost spend their time
         //-
-        setInterval(periodicRequest, 15* 60 * 1000);
+        //setInterval(periodicRequest, 15* 60 * 1000);
         /*
           Periodically check paused members
         */
-        setInterval(pauseTableChk, 10 * 60 * 1000);
+        setInterval(pauseTableChk, 60 * 1000);
+        /*
+          Periodically check paused leave members
+        */
+        setInterval(pauseLeaveMemberChk, 60 * 1000);
       });
+      function pauseLeaveMemberChk() {
+        console.log('pauseleave');
+        $.ajax({
+          url: '/clients/pauseleave',
+          method: 'post'
+        }).done(function(json) {
+          console.log(json);
+          
+          var pauseleave_member_table_body = document.getElementById('pauseleave-member-table-body');
+          while (pauseleave_member_table_body.firstChild) {
+            pauseleave_member_table_body.removeChild(pauseleave_member_table_body.firstChild);
+          }
+          /* 
+            If there's no element in the table, just add all of them 
+          */
+          //- if ($('#alert-member-table-body').children().children('td[data-title="ID"]').length === 0) { 
+            for (var i = 0; i < json.length; i++) {
+              $('#pauseleave-member-table-body').append(
+                '<tr name="member-'+i+'">'+
+                ' <td data-title="membername">'+ json[i].membername +'</td>' +
+                ' <td data-title="alias">'+ json[i].alias +'</td>' +
+                ' <td date-title="leave"><a class="leave-row" style="cursor:pointer">[퇴실]</a></td>' +
+                '</tr>'
+              );
+              /*
+                all member SELL PRODUCT click event handler
+              */
+              $('#pauseleave-member-table-body tr[name="member-'+i+'"] td a').on('click', function(event) {
+                var $parent = $(this).parent().parent('tr');
+                var alias   = $parent.find('td[data-title="alias"]').text();
+                var name    = $parent.find('td[data-title="membername"]').text();
+                pauseLeave(name, alias, $parent);
+              });
+            }
+        });
+      }
+      
+      function pauseLeave(name, alias, $parent) {
+        $.ajax({
+          url: '/system/pauseleave',
+          method: 'post',
+          data: {
+            membername: name,
+            alias: alias
+          }
+        }).done(function(results) {
+          if (results == 0) {
+            alert('퇴실하였습니다.');
+            $parent.remove();
+          }
+        });
+      }
+      
       function product_finder() {
         var input, filter, table, tr, td, i;
         input = document.getElementById("products-filter");
@@ -1565,3 +1531,5 @@ html
     script(type='text/javascript', src='public/javascripts/userUsageList.js')
     script(type='text/javascript', src='public/javascripts/closeWin.js')  
     script(type='text/javascript', src='public/javascripts/login.js')
+    script(type='text/javascript', src='public/javascripts/history.js')
+    script(type='text/javascript', src='public/javascripts/holdoff.js')

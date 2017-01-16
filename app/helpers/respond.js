@@ -290,7 +290,8 @@ module.exports = {
       paymentid: req.query.pid,
       leftTime: req.query.lt,
       membername: req.query.mn,
-      night: req.query.n
+      night: req.query.n,
+      accumlateBreak: req.query.accumlateBreak
     });
   },
 

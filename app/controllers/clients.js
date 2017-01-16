@@ -19,6 +19,7 @@ var express     = require('express');
 
 
 module.exports.set = function(app, passport) {
+
   /*
     /clients/index (POST)
 
@@ -146,7 +147,7 @@ module.exports.set = function(app, passport) {
   },*/ function(req, res, next) {
     //console.log(req.seatinfo); /* print seat info */
     //respond.client_enter_succ(req, res);
-    res.redirect('/clients/floor?alias='+req.member.alias+'&pid='+req.member.paymentid+'&lt='+req.member.leftTime+'&mn='+req.member.membername+'&n='+req.member.night);
+    res.redirect('/clients/floor?alias='+req.member.alias+'&pid='+req.member.paymentid+'&lt='+req.member.leftTime+'&mn='+req.member.membername+'&n='+req.member.night+'&accumlateBreak='+req.member.accumlateBreak);
   });
 
   /*
@@ -284,6 +285,17 @@ module.exports.set = function(app, passport) {
     member.checkPause(req, res, next);
   }, function(req, res, next) {
     respond.periodic_pause_check(req, res);
+  });
+
+  /*
+    /clients/pauseleave
+  */
+  app.post('/clients/pauseleave', function(req, res, next) {
+    member.checkPauseLeave(req, res, next);
+  }, function(req, res, next) {
+    if (req.results.err === "0") {
+      res.send(req.results.results);
+    }
   });
   /*
     /clients/floor (POST)

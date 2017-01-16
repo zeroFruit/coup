@@ -20,6 +20,14 @@ var moment_tz   = require('moment-timezone');
 
 module.exports.set = function(app, passport) {
   /*
+    /system/pauseleave
+  */
+  app.post('/system/pauseleave', function(req, res, next) {
+    system.pauseleave(req, res, next);
+  }, function(req, res, next) {
+    res.send('0');
+  });
+  /*
     /system/chgadmininfo
   */
   app.post('/system/chgadmininfo', function(req, res, next) {

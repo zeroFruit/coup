@@ -266,6 +266,18 @@ module.exports = {
     });
   },
 
+  checkPauseLeave: function(req, res, next) {
+    db.member.checkPauseLeave(function(err, results) {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+
   protectQS: function(req, res, next) {
     db.member.protectQS(req.query, function(err, result) {
       if (err) {
