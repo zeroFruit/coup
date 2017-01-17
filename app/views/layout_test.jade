@@ -1266,11 +1266,11 @@ html
         /*
           Periodically check paused members
         */
-        setInterval(pauseTableChk, 60 * 1000);
+        setInterval(pauseTableChk, 10* 60 * 1000);
         /*
           Periodically check paused leave members
         */
-        setInterval(pauseLeaveMemberChk, 60 * 1000);
+        setInterval(pauseLeaveMemberChk,10 * 60 * 1000);
       });
       function pauseLeaveMemberChk() {
         console.log('pauseleave');

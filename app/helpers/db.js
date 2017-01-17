@@ -1330,7 +1330,7 @@ module.exports = {
 
             var minutes = Math.floor((diff/1000)/60);
 
-            if (minutes > 1) {
+            if (minutes > 60) {
               uptList.push(obj.alias);
               pauseStartDate.push(tsObj);
             }
