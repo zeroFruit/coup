@@ -2435,6 +2435,7 @@ module.exports = {
         }
         else {
           console.log('this is view studyroom reservation list');
+          console.log(results);
           cb(null, {results: results, err: "0"});
         }
       });
