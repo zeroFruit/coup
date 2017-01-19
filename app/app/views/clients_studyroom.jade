@@ -39,39 +39,39 @@ html
                 h5 돌아가기
         hr
         .row
-          .col-md-2.col-md-offset-3(style='text-align:center')
-            h3 1번 방
+          .col-md-2.col-md-offset-3
             .table-responsive-vertical.shadow-z-1.scroll-table
               //- Table starts here
               table#studyroom-1-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
                   tr
                     th 시간
+                    th 예약 여부
                 //- THIS IS ROOM 1    
                 tbody#reservation-table-body-1
-                              
-          .col-md-2(style='text-align:center')
-            h3 2번 방
+                                  
+          .col-md-2
             .table-responsive-vertical.shadow-z-1.scroll-table
               //- Table starts here
               table#studyroom-2-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
                   tr
                     th 시간
+                    th 예약 여부
                     //- THIS IS ROOM 1    
                 tbody#reservation-table-body-2
-              
-          .col-md-2(style='text-align:center')
-            h3 2번 방
+                  
+          .col-md-2
             .table-responsive-vertical.shadow-z-1.scroll-table
               //- Table starts here
               table#studyroom-2-table.table.table-hover.table-bordered.table-mc-light-blue
                 thead
                   tr
                     th 시간
+                    th 예약 여부
                 //- THIS IS ROOM 1    
                 tbody#reservation-table-body-3
-                
+                   
     form#client-return-submit(action='/clients/return' method='post')
       input(type='hidden' name='return')  
 
@@ -87,54 +87,47 @@ html
       $(document).ready(function() {
         var roomState = '!{roomState}';       
         var json = JSON.parse(roomState);
+        console.log(roomState);
         var room1Reservation = json.room1;
         var room2Reservation = json.room2;
         var room3Reservation = json.room3;
         
-        console.log(json.room1);
-        //console.log(json);
-        /*
-          SHOULD RENDER THE JSON DATA
-        */
-        /*
-          Now we should separate depends on the room number
-        */
-        /* render room 1 column */
-        for (var i = 0; i < room1Reservation.length; i++) {
-          var roomelt = room1Reservation[i];
-          $('tbody#reservation-table-body-1').append(
-            '<tr>' +
-            ' <td>'+ roomelt.start + '시 ~ '+ (roomelt.start+roomelt.duration)+'시</td>' +
-            '</tr>'
-          );
-        }
-        for (var i = 0; i < room2Reservation.length; i++) {
-          var roomelt = room2Reservation[i];
-          $('tbody#reservation-table-body-2').append(
-            '<tr>' +
-            ' <td>'+ roomelt.start + '시 ~ '+ (roomelt.start+roomelt.duration)+'시</td>' +
-            '</tr>'
-          );
-        }
-        for (var i = 0; i < room3Reservation.length; i++) {
-          var roomelt = room3Reservation[i];
-          $('tbody#reservation-table-body-3').append(
-            '<tr>' +
-            ' <td>'+ roomelt.start + '시 ~ '+ (roomelt.start+roomelt.duration)+'시</td>' +
-            '</tr>'
-          );
-        }
-        //- $('tbody#reservation-table-body-1').children('tr').each(function() {
-        //- 
+        
+        //- $('#reservation-table-body-1').children('tr').each(function() {
+        //-   var name = $(this).attr('name');
+        //-   for (var i = 0; i < room1Reservation.length; i++) {
+        //-     var jsonelt = room1Reservation[i];
+        //-     var it = jsonelt.duration * 2; /* because table is separated with 30 min */
+        //-     if (parseFloat(name) === jsonelt.start) {
+        //-       $(this).find('th[name="avail"]').css('background-color', 'gray');
+        //-       /* also for duration, mark with 'reserved' value */
+        //-       var nextTd = $(this).next();
+        //-       for (var i = 1; i < it; i++) {
+        //-         nextTd.find('th[name="avail"]').css('background-color', 'gray');
+        //-         nextTd = nextTd.next();
+        //-       }
+        //-     }
+        //-   }
         //- });
-        //- 
         //- /* render room 2 column */
-        //- $('tbody#reservation-table-body-2').children('tr').each(function() {
-        //- 
+        //- $('#reservation-table-body-2').children('tr').each(function() {
+        //-   var name = $(this).attr('name');
+        //-   for (var i = 0; i < room2Reservation.length; i++) {
+        //-     var jsonelt = room2Reservation[i];
+        //-     var it = jsonelt.duration * 2; /* because table is separated with 30 min */
+        //-     if (parseFloat(name) === jsonelt.start) {
+        //-       $(this).find('th[name="avail"]').css('background-color', 'gray');
+        //-       /* also for duration, mark with 'reserved' value */
+        //-       var nextTd = $(this).next();
+        //-       for (var i = 1; i < it; i++) {
+        //-         nextTd.find('th[name="avail"]').css('background-color', 'gray');
+        //-         nextTd = nextTd.next();
+        //-       }
+        //-     }
+        //-   }
         //- });
-        //- 
         //- /* render room 3 column */
-        //- $('tbody#reservation-table-body-3').children('tr').each(function() {
+        //- $('#reservation-table-body-3').children('tr').each(function() {
         //-   var name = $(this).attr('name');
         //-   for (var i = 0; i < room3Reservation.length; i++) {
         //-     var jsonelt = room3Reservation[i];
@@ -150,7 +143,6 @@ html
         //-     }
         //-   }
         //- });
-        
         /*
           client want to return to index
         */
@@ -158,5 +150,6 @@ html
           $('input[name="return"]').val('1');
           $('#client-return-submit').submit();
         });
+        
       });
     

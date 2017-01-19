@@ -963,8 +963,9 @@ module.exports = {
                               nextday = nextday + " 00:00:00"; /* get nextday 00:00:00 AM */
                               var nextdayDate     = new Date(Date.parse(nextday.replace('-','/','g')));
                               var currentDate     = new Date(Date.parse(current.replace('-','/','g')));
-                              diffMin = currentDate - nextdayDate;
+                              diffMin = (currentDate - nextdayDate)/60000;
                               var over = diffMin % 60;
+                              var hour = parseInt(diffMin / 60);
                               if (over > 10) {
                                 hour = hour + 1;
                               }
@@ -2427,7 +2428,7 @@ module.exports = {
       var dateStart = moment().tz('Asia/Tokyo').format('YYYY-MM-DD').toString() + " 00:00:00";
       var dateEnd   = moment().tz('Asia/Tokyo').format('YYYY-MM-DD').toString() + " 23:59:59";
 
-      var sql = 'SELECT * FROM studyroom WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
+      var sql = 'SELECT duration, start, room FROM studyroom WHERE ts BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")';
       conn.query(sql, [dateStart, dateEnd], function(err, results) {
         if (err) {
           console.log(err);
