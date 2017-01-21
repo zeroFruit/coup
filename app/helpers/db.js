@@ -963,7 +963,7 @@ module.exports = {
                               nextday = nextday + " 00:00:00"; /* get nextday 00:00:00 AM */
                               var nextdayDate     = new Date(Date.parse(nextday.replace('-','/','g')));
                               var currentDate     = new Date(Date.parse(current.replace('-','/','g')));
-                              diffMin = (currentDate - nextdayDate)/60000;
+                              diffMin = Math.floor((currentDate - nextdayDate)/60000);
                               var over = diffMin % 60;
                               var hour = parseInt(diffMin / 60);
                               if (over > 10) {
