@@ -680,7 +680,7 @@ module.exports = {
       console.log('data', data);
       var {scid, scpwd} = data;
 
-      var sql = 'SELECT seat, seatnum, seat_floor, alias FROM members WHERE alias=? AND password=?';
+      var sql = 'SELECT seat, seatnum, seat_floor, alias, enterance FROM members WHERE alias=? AND password=?';
       conn.query(sql, [scid, scpwd], (err, results) => {
         if (err) {
           console.log(err);
@@ -689,6 +689,9 @@ module.exports = {
         else {
           if(results === null || results.length === 0) {
             cb(null, {err: 1});
+          }
+          else if(results[0].enterance === '0') {
+            cb(null, {err: 2});
           }
           else {
             console.log(results);
@@ -746,7 +749,7 @@ module.exports = {
           console.log(err);
           cb(new Error('query error'));
         }
-        if (memInfo.length === 0) {
+        if (results === null || memInfo.length === 0) {
           /* It means there's no matching member */
           return cb(null, {err: "1"});
         }

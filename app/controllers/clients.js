@@ -112,6 +112,9 @@ module.exports.set = function(app, passport) {
     if(req.results.err === 1) {
       respond.unregistered_member(req, res);
     }
+    else if(req.results.err === 2) {
+      respond.even_not_entered(req, res);
+    }
     else if (req.results.err === 0){
       res.redirect('/clients/seat_change?seatnum='+req.results.results.seatnum+'&seatid='+req.results.results.seat+'&floor='+req.results.results.seat_floor+'&alias='+req.results.results.alias);
     }
