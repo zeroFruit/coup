@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "forever start -o out.log -e err.log ./bin/www",
-    "restart": "forever restart -o out.log -e err.log ./bin/www"
+    "start": "forever start -o out.log -e err.log -c ./node_modules/babel-cli/bin/babel-node.js ./bin/www",
+    "restart": "forever restart -o out.log -e err.log -c ./node_modules/babel-cli/bin/babel-node.js ./bin/www",
+    "watch": "supervisor -- -r 'babel-register' ./bin/www"
   },
   "dependencies": {
     "async": "^2.1.4",
@@ -29,5 +30,15 @@
     "serve-favicon": "~2.3.0",
     "string-format": "^0.5.0",
     "sync": "^0.2.5"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.22.2",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-es2017": "^6.22.0",
+    "babel-register": "^6.22.0",
+    "expect": "^1.20.2",
+    "mocha": "^3.2.0",
+    "nodemon": "^1.11.0",
+    "supertest": "^2.0.1"
   }
 }

@@ -58,6 +58,9 @@ html
     form#client-pause-submit(action='/clients/pause/auth' method='post')
       input(type='hidden' name='pcid')
       input(type='hidden' name='pcpwd')
+    form#client-seat-change-submit(action='/clients/seat_change/auth' method='post')
+      input(type='hidden' name='scid')
+      input(type='hidden' name='scpwd')
     form#client-return-submit(action='/clients/return' method='post')
       input(type='hidden' name='return')
     //- JQUERY SCRIPTS
@@ -72,6 +75,8 @@ html
         var doEnter = '!{enter}';
         var doLeave = '!{leave}';
         var doPause = '!{pause}';
+        var doSeatChange = '!{seatChange}';
+        
         /* User trying to submit the login data */
         $('#client-submit').click(function(e) {
           $id   = $('#client-id');
@@ -105,6 +110,11 @@ html
             $('input[name="pcid"]').val($id.val());
             $('input[name="pcpwd"]').val($pwd.val());
             $('#client-pause-submit').submit();
+          }
+          else if (doSeatChange === "1") {
+            $('input[name="scid"]').val($id.val());
+            $('input[name="scpwd"]').val($pwd.val());
+            $('#client-seat-change-submit').submit();
           }
         });
         

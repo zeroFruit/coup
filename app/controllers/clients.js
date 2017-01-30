@@ -20,6 +20,11 @@ var express     = require('express');
 
 module.exports.set = function(app, passport) {
 
+  app.post('/clients/seat_change', (req, res, next) => {
+    console.log('/clients/seat_change');
+    res.render('clients_login', {enter: "0", leave: "0", pause: "0", seatChange: "1"});
+  });
+
   /*
     /clients/index (POST)
 
@@ -47,21 +52,21 @@ module.exports.set = function(app, passport) {
     /clients/enter (POST)
   */
   app.post('/clients/enter', function(req, res, next) {
-    res.render('clients_login', {enter: "1", leave: "0", pause: "0"});
+    res.render('clients_login', {enter: "1", leave: "0", pause: "0", seatChange: "1"});
   });
 
   /*
     /clients/leave (POST)
   */
   app.post('/clients/leave', function(req, res, next) {
-    res.render('clients_login', {enter: "0", leave: "1", pause: "0"});
+    res.render('clients_login', {enter: "0", leave: "1", pause: "0", seatChange: "1"});
   });
 
   /*
     /clients/pause (POST)
   */
   app.post('/clients/pause', function(req, res, next) {
-    res.render('clients_login', {enter: "0", leave: "0", pause: "1"});
+    res.render('clients_login', {enter: "0", leave: "0", pause: "1", seatChange: "1"});
   });
 
   /*
@@ -101,6 +106,42 @@ module.exports.set = function(app, passport) {
     res.status(200).render('clients_index');
   });
 
+  app.post('/clients/seat_change/auth', (req, res, next) => {
+    member.client_seatChange_auth(req, res, next);
+  }, (req, res, next) => {
+    if(req.results.err === 1) {
+      respond.unregistered_member(req, res);
+    }
+    else if (req.results.err === 0){
+      res.redirect('/clients/seat_change?seatnum='+req.results.results.seatnum+'&seatid='+req.results.results.seat+'&floor='+req.results.results.seat_floor+'&alias='+req.results.results.alias);
+    }
+  });
+
+  app.get('/clients/seat_change', (req, res, next) => {
+    var {seatnum, seatid, floor, alias} = req.query;
+
+    if(seatnum === undefined || seatid === undefined || floor === undefined || alias === undefined) {
+      return res.send('bad request');
+    }
+
+    member.getSeatInfo(req, res, next);
+  }, (req, res, next) => {
+    var {seatnum, seatid, floor, alias} = req.query;
+    var json = JSON.stringify(req.seatinfo);
+
+    res.render('client_seatchange', {
+      seatinfo: json,
+      seatnum, seatid, floor, alias
+    })
+  });
+
+  app.post('/clients/seat_change_succ', (req, res, next) => {
+    member.client_seatChange(req, res, next);
+  }, (req, res, next) => {
+    if (req.results.err === 0) {
+      res.render('clients_index', {client_seatchange_succ: "1"});
+    }
+  });
   /*
     /clients/enter/auth (POST)
 

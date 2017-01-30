@@ -34,7 +34,7 @@ html
             h1.page-head-line 독서실 사용자 페이지입니다.
             h1.page-subhead-line
         .row(style='margin-top:80px')
-          .col-md-2.col-md-offset-1
+          .col-md-2.col-md-offset-3
             .main-box.mb-dull
               a#enter
                 i.fa.fa-bolt.fa-5x
@@ -49,7 +49,8 @@ html
               a#leave
                 i.fa.fa-plug.fa-5x
                 h5 퇴실
-          .col-md-2
+        .row        
+          .col-md-2.col-md-offset-3
             .main-box.mb-dull
               a#study-room.a-cursor-pointer
                 i.fa.fa-check-circle-o.fa-5x
@@ -59,6 +60,11 @@ html
               a#room-status.a-cursor-pointer
                 i.fa.fa-users.fa-5x(aria-hidden='true')
                 h5 좌석현황
+          .col-md-2
+            .main-box.mb-dull
+              a#seat-change
+                i.fa.fa-retweet.fa-5x
+                h5 좌석변경
         form#enterance-form(action='/clients/enter' method='post')
           input(type='hidden' name='enter')
         form#exit-form(action='/clients/leave' method='post')
@@ -69,6 +75,9 @@ html
           input(type='hidden' name='studyroom')
         form#seatstate-form(action='/clients/seatstate' method='get')
           input(type='hidden' name='seatstate')
+        form#seat-change-form(action='/clients/seat_change' method='post')
+          input(type='hidden' name='seat-change-input')
+        
         //- TOAST MESSAGE
         #password-err-snackbar
           | 비밀번호가 잘못되었습니다.
@@ -94,8 +103,8 @@ html
           | 보류회원은 먼저 보류상태를 풀어야 합니다.
         #prepay-lack-milage-err-snackbar
           | 선불제 회원: 마일리지가 부족합니다.
-        
-          
+        #client-seatchange-succ-snackbar
+          | 좌석을 변경하였습니다.
     //- JQUERY SCRIPTS
     script(src='public/javascripts/temp/jquery-1.10.2.js')
     //- BOOTSTRAP SCRIPTS
@@ -114,7 +123,7 @@ html
       var client_leave_succ         = '!{client_leave_succ}';
       var stop_member_err           = '!{stop_member_err}';
       var prepay_lack_milage_err    = '!{lack_milage_err}';
-      
+      var seatchange_succ           = '!{client_seatchange_succ}';
       var fee                       = '!{fee}';
       
       window.onload = function() {
@@ -158,6 +167,9 @@ html
         else if(prepay_lack_milage_err === "1") {
           show_snackbar('prepay-lack-milage-err-snackbar'); return false;
         }
+        else if(seatchange_succ === "1") {
+          show_snackbar('client-seatchange-succ-snackbar'); return false;
+        }
       }
       //- SNACKBAR
       function show_snackbar(id) {
@@ -196,6 +208,11 @@ html
         $('#room-status').click(function() {
           $('input[name="seatstate"]').val("1");
           $('#seatstate-form').submit();
+        });
+        
+        $('#seat-change').click(function() {
+          $('input[name="seat-change-input"]').val("1");
+          $('#seat-change-form').submit();
         });
       });
       /* block go back ward */

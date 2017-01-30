@@ -39,7 +39,8 @@
 #leave-succ-snackbar,
 #stop-member-err-snackbar,
 #prepay-lack-milage-err-snackbar,
-#already-reigster-err-snackbar
+#already-reigster-err-snackbar,
+#client-seatchange-succ-snackbar
 {
   visibility: hidden;
   min-width: 250px;
@@ -72,7 +73,8 @@
 #leave-succ-snackbar.show,
 #stop-member-err-snackbar.show,
 #prepay-lack-milage-err-snackbar.show,
-#already-reigster-err-snackbar.show
+#already-reigster-err-snackbar.show,
+#client-seatchange-succ-snackbar.show
 {
     visibility: visible;
     -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;

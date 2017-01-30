@@ -1,2 +1,7 @@
-*.out
-*.log
+app/*.out
+app/err.log
+app/out.log
+app/db/
+app/bower_components
+node_modules/
+app/node_modules/

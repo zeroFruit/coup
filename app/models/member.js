@@ -153,6 +153,29 @@ module.exports = {
     });
   },
 
+  client_seatChange_auth: (req, res, next) => {
+    db.member.client_seatChange_auth(req.body, (err, results) => {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
+
+  client_seatChange: (req, res, next) => {
+    db.member.client_seatChange(req.body, (err, results) => {
+      if (err) {
+        return next(err);
+      }
+      else {
+        req.results = results;
+        next();
+      }
+    });
+  },
   /*
     seatChange
   */
